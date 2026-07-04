@@ -732,6 +732,18 @@ function Hero() {
           0%, 100% { transform: translate3d(0, 0, 0); }
           50%      { transform: translate3d(16px, -14px, 0); }
         }
+        @keyframes orbit-ring {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes float-y {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50%      { transform: translate3d(0, -10px, 0); }
+        }
+        @keyframes float-y-slow {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50%      { transform: translate3d(0, -16px, 0); }
+        }
         @keyframes spin-drift {
           0%, 100% { rotate: 0deg; }
           50%      { rotate: 3deg; }
