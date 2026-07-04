@@ -657,11 +657,10 @@ function FeatureStrip() {
   const { ref, p } = useScrollProgress<HTMLDivElement>();
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
-  // Map progress across 6 steps
   const steps = journey.length;
   const raw = p * steps;
   const active = Math.min(steps - 1, Math.max(0, Math.floor(raw)));
-  const local = Math.min(1, Math.max(0, raw - active)); // 0..1 within current step
+  const local = Math.min(1, Math.max(0, raw - active));
 
   const current = journey[active];
   const next = journey[Math.min(steps - 1, active + 1)];
@@ -685,26 +684,63 @@ function FeatureStrip() {
         onMouseMove={onMove}
         onMouseLeave={() => setMouse({ x: 0, y: 0 })}
       >
-        {/* ambient backdrop */}
+        {/* ===== ambient layers ===== */}
+        {/* subtle grid */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          className="pointer-events-none absolute inset-0 opacity-[0.28]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, oklch(0.55 0.008 70 / 0.06) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.55 0.008 70 / 0.06) 1px, transparent 1px)",
+              "linear-gradient(to right, oklch(0.55 0.008 70 / 0.07) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.55 0.008 70 / 0.07) 1px, transparent 1px)",
             backgroundSize: "72px 72px",
-            maskImage: "radial-gradient(ellipse at center, black 35%, transparent 78%)",
+            maskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
+          }}
+        />
+        {/* aurora blobs */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-56 -left-40 h-[720px] w-[820px] rounded-full opacity-70 anim-float-slow"
+          style={{
+            background:
+              "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.18), transparent 70%)",
+            transform: `translate(${mouse.x * -40}px, ${mouse.y * -30}px)`,
+            transition: "transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
           }}
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-40 right-0 h-[640px] w-[900px] rounded-full opacity-70 transition-transform duration-1000"
+          className="pointer-events-none absolute -bottom-56 right-[-10%] h-[720px] w-[820px] rounded-full opacity-60 anim-float"
           style={{
             background:
-              "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.14), transparent 70%)",
-            transform: `translate(${mouse.x * 30}px, ${mouse.y * 30}px)`,
+              "radial-gradient(closest-side, oklch(0.72 0.12 60 / 0.18), transparent 70%)",
+            transform: `translate(${mouse.x * 40}px, ${mouse.y * 30}px)`,
+            transition: "transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
           }}
         />
+        {/* cursor spotlight */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-90 mix-blend-overlay"
+          style={{
+            background: `radial-gradient(600px circle at ${(mouse.x + 0.5) * 100}% ${(mouse.y + 0.5) * 100}%, oklch(0.99 0.02 70 / 0.35), transparent 60%)`,
+          }}
+        />
+        {/* diagonal light sweep tied to step progress */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+        >
+          <div
+            className="absolute -inset-y-20 w-[40vw] blur-2xl opacity-40"
+            style={{
+              left: `${-30 + (active + local) * 22}%`,
+              background:
+                "linear-gradient(100deg, transparent 20%, oklch(0.68 0.17 45 / 0.35) 50%, transparent 80%)",
+              transition: "left 900ms cubic-bezier(0.2,0.8,0.2,1)",
+              transform: "rotate(8deg)",
+            }}
+          />
+        </div>
 
         {/* giant background numeral */}
         <div
@@ -714,8 +750,12 @@ function FeatureStrip() {
           <div className="relative w-full max-w-[1400px] mx-auto px-6 md:px-10">
             <div
               key={active}
-              className="absolute right-[42%] top-1/2 -translate-y-1/2 text-[38vw] md:text-[26vw] leading-none font-semibold text-ink/[0.035] tabular-nums transition-opacity duration-700"
-              style={{ letterSpacing: "-0.06em" }}
+              className="absolute right-[42%] top-1/2 -translate-y-1/2 text-[38vw] md:text-[26vw] leading-none font-semibold text-ink/[0.045] tabular-nums anim-reveal"
+              style={{
+                letterSpacing: "-0.06em",
+                transform: `translate(-50%, calc(-50% + ${mouse.y * 20}px)) translateX(${mouse.x * 30}px)`,
+                transition: "transform 800ms cubic-bezier(0.2,0.8,0.2,1)",
+              }}
             >
               0{active + 1}
             </div>
@@ -731,38 +771,51 @@ function FeatureStrip() {
               <span className="text-[11px] font-medium text-ink-muted tabular-nums">
                 0{active + 1} <span className="text-ink-muted/50">/ 06</span>
               </span>
+              <span className="ml-2 inline-flex items-center gap-1.5 rounded-full border border-line bg-background/70 backdrop-blur px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-ink-muted">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-60 animate-ping" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                </span>
+                Live
+              </span>
+            </div>
+
+            {/* rotating icon halo */}
+            <div className="mb-6 flex items-center gap-3">
+              <span className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-background">
+                <span
+                  aria-hidden
+                  className="absolute inset-[-6px] rounded-full border border-dashed border-accent/40 anim-spin-slow"
+                />
+                <current.icon size={16} strokeWidth={1.6} />
+              </span>
+              <span className="text-[11px] uppercase tracking-[0.25em] text-ink-muted">
+                {current.tag}
+              </span>
             </div>
 
             {/* rotating title stack */}
-            <div className="relative h-[220px] md:h-[280px]">
+            <div className="relative h-[180px] md:h-[240px]">
               {journey.map((s, i) => {
                 const dist = i - active - local;
                 const opacity = Math.max(0, 1 - Math.abs(dist) * 1.6);
-                const ty = dist * 40;
+                const ty = dist * 46;
+                const blur = Math.min(6, Math.abs(dist) * 6);
                 return (
-                  <div
+                  <h2
                     key={s.title}
                     aria-hidden={i !== active}
-                    className="absolute inset-0"
+                    className="absolute inset-0 display text-4xl md:text-6xl leading-[0.98] tracking-tight text-balance"
                     style={{
                       opacity,
                       transform: `translateY(${ty}px)`,
-                      transition: "opacity 500ms ease, transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
-                      pointerEvents: i === active ? "auto" : "none",
+                      filter: `blur(${blur}px)`,
+                      transition:
+                        "opacity 500ms ease, transform 700ms cubic-bezier(0.2,0.8,0.2,1), filter 500ms ease",
                     }}
                   >
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line bg-background">
-                        <s.icon size={14} strokeWidth={1.6} />
-                      </span>
-                      <span className="text-[11px] uppercase tracking-[0.2em] text-ink-muted">
-                        {s.tag}
-                      </span>
-                    </div>
-                    <h2 className="display text-4xl md:text-6xl leading-[0.98] tracking-tight text-balance">
-                      {s.title}
-                    </h2>
-                  </div>
+                    {s.title}
+                  </h2>
                 );
               })}
             </div>
@@ -776,7 +829,8 @@ function FeatureStrip() {
                   style={{
                     opacity: i === active ? 1 - local * 0.4 : 0,
                     transform: `translateY(${(i - active - local) * 20}px)`,
-                    transition: "opacity 500ms ease, transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
+                    transition:
+                      "opacity 500ms ease, transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
                   }}
                 >
                   {s.copy}
@@ -800,7 +854,9 @@ function FeatureStrip() {
                       />
                     </div>
                     <div className="mt-2 flex items-center gap-1.5 text-[10px] tabular-nums text-ink-muted">
-                      <span className={isCurrent ? "text-ink font-semibold" : ""}>0{i + 1}</span>
+                      <span className={isCurrent ? "text-ink font-semibold" : ""}>
+                        0{i + 1}
+                      </span>
                       <span className="hidden md:inline truncate">{s.tag}</span>
                     </div>
                   </div>
@@ -809,18 +865,28 @@ function FeatureStrip() {
             </div>
           </div>
 
-          {/* RIGHT — image stage with parallax */}
-          <div className="md:col-span-7 relative h-[52vh] md:h-[72vh]">
-            {/* stage frame */}
-            <div className="absolute inset-0 rounded-[28px] overflow-hidden bg-background border border-line/60 shadow-[0_40px_120px_-40px_oklch(0.15_0.02_60_/_0.35)]">
-              {/* image stack */}
+          {/* RIGHT — 3D image stage */}
+          <div
+            className="md:col-span-7 relative h-[52vh] md:h-[74vh]"
+            style={{ perspective: "1600px" }}
+          >
+            <div
+              className="absolute inset-0 rounded-[28px] overflow-hidden bg-background border border-line/60 shadow-[0_50px_140px_-40px_oklch(0.15_0.02_60_/_0.45)] will-change-transform"
+              style={{
+                transform: `rotateX(${mouse.y * -6}deg) rotateY(${mouse.x * 8}deg)`,
+                transition: "transform 500ms cubic-bezier(0.2,0.8,0.2,1)",
+                transformStyle: "preserve-3d",
+              }}
+            >
+              {/* image stack with parallax + ken burns */}
               {journey.map((s, i) => {
-                const dist = i - active - local; // -inf..+inf, 0 = fully in
-                const inFrame = Math.abs(dist) < 1.2;
-                const opacity = Math.max(0, 1 - Math.abs(dist) * 1.15);
-                const scale = 1.08 - Math.min(0.08, Math.abs(dist) * 0.06);
-                const tx = dist * 60 + mouse.x * 12;
-                const ty = -dist * 40 + mouse.y * 10;
+                const dist = i - active - local;
+                const inFrame = Math.abs(dist) < 1.4;
+                const opacity = Math.max(0, 1 - Math.abs(dist) * 1.05);
+                const scale = 1.12 + (i === active ? local * 0.06 : 0) - Math.min(0.08, Math.abs(dist) * 0.06);
+                const tx = dist * 80 + mouse.x * 22;
+                const ty = -dist * 50 + mouse.y * 16;
+                const blur = Math.min(10, Math.abs(dist) * 8);
                 return (
                   <div
                     key={s.image}
@@ -829,7 +895,9 @@ function FeatureStrip() {
                     style={{
                       opacity: inFrame ? opacity : 0,
                       transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`,
-                      transition: "opacity 700ms cubic-bezier(0.2,0.8,0.2,1), transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
+                      filter: `blur(${blur}px)`,
+                      transition:
+                        "opacity 700ms cubic-bezier(0.2,0.8,0.2,1), transform 900ms cubic-bezier(0.2,0.8,0.2,1), filter 600ms ease",
                     }}
                   >
                     <img
@@ -838,37 +906,71 @@ function FeatureStrip() {
                       className="absolute inset-0 h-full w-full object-cover"
                       loading="lazy"
                     />
-                    {/* subtle vignette */}
                     <div
                       className="absolute inset-0"
                       style={{
                         background:
-                          "linear-gradient(180deg, transparent 40%, oklch(0.15 0.02 60 / 0.35) 100%)",
+                          "linear-gradient(180deg, transparent 35%, oklch(0.15 0.02 60 / 0.5) 100%)",
                       }}
                     />
                   </div>
                 );
               })}
 
-              {/* floating chip (top-left) */}
+              {/* scan line sweep on step change */}
+              <div
+                aria-hidden
+                key={`scan-${active}`}
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, transparent 0%, oklch(1 0 0 / 0.55) 48%, oklch(0.68 0.17 45 / 0.4) 50%, oklch(1 0 0 / 0.55) 52%, transparent 100%)",
+                  animation: "scan-sweep 1200ms cubic-bezier(0.2,0.8,0.2,1) both",
+                  mixBlendMode: "overlay",
+                }}
+              />
+
+              {/* crosshair grid overlay */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, oklch(1 0 0 / 0.35) 1px, transparent 1px), linear-gradient(to bottom, oklch(1 0 0 / 0.35) 1px, transparent 1px)",
+                  backgroundSize: "64px 64px",
+                  maskImage:
+                    "radial-gradient(ellipse at center, black 20%, transparent 75%)",
+                }}
+              />
+
+              {/* corner brackets */}
+              <div className="pointer-events-none absolute inset-4">
+                <span className="absolute top-0 left-0 h-4 w-4 border-t border-l border-background/70" />
+                <span className="absolute top-0 right-0 h-4 w-4 border-t border-r border-background/70" />
+                <span className="absolute bottom-0 left-0 h-4 w-4 border-b border-l border-background/70" />
+                <span className="absolute bottom-0 right-0 h-4 w-4 border-b border-r border-background/70" />
+              </div>
+
+              {/* AI query chip (top-left) */}
               <div
                 key={`chip-${active}`}
-                className="absolute top-6 left-6 flex items-center gap-2 rounded-full bg-background/90 backdrop-blur-md border border-line px-4 py-2 text-[12px] text-ink shadow-[0_8px_24px_-12px_oklch(0.15_0.02_60_/_0.4)]"
+                className="absolute top-6 left-6 flex items-center gap-2 rounded-full bg-background/90 backdrop-blur-md border border-line px-4 py-2 text-[12px] text-ink shadow-[0_8px_24px_-12px_oklch(0.15_0.02_60_/_0.4)] anim-reveal"
                 style={{
-                  transform: `translate(${mouse.x * -18}px, ${mouse.y * -12}px)`,
+                  transform: `translate3d(${mouse.x * -22}px, ${mouse.y * -14}px, 40px)`,
                   transition: "transform 400ms cubic-bezier(0.2,0.8,0.2,1)",
                 }}
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                 <span className="font-medium">{current.chip}</span>
+                <span className="ml-1 h-3 w-px bg-ink/40 anim-caret" />
               </div>
 
               {/* stat card (bottom-right) */}
               <div
                 key={`stat-${active}`}
-                className="absolute bottom-6 right-6 rounded-2xl bg-background/95 backdrop-blur-md border border-line px-5 py-4 shadow-[0_20px_40px_-20px_oklch(0.15_0.02_60_/_0.5)]"
+                className="absolute bottom-6 right-6 rounded-2xl bg-background/95 backdrop-blur-md border border-line px-5 py-4 shadow-[0_20px_40px_-20px_oklch(0.15_0.02_60_/_0.5)] anim-reveal"
                 style={{
-                  transform: `translate(${mouse.x * -24}px, ${mouse.y * -16}px)`,
+                  transform: `translate3d(${mouse.x * -28}px, ${mouse.y * -18}px, 60px)`,
                   transition: "transform 500ms cubic-bezier(0.2,0.8,0.2,1)",
                 }}
               >
@@ -878,6 +980,24 @@ function FeatureStrip() {
                 <div className="mt-1 display text-3xl tabular-nums text-ink">
                   {current.stat.value}
                 </div>
+                <div className="mt-2 h-[2px] w-full bg-line rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-accent"
+                    style={{ width: `${(active + local) / steps * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* floating mini card (bottom-left) */}
+              <div
+                className="absolute bottom-6 left-6 rounded-xl bg-background/90 backdrop-blur-md border border-line px-3 py-2 text-[11px] text-ink-soft flex items-center gap-2"
+                style={{
+                  transform: `translate3d(${mouse.x * -14}px, ${mouse.y * -8}px, 30px)`,
+                  transition: "transform 500ms cubic-bezier(0.2,0.8,0.2,1)",
+                }}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-ink" />
+                <span className="tabular-nums">Step 0{active + 1} of 06</span>
               </div>
 
               {/* corner meta */}
@@ -912,6 +1032,14 @@ function FeatureStrip() {
             <span className="absolute inset-y-0 left-0 w-1/3 bg-ink animate-[marquee_2s_linear_infinite]" />
           </span>
         </div>
+
+        <style>{`
+          @keyframes scan-sweep {
+            0%   { transform: translateY(-100%); opacity: 0; }
+            30%  { opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+          }
+        `}</style>
       </div>
     </section>
   );
