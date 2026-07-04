@@ -581,7 +581,7 @@ function FeatureStrip() {
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="flex items-end justify-between mb-14">
           <div>
-            <div className="eyebrow">01 — What it does</div>
+            <div className="eyebrow">What it does</div>
             <h2 className="display mt-4 text-4xl md:text-6xl max-w-xl text-balance">
               Every step of buying, quietly automated.
             </h2>
@@ -659,7 +659,7 @@ function TodaysDeals() {
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="flex items-end justify-between mb-14">
           <div>
-            <div className="eyebrow">02 — Today's deals</div>
+            <div className="eyebrow">Today's deals</div>
             <h2 className="display mt-4 text-4xl md:text-6xl max-w-2xl">
               Deals worth
               <br />
@@ -728,7 +728,7 @@ function Categories() {
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
           <div className="lg:col-span-8">
-            <div className="eyebrow">03 — Categories</div>
+            <div className="eyebrow">Categories</div>
             <h2 className="display mt-4 text-4xl md:text-6xl text-balance">
               Every category,
               <br />
@@ -874,7 +874,7 @@ function Compare() {
     <section className="border-t border-line bg-background py-28 md:py-40">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="text-center mb-20">
-          <div className="eyebrow">04 — AI Comparison</div>
+          <div className="eyebrow">AI Comparison</div>
           <h2 className="display mt-6 text-5xl md:text-8xl leading-[0.9] text-balance">
             Compare less.
             <br />
@@ -967,7 +967,7 @@ function AIReview() {
     <section className="bg-surface-2/60 py-28 md:py-36 border-y border-line">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-5">
-          <div className="eyebrow">05 — Review intelligence</div>
+          <div className="eyebrow">Review intelligence</div>
           <h2 className="display mt-6 text-4xl md:text-6xl text-balance">
             18,432 reviews.
             <br />
@@ -1090,7 +1090,7 @@ function BuyOrWait() {
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end mb-16">
           <div className="lg:col-span-8">
-            <div className="eyebrow">06 — Timing intelligence</div>
+            <div className="eyebrow">Timing intelligence</div>
             <h2 className="display mt-4 text-4xl md:text-7xl text-balance">
               Buy today,
               <br />
@@ -1405,7 +1405,7 @@ function UpcomingSales() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           <div>
-            <div className="eyebrow">07 — Sales calendar</div>
+            <div className="eyebrow">Sales calendar</div>
             <h2 className="display mt-4 text-4xl md:text-6xl text-balance max-w-2xl leading-[1.02]">
               The next great sale,
               <br />
@@ -1516,7 +1516,7 @@ function Trending() {
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="flex items-end justify-between mb-12 gap-8">
           <div>
-            <div className="eyebrow">08 — Trending now</div>
+            <div className="eyebrow">Trending now</div>
             <h2 className="display mt-4 text-4xl md:text-6xl">
               What India is buying.
             </h2>
