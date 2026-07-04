@@ -1165,56 +1165,338 @@ function BuyOrWait() {
   );
 }
 
-/* ---------- Upcoming Sales ---------- */
+/* ---------- Upcoming Sales — Premium event announcements ---------- */
 
-const sales = [
-  { name: "Prime Day", store: "Amazon", when: "Jul 15 – 16", days: 4 },
-  { name: "Great Indian Festival", store: "Amazon", when: "Oct 8 – 15", days: 89 },
-  { name: "Big Billion Days", store: "Flipkart", when: "Oct 9 – 15", days: 90 },
-  { name: "Black Friday", store: "Global", when: "Nov 28", days: 140 },
+type Sale = {
+  name: string;
+  store: string;
+  when: string;
+  days: number;
+  categories: string[];
+  discount: string;
+  insight: string;
+  image: string;
+  tint: string; // overlay tint (oklch)
+  logoTone: string; // text color for store logo
+};
+
+const sales: Sale[] = [
+  {
+    name: "Prime Day",
+    store: "Amazon",
+    when: "Jul 15 – 16",
+    days: 4,
+    categories: ["Electronics", "Gaming", "Fashion"],
+    discount: "Up to 60% off",
+    insight: "Historically the biggest discounts on laptops and accessories.",
+    image: salePrimeDay,
+    tint: "oklch(0.18 0.06 245 / 0.55)",
+    logoTone: "oklch(0.96 0.02 220)",
+  },
+  {
+    name: "Great Indian Festival",
+    store: "Amazon",
+    when: "Oct 8 – 15",
+    days: 89,
+    categories: ["Phones", "Home", "Fashion"],
+    discount: "Up to 70% off",
+    insight: "Phone prices usually drop 15–20% during festive week.",
+    image: saleGIF,
+    tint: "oklch(0.22 0.09 45 / 0.5)",
+    logoTone: "oklch(0.96 0.05 75)",
+  },
+  {
+    name: "Big Billion Days",
+    store: "Flipkart",
+    when: "Oct 9 – 15",
+    days: 90,
+    categories: ["TVs", "Appliances", "Audio"],
+    discount: "Up to 80% off",
+    insight: "Great for headphones, TVs and premium audio gear.",
+    image: saleBBD,
+    tint: "oklch(0.2 0.09 245 / 0.5)",
+    logoTone: "oklch(0.96 0.03 240)",
+  },
+  {
+    name: "Black Friday",
+    store: "Global",
+    when: "Nov 28",
+    days: 140,
+    categories: ["Laptops", "Cameras", "Wearables"],
+    discount: "Up to 75% off",
+    insight: "Best time to buy gaming laptops and creator gear.",
+    image: saleBlackFriday,
+    tint: "oklch(0.08 0.01 60 / 0.55)",
+    logoTone: "oklch(0.92 0.02 60)",
+  },
 ];
 
-function UpcomingSales() {
+const tickerItems = [
+  "RTX 5070",
+  "iPhone 18",
+  "Pixel 11",
+  "MacBook Pro",
+  "Prime Day",
+  "OLED Monitors",
+  "Vision Pro 2",
+  "PS6 Rumors",
+  "Galaxy S26",
+];
+
+function Countdown({ days, active }: { days: number; active?: boolean }) {
   return (
-    <section className="bg-surface-2/50 py-28 md:py-36 border-t border-line">
-      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
-        <div className="mb-14">
-          <div className="eyebrow">07 — Sales calendar</div>
-          <h2 className="display mt-4 text-4xl md:text-6xl text-balance max-w-2xl">
-            The next great sale,
-            <br />
-            already circled.
-          </h2>
+    <div className="flex items-baseline gap-2">
+      <span
+        className={
+          "display leading-none tabular-nums " +
+          (active
+            ? "text-[52px] md:text-[64px] text-background"
+            : "text-[40px] md:text-[48px] text-background/85")
+        }
+      >
+        {String(days).padStart(2, "0")}
+      </span>
+      <span className="flex flex-col text-[10px] tracking-[0.22em] uppercase text-background/60 leading-tight">
+        <span>Days</span>
+        <span>Left</span>
+      </span>
+    </div>
+  );
+}
+
+function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: boolean }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <article
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className={
+        "group relative shrink-0 overflow-hidden rounded-[28px] border border-line/60 bg-ink transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform " +
+        (active
+          ? "w-[86vw] md:w-[460px] lg:w-[520px] h-[560px] md:h-[640px] shadow-[0_40px_120px_-40px_oklch(0.15_0.02_60_/_0.55)]"
+          : "w-[78vw] md:w-[380px] lg:w-[420px] h-[520px] md:h-[600px] shadow-[0_20px_60px_-30px_oklch(0.15_0.02_60_/_0.35)]") +
+        " hover:-translate-y-2"
+      }
+      style={{
+        transform: hover ? "translateY(-8px)" : undefined,
+      }}
+    >
+      {/* Poster image */}
+      <img
+        src={sale.image}
+        alt={`${sale.name} poster`}
+        loading="lazy"
+        width={1280}
+        height={1600}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+      />
+      {/* Tint + gradient overlays */}
+      <div className="absolute inset-0" style={{ background: sale.tint }} />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/30 to-ink/10" />
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+        style={{
+          background:
+            "radial-gradient(120% 60% at 50% 100%, oklch(1 0.02 75 / 0.18), transparent 60%)",
+        }}
+      />
+
+      {/* Top row: index + store logo */}
+      <div className="relative z-10 flex items-start justify-between p-7">
+        <span className="text-[11px] tracking-[0.28em] uppercase text-background/70">
+          0{index + 1} / 04
+        </span>
+        <span
+          className="text-[13px] font-medium tracking-tight transition-opacity duration-500 group-hover:opacity-100"
+          style={{ color: sale.logoTone, opacity: 0.85 }}
+        >
+          {sale.store}
+        </span>
+      </div>
+
+      {/* Active ring badge */}
+      {active && (
+        <span className="absolute z-10 top-24 right-7 flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-background/85 before:content-[''] before:h-1.5 before:w-1.5 before:rounded-full before:bg-accent before:animate-pulse">
+          Next up
+        </span>
+      )}
+
+      {/* Bottom content */}
+      <div className="absolute inset-x-0 bottom-0 z-10 p-7">
+        <div className="text-[12px] text-background/70">{sale.when}</div>
+        <h3 className="display mt-2 text-4xl md:text-5xl text-background leading-[0.95] text-balance">
+          {sale.name}
+        </h3>
+
+        <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tracking-wide text-background/70">
+          {sale.categories.map((c, i) => (
+            <span key={c} className="flex items-center gap-2">
+              {i > 0 && <span className="h-1 w-1 rounded-full bg-background/40" />}
+              {c}
+            </span>
+          ))}
         </div>
 
-        <div className="relative">
-          <div className="hairline absolute top-6 left-0 right-0" />
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <p className="mt-5 text-[13px] leading-relaxed text-background/75 max-w-[38ch]">
+          {sale.insight}
+        </p>
+
+        <div className="mt-6 flex items-end justify-between border-t border-background/15 pt-5">
+          <div>
+            <div className="text-[10px] tracking-[0.22em] uppercase text-background/55">
+              Expected
+            </div>
+            <div className="mt-1 text-[14px] font-medium text-background">
+              {sale.discount}
+            </div>
+          </div>
+          <div
+            className={
+              "relative rounded-2xl px-4 py-2 " +
+              (active
+                ? "ring-1 ring-accent/50 bg-background/5 backdrop-blur-sm"
+                : "")
+            }
+          >
+            {active && (
+              <span
+                className="pointer-events-none absolute inset-0 rounded-2xl"
+                style={{
+                  boxShadow:
+                    "0 0 0 1px oklch(0.72 0.16 55 / 0.35), 0 0 30px oklch(0.72 0.16 55 / 0.35)",
+                  animation: "pulse 2.6s ease-in-out infinite",
+                }}
+              />
+            )}
+            <Countdown days={sale.days} active={active} />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function UpcomingSales() {
+  const activeIndex = sales.reduce(
+    (best, s, i) => (s.days < sales[best].days ? i : best),
+    0,
+  );
+
+  return (
+    <section className="relative overflow-hidden border-t border-line py-28 md:py-36 bg-surface">
+      {/* Ambient background */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            "radial-gradient(60% 40% at 15% 20%, oklch(0.97 0.02 70 / 0.9), transparent 60%), radial-gradient(50% 40% at 85% 80%, oklch(0.96 0.03 45 / 0.7), transparent 60%)",
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.035] mix-blend-multiply"
+        style={{
+          backgroundImage:
+            "radial-gradient(oklch(0.2 0.02 60) 1px, transparent 1px)",
+          backgroundSize: "3px 3px",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-[1400px] px-6 md:px-10">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+          <div>
+            <div className="eyebrow">07 — Sales calendar</div>
+            <h2 className="display mt-4 text-4xl md:text-6xl text-balance max-w-2xl leading-[1.02]">
+              The next great sale,
+              <br />
+              <span className="italic font-normal text-ink-soft">already circled.</span>
+            </h2>
+          </div>
+          <div className="max-w-sm text-[14px] text-ink-muted leading-relaxed">
+            Four moments each year when prices actually move. PricePilot tracks every one — and tells you which is worth waiting for.
+          </div>
+        </div>
+
+        {/* Timeline rail */}
+        <div className="relative mt-16 md:mt-20">
+          <div className="absolute left-0 right-0 top-6 h-px overflow-hidden">
+            <div
+              className="h-full w-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, oklch(0.2 0.02 60 / 0.15) 15%, oklch(0.2 0.02 60 / 0.25) 50%, oklch(0.2 0.02 60 / 0.15) 85%, transparent)",
+              }}
+            />
+          </div>
+          <div className="relative flex justify-between">
             {sales.map((s, i) => (
-              <div key={s.name} className="pt-14 group">
-                <div className="relative">
-                  <span className="absolute -top-14 left-0 grid h-12 w-12 place-items-center rounded-full bg-background border border-line text-[11px] font-medium text-ink group-hover:border-ink transition-colors">
-                    0{i + 1}
-                  </span>
-                </div>
-                <div className="text-[12px] text-ink-muted">{s.store}</div>
-                <div className="display text-2xl md:text-3xl mt-2 text-balance">
-                  {s.name}
-                </div>
-                <div className="mt-6 flex items-end justify-between border-t border-line pt-4">
-                  <span className="text-[13px] text-ink-soft">{s.when}</span>
-                  <span className="text-[13px] font-medium text-accent">
-                    {s.days}d
-                  </span>
-                </div>
+              <div key={s.name} className="flex flex-col items-center gap-3">
+                <span
+                  className={
+                    "relative grid h-3 w-3 place-items-center rounded-full transition-all " +
+                    (i === activeIndex
+                      ? "bg-accent"
+                      : "bg-background border border-line")
+                  }
+                >
+                  {i === activeIndex && (
+                    <span className="absolute inset-0 rounded-full bg-accent/40 animate-ping" />
+                  )}
+                </span>
+                <span className="text-[10px] tracking-[0.22em] uppercase text-ink-muted hidden md:inline">
+                  {s.when.split(" ")[0]}
+                </span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Cinematic horizontal journey */}
+        <div className="relative mt-10 -mx-6 md:-mx-10">
+          <div className="flex gap-6 md:gap-8 overflow-x-auto scroll-smooth snap-x snap-mandatory px-6 md:px-10 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {sales.map((s, i) => (
+              <div key={s.name} className="snap-start">
+                <SaleCard sale={s} index={i} active={i === activeIndex} />
+              </div>
+            ))}
+            <div className="shrink-0 w-4" />
+          </div>
+          {/* Edge fades */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-surface to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-surface to-transparent" />
+        </div>
+
+        {/* Bottom ticker */}
+        <div className="relative mt-16 border-t border-line pt-8">
+          <div className="flex items-center gap-6">
+            <span className="text-[10px] tracking-[0.28em] uppercase text-ink-muted whitespace-nowrap">
+              Upcoming launches
+            </span>
+            <div className="relative flex-1 overflow-hidden">
+              <div
+                className="flex gap-10 whitespace-nowrap"
+                style={{ animation: "marquee 40s linear infinite" }}
+              >
+                {[...tickerItems, ...tickerItems, ...tickerItems].map((t, i) => (
+                  <span
+                    key={`${t}-${i}`}
+                    className="text-[13px] text-ink-soft/70 flex items-center gap-10"
+                  >
+                    {t}
+                    <span className="text-ink-muted/40">↓</span>
+                  </span>
+                ))}
+              </div>
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-surface to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-surface to-transparent" />
+            </div>
           </div>
         </div>
       </div>
     </section>
   );
 }
+
 
 /* ---------- Trending ---------- */
 
