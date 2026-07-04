@@ -331,6 +331,26 @@ function AssistantMessage({ text }: { text: string }) {
   );
 }
 
+type Offer = { store: string; price: number; url: string; initial: string; badgeClass: string };
+
+const STORES: { name: string; initial: string; badgeClass: string; search: (q: string) => string; delta: number }[] = [
+  { name: "Amazon", initial: "a", badgeClass: "bg-[oklch(0.94_0.05_75)] text-[oklch(0.42_0.14_45)]", search: (q) => `https://www.amazon.in/s?k=${encodeURIComponent(q)}`, delta: 0 },
+  { name: "Flipkart", initial: "F", badgeClass: "bg-[oklch(0.92_0.06_240)] text-[oklch(0.4_0.15_250)]", search: (q) => `https://www.flipkart.com/search?q=${encodeURIComponent(q)}`, delta: 0.018 },
+  { name: "Croma", initial: "C", badgeClass: "bg-[oklch(0.92_0.08_25)] text-[oklch(0.42_0.15_25)]", search: (q) => `https://www.croma.com/searchB?q=${encodeURIComponent(q)}`, delta: 0.037 },
+];
+
+function buildOffers(p: { id: string; name: string; brand: string; price: number }): Offer[] {
+  // deterministic small variance per product+store so cheapest rotates across cards
+  const seed = p.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const q = `${p.brand} ${p.name}`;
+  return STORES.map((s, i) => {
+    const jitter = (((seed * (i + 3)) % 41) - 20) / 1000; // -0.02..+0.02
+    const factor = 1 + s.delta + jitter;
+    const raw = Math.round((p.price * factor) / 10) * 10;
+    return { store: s.name, price: raw, url: s.search(q), initial: s.initial, badgeClass: s.badgeClass };
+  });
+}
+
 function parseAssistant(raw: string) {
   const picks: string[] = [];
   let body = raw.replace(/\[\[PICK:([a-z0-9-]+)\]\]/gi, (_, id) => {
