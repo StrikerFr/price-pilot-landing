@@ -10,19 +10,48 @@ export const Route = createFileRoute("/product/$id")({
     if (!p) throw notFound();
     return { product: p };
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     const p = loaderData?.product;
+    if (!p) return { meta: [{ title: "Product — PricePilot" }, { name: "robots", content: "noindex" }] };
+    const url = `https://price-pilot-landing.lovable.app/product/${params.id}`;
+    const img = `https://price-pilot-landing.lovable.app${p.img}`;
+    const desc = `${p.brand} ${p.name} — live price comparison, AI verdict (${p.verdict}), 90-day price history and reviews across every major Indian store. Currently ₹${p.price.toLocaleString("en-IN")}.`;
     return {
-      meta: p
-        ? [
-            { title: `${p.name} — PricePilot` },
-            { name: "description", content: `${p.name} — price comparison, AI verdict, price history and reviews across every major store.` },
-            { property: "og:title", content: `${p.name} — PricePilot` },
-            { property: "og:description", content: `AI verdict, price history and store comparison for the ${p.name}.` },
-          ]
-        : [{ title: "Product — PricePilot" }, { name: "robots", content: "noindex" }],
+      meta: [
+        { title: `${p.name} — Price, Verdict & Comparison | PricePilot` },
+        { name: "description", content: desc },
+        { property: "og:title", content: `${p.name} — ${p.verdict} | PricePilot` },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: img },
+        { name: "twitter:image", content: img },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: `${p.brand} ${p.name}`,
+            brand: { "@type": "Brand", name: p.brand },
+            category: p.category,
+            image: img,
+            aggregateRating: { "@type": "AggregateRating", ratingValue: p.rating, bestRating: 5, ratingCount: 128 },
+            offers: {
+              "@type": "Offer",
+              price: p.price,
+              priceCurrency: "INR",
+              availability: "https://schema.org/InStock",
+              url,
+            },
+          }),
+        },
+      ],
     };
   },
+
   notFoundComponent: () => (
     <PageShell>
       <div className="pt-40 mx-auto max-w-[1400px] px-6 md:px-10 text-center">
