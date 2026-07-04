@@ -1063,7 +1063,7 @@ function AIReview() {
           <h2 className="display mt-6 text-5xl md:text-7xl leading-[0.95] tracking-tight text-balance">
             Every review.
             <br />
-            <span className="italic font-normal text-ink-soft">One verdict.</span>
+            <span className="font-normal text-ink-soft">One verdict.</span>
           </h2>
           <p className="mt-8 text-[15px] leading-relaxed text-ink-soft max-w-md">
             Our AI reads reviews from stores, YouTube, Reddit, trusted
@@ -1652,7 +1652,7 @@ function UpcomingSales() {
             <h2 className="display mt-4 text-4xl md:text-6xl text-balance max-w-2xl leading-[1.02]">
               The next great sale,
               <br />
-              <span className="italic font-normal text-ink-soft">already circled.</span>
+              <span className="font-normal text-ink-soft">already circled.</span>
             </h2>
           </div>
           <div className="max-w-sm text-[14px] text-ink-muted leading-relaxed">
