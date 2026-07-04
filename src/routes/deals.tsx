@@ -24,8 +24,6 @@ import dealKeyboard from "@/assets/deal-keyboard.jpg";
 import dealWatch from "@/assets/deal-watch.jpg";
 import dealEarbuds from "@/assets/deal-earbuds.jpg";
 import dealCamera from "@/assets/deal-camera.jpg";
-import catAudio from "@/assets/cat-audio.jpg";
-import catGaming from "@/assets/cat-gaming.jpg";
 
 export const Route = createFileRoute("/deals")({
   head: () => ({
