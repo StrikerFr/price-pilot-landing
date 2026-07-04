@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SalesCalendarRouteImport } from './routes/sales-calendar'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PriceDropsRouteImport } from './routes/price-drops'
@@ -25,6 +26,11 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SalesCalendarRoute = SalesCalendarRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/price-drops': typeof PriceDropsRoute
   '/profile': typeof ProfileRoute
   '/sales-calendar': typeof SalesCalendarRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wishlist': typeof WishlistRoute
   '/api/chat': typeof ApiChatRoute
   '/product/$id': typeof ProductIdRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/price-drops': typeof PriceDropsRoute
   '/profile': typeof ProfileRoute
   '/sales-calendar': typeof SalesCalendarRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wishlist': typeof WishlistRoute
   '/api/chat': typeof ApiChatRoute
   '/product/$id': typeof ProductIdRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/price-drops': typeof PriceDropsRoute
   '/profile': typeof ProfileRoute
   '/sales-calendar': typeof SalesCalendarRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wishlist': typeof WishlistRoute
   '/api/chat': typeof ApiChatRoute
   '/product/$id': typeof ProductIdRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/price-drops'
     | '/profile'
     | '/sales-calendar'
+    | '/sitemap.xml'
     | '/wishlist'
     | '/api/chat'
     | '/product/$id'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/price-drops'
     | '/profile'
     | '/sales-calendar'
+    | '/sitemap.xml'
     | '/wishlist'
     | '/api/chat'
     | '/product/$id'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/price-drops'
     | '/profile'
     | '/sales-calendar'
+    | '/sitemap.xml'
     | '/wishlist'
     | '/api/chat'
     | '/product/$id'
@@ -181,6 +193,7 @@ export interface RootRouteChildren {
   PriceDropsRoute: typeof PriceDropsRoute
   ProfileRoute: typeof ProfileRoute
   SalesCalendarRoute: typeof SalesCalendarRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WishlistRoute: typeof WishlistRoute
   ApiChatRoute: typeof ApiChatRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sales-calendar': {
@@ -285,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   PriceDropsRoute: PriceDropsRoute,
   ProfileRoute: ProfileRoute,
   SalesCalendarRoute: SalesCalendarRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   WishlistRoute: WishlistRoute,
   ApiChatRoute: ApiChatRoute,
   ProductIdRoute: ProductIdRoute,
