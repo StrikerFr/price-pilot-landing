@@ -209,3 +209,17 @@
 @utility anim-reveal       { animation: reveal-up 0.9s cubic-bezier(0.2,0.8,0.2,1) both; }
 @utility anim-caret        { animation: caret-blink 1.1s steps(1) infinite; }
 @utility anim-spin-slow    { animation: spin-slow 40s linear infinite; }
+
+/* ===== Slanted section transitions ===== */
+@utility slant-l {
+  margin-top: -1px;
+  clip-path: polygon(0 0, 100% 56px, 100% 100%, 0 100%);
+}
+@utility slant-r {
+  margin-top: -1px;
+  clip-path: polygon(0 56px, 100% 0, 100% 100%, 0 100%);
+}
+@media (min-width: 768px) {
+  .slant-l { clip-path: polygon(0 0, 100% 110px, 100% 100%, 0 100%); }
+  .slant-r { clip-path: polygon(0 110px, 100% 0, 100% 100%, 0 100%); }
+}

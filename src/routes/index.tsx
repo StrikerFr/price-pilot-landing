@@ -536,7 +536,7 @@ const stores = [
 function TrustBar() {
   const row = [...stores, ...stores];
   return (
-    <section className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 bg-background py-10">
+    <section className="slant-l relative z-10 bg-background py-10">
       <div className="mx-auto max-w-[1440px] px-6 md:px-12">
         <div className="flex items-center gap-10 opacity-55">
           <span className="text-[10px] tracking-[0.28em] uppercase text-ink-muted shrink-0 hidden md:inline max-w-[160px] leading-relaxed">
@@ -577,7 +577,7 @@ const features = [
 
 function FeatureStrip() {
   return (
-    <section className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 py-24 md:py-32 bg-background">
+    <section className="slant-r relative z-10 py-24 md:py-32 bg-background">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="flex items-end justify-between mb-14">
           <div>
@@ -655,7 +655,7 @@ const deals = [
 
 function TodaysDeals() {
   return (
-    <section className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 bg-surface-2/50 py-24 md:py-32">
+    <section className="slant-l relative z-10 bg-surface-2/50 py-24 md:py-32">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="flex items-end justify-between mb-14">
           <div>
@@ -724,7 +724,7 @@ const categories = [
 
 function Categories() {
   return (
-    <section className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 py-24 md:py-32 bg-background">
+    <section className="slant-r relative z-10 py-24 md:py-32 bg-background">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
           <div className="lg:col-span-8">
@@ -871,7 +871,7 @@ function RadarCompare() {
 
 function Compare() {
   return (
-    <section className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 bg-background py-28 md:py-40">
+    <section className="slant-l relative z-10 bg-background py-28 md:py-40">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="text-center mb-20">
           <div className="eyebrow">AI Comparison</div>
@@ -1045,7 +1045,7 @@ function AIReview() {
   return (
     <section
       ref={ref}
-      className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 relative overflow-hidden py-28 md:py-40 bg-surface"
+      className="slant-r relative z-10 relative overflow-hidden py-28 md:py-40 bg-surface"
     >
       {/* Ambient warm lighting */}
       <div
@@ -1329,7 +1329,7 @@ function PriceHistory() {
 
 function BuyOrWait() {
   return (
-    <section className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 py-28 md:py-36 bg-background">
+    <section className="slant-l relative z-10 py-28 md:py-36 bg-background">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end mb-16">
           <div className="lg:col-span-8">
@@ -1626,7 +1626,7 @@ function UpcomingSales() {
   );
 
   return (
-    <section className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 relative overflow-hidden py-28 md:py-36 bg-surface">
+    <section className="slant-r relative z-10 relative overflow-hidden py-28 md:py-36 bg-surface">
       {/* Ambient background */}
       <div
         className="pointer-events-none absolute inset-0 opacity-70"
@@ -1755,7 +1755,7 @@ const trending = [
 function Trending() {
   const scrollRef = useRef<HTMLDivElement>(null);
   return (
-    <section className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 py-28 md:py-36 bg-background">
+    <section className="slant-l relative z-10 py-28 md:py-36 bg-background">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="flex items-end justify-between mb-12 gap-8">
           <div>
@@ -1907,7 +1907,7 @@ function Footer() {
   return (
     <footer
       ref={ref}
-      className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 overflow-hidden shadow-[0_-24px_60px_-30px_oklch(0.15_0.02_60_/_0.12)]"
+      className="slant-r relative z-10 overflow-hidden shadow-[0_-24px_60px_-30px_oklch(0.15_0.02_60_/_0.12)]"
       style={{ background: "oklch(0.985 0.008 75)" }}
     >
       {/* Cursor spotlight */}
