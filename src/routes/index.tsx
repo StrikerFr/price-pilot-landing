@@ -960,82 +960,324 @@ function ProductCard({
   );
 }
 
-/* ---------- AI Review ---------- */
+/* ---------- AI Review — Review Intelligence ---------- */
+
+const REVIEW_STATUS = [
+  "Reading Amazon reviews…",
+  "Analyzing Reddit discussions…",
+  "Comparing YouTube long-form reviews…",
+  "Checking long-term complaints…",
+  "Finding recurring issues…",
+  "Weighing verified purchases…",
+  "Calculating final confidence…",
+];
+
+const REVIEW_SOURCES = [
+  { name: "Amazon", count: "4,200", weight: 92 },
+  { name: "Flipkart", count: "2,300", weight: 68 },
+  { name: "Reddit", count: "900 threads", weight: 46 },
+  { name: "YouTube", count: "150 videos", weight: 34 },
+  { name: "Professional", count: "38 sites", weight: 22 },
+];
+
+const REVIEW_PROS = [
+  "Class-leading OLED display",
+  "Battery reliably exceeds 12 hrs",
+  "Silent under normal workloads",
+  "Excellent low-travel keyboard",
+];
+
+const REVIEW_CONS = [
+  "Webcam quality is average",
+  "Only two USB-C ports",
+  "Fingerprint-prone finish",
+];
+
+function useInView<T extends HTMLElement>(threshold = 0.25) {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => e.isIntersecting && setInView(true),
+      { threshold },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, inView };
+}
+
+function useCountUp(target: number, active: boolean, duration = 1800) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    let raf = 0;
+    const start = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, active, duration]);
+  return value;
+}
 
 function AIReview() {
+  const { ref, inView } = useInView<HTMLDivElement>(0.2);
+  const reviews = useCountUp(18432, inView, 1800);
+  const confidence = useCountUp(98, inView, 1600);
+  const score = useCountUp(94, inView, 1600); // 9.4
+  const [statusIdx, setStatusIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(
+      () => setStatusIdx((i) => (i + 1) % REVIEW_STATUS.length),
+      2200,
+    );
+    return () => clearInterval(id);
+  }, []);
+
   return (
-    <section className="bg-surface-2/60 py-28 md:py-36 border-y border-line">
-      <div className="mx-auto max-w-[1400px] px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12">
-        <div className="lg:col-span-5">
+    <section
+      ref={ref}
+      className="relative overflow-hidden border-y border-line py-28 md:py-40 bg-surface"
+    >
+      {/* Ambient warm lighting */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            "radial-gradient(50% 45% at 12% 25%, oklch(0.97 0.02 70 / 0.9), transparent 60%), radial-gradient(45% 40% at 88% 75%, oklch(0.96 0.025 50 / 0.55), transparent 60%)",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-[1400px] px-6 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+        {/* ---- LEFT ---- */}
+        <div className="lg:col-span-5 lg:sticky lg:top-24">
           <div className="eyebrow">Review intelligence</div>
-          <h2 className="display mt-6 text-4xl md:text-6xl text-balance">
-            18,432 reviews.
+          <h2 className="display mt-6 text-5xl md:text-7xl leading-[0.95] tracking-tight text-balance">
+            Every review.
             <br />
-            One honest answer.
+            <span className="italic font-normal text-ink-soft">One verdict.</span>
           </h2>
-          <p className="mt-6 text-ink-soft max-w-md">
-            Our AI reads every review across every store — verified, video,
-            long-form, and translated — then tells you the truth.
+          <p className="mt-8 text-[15px] leading-relaxed text-ink-soft max-w-md">
+            Our AI reads reviews from stores, YouTube, Reddit, trusted
+            publications and communities — then surfaces the real strengths and
+            weaknesses.
           </p>
-          <div className="mt-8 inline-flex items-center gap-2 text-[13px] text-ink-soft">
-            <span className="relative flex h-2 w-2">
+
+          {/* Live status */}
+          <div className="mt-10 flex items-center gap-3 text-[13px] text-ink-soft">
+            <span className="relative flex h-2 w-2 shrink-0">
               <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-60 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
             </span>
-            AI is analyzing 18,432 reviews for Aurora Pro 15
+            <span
+              key={statusIdx}
+              className="tabular-nums animate-[fade-in_0.5s_ease-out]"
+            >
+              {REVIEW_STATUS[statusIdx]}
+            </span>
+          </div>
+
+          {/* Rotating source ribbon */}
+          <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[11px] tracking-[0.16em] uppercase text-ink-muted">
+            <span>Amazon</span>
+            <span>·</span>
+            <span>Flipkart</span>
+            <span>·</span>
+            <span>Reddit</span>
+            <span>·</span>
+            <span>YouTube</span>
+            <span>·</span>
+            <span>The Verge</span>
+            <span>·</span>
+            <span>MKBHD</span>
           </div>
         </div>
 
+        {/* ---- RIGHT: AI Verdict Panel ---- */}
         <div className="lg:col-span-7">
-          <div className="rounded-3xl bg-surface border border-line p-8 md:p-10 soft-shadow">
-            <div className="flex items-center gap-2 text-[12px] text-ink-muted mb-8">
-              <Bot size={14} /> PricePilot AI · Verdict
-              <span className="ml-auto">4.6 · Excellent</span>
+          <div
+            className="relative rounded-[28px] bg-surface border border-line/70 p-8 md:p-10 soft-shadow overflow-hidden"
+            style={{
+              boxShadow:
+                "0 40px 100px -50px oklch(0.15 0.02 60 / 0.35), 0 1px 0 oklch(1 0 0 / 0.6) inset",
+            }}
+          >
+            {/* Subtle glow */}
+            <div
+              className="pointer-events-none absolute -top-24 -right-24 h-[380px] w-[380px] rounded-full opacity-60"
+              style={{
+                background:
+                  "radial-gradient(closest-side, oklch(0.96 0.05 65 / 0.5), transparent)",
+              }}
+            />
+
+            {/* Header */}
+            <div className="relative flex items-center justify-between text-[12px] text-ink-muted">
+              <div className="flex items-center gap-2">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-ink text-background">
+                  <Bot size={12} />
+                </span>
+                <span>PricePilot AI · Verdict</span>
+              </div>
+              <span className="text-[11px] tracking-[0.22em] uppercase text-ink-muted">
+                Aurora Pro 15
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {/* Score row */}
+            <div className="relative mt-8 grid grid-cols-3 gap-6 border-b border-line pb-8">
               <div>
-                <div className="eyebrow mb-4 flex items-center gap-2">
+                <div className="text-[10px] tracking-[0.22em] uppercase text-ink-muted">
+                  Overall
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <span className="display text-5xl md:text-6xl tabular-nums leading-none">
+                    {(score / 10).toFixed(1)}
+                  </span>
+                  <span className="text-[13px] text-ink-muted">/10</span>
+                </div>
+                <div className="mt-2 text-[11px] font-medium text-accent tracking-wide">
+                  Excellent
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] tracking-[0.22em] uppercase text-ink-muted">
+                  Confidence
+                </div>
+                <div className="mt-2 display text-3xl md:text-4xl tabular-nums leading-none">
+                  {confidence}
+                  <span className="text-[13px] text-ink-muted ml-0.5">%</span>
+                </div>
+                <div className="mt-3 h-[3px] rounded-full bg-line overflow-hidden">
+                  <div
+                    className="h-full bg-ink transition-[width] duration-[1600ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                    style={{ width: `${confidence}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] tracking-[0.22em] uppercase text-ink-muted">
+                  Sources
+                </div>
+                <div className="mt-2 display text-3xl md:text-4xl tabular-nums leading-none">
+                  {reviews.toLocaleString()}
+                </div>
+                <div className="mt-2 text-[11px] text-ink-muted">
+                  reviews analyzed
+                </div>
+              </div>
+            </div>
+
+            {/* Pros / Cons chips */}
+            <div className="relative mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <div className="eyebrow mb-4 flex items-center gap-2 text-accent">
                   <Plus size={12} /> Pros
                 </div>
-                <ul className="space-y-3 text-[15px]">
-                  {[
-                    "Class-leading OLED at this price",
-                    "Battery reliably exceeds 12 hours",
-                    "Silent under normal workloads",
-                  ].map((p) => (
-                    <li key={p} className="flex gap-3">
-                      <Check size={16} className="mt-1 text-accent shrink-0" />
-                      <span className="text-ink">{p}</span>
-                    </li>
+                <div className="flex flex-wrap gap-2">
+                  {REVIEW_PROS.map((p, i) => (
+                    <span
+                      key={p}
+                      className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-[12.5px] text-ink transition-all duration-500 hover:border-ink hover:-translate-y-0.5"
+                      style={{
+                        opacity: inView ? 1 : 0,
+                        transform: inView ? "translateY(0)" : "translateY(6px)",
+                        transitionDelay: `${400 + i * 120}ms`,
+                      }}
+                    >
+                      <Check size={12} className="text-accent" />
+                      {p}
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
               <div>
-                <div className="eyebrow mb-4 flex items-center gap-2">
+                <div className="eyebrow mb-4 flex items-center gap-2 text-ink-muted">
                   <Minus size={12} /> Cons
                 </div>
-                <ul className="space-y-3 text-[15px]">
-                  {[
-                    "Webcam quality is average",
-                    "Only two USB-C ports",
-                    "Fingerprint-prone finish",
-                  ].map((p) => (
-                    <li key={p} className="flex gap-3">
-                      <span className="mt-2 h-[3px] w-3 bg-ink-muted shrink-0" />
-                      <span className="text-ink">{p}</span>
-                    </li>
+                <div className="flex flex-wrap gap-2">
+                  {REVIEW_CONS.map((c, i) => (
+                    <span
+                      key={c}
+                      className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-[12.5px] text-ink-soft transition-all duration-500 hover:border-ink-soft hover:-translate-y-0.5"
+                      style={{
+                        opacity: inView ? 1 : 0,
+                        transform: inView ? "translateY(0)" : "translateY(6px)",
+                        transitionDelay: `${400 + i * 120}ms`,
+                      }}
+                    >
+                      <Minus size={12} className="text-ink-muted" />
+                      {c}
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
 
-            <div className="mt-10 pt-8 border-t border-line">
-              <div className="eyebrow mb-3">Final verdict</div>
-              <p className="text-[17px] leading-relaxed text-ink text-balance">
-                The Aurora Pro 15 is the most confident pick under ₹1.3L today —
-                buy it if OLED and battery matter more than port variety.
+            {/* Source breakdown */}
+            <div className="relative mt-10 border-t border-line pt-8">
+              <div className="eyebrow mb-5">Where the AI looked</div>
+              <div className="space-y-3">
+                {REVIEW_SOURCES.map((s, i) => (
+                  <div
+                    key={s.name}
+                    className="grid grid-cols-[110px_1fr_90px] items-center gap-4 text-[12.5px]"
+                  >
+                    <span className="text-ink">{s.name}</span>
+                    <span className="relative h-[6px] rounded-full bg-line overflow-hidden">
+                      <span
+                        className="absolute inset-y-0 left-0 rounded-full bg-ink transition-[width] duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                        style={{
+                          width: inView ? `${s.weight}%` : "0%",
+                          transitionDelay: `${300 + i * 120}ms`,
+                        }}
+                      />
+                    </span>
+                    <span className="text-right tabular-nums text-ink-muted">
+                      {s.count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* AI Verdict */}
+            <div
+              className="relative mt-10 rounded-2xl border border-line bg-ink text-background p-6 md:p-7 transition-all duration-700"
+              style={{
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateY(0)" : "translateY(10px)",
+                transitionDelay: "1200ms",
+              }}
+            >
+              <div className="flex items-center gap-2 text-[10px] tracking-[0.24em] uppercase text-background/60">
+                <Sparkles size={12} className="text-accent" />
+                AI Recommendation
+              </div>
+              <p className="mt-3 text-[16px] md:text-[17px] leading-relaxed text-background text-balance">
+                The Aurora Pro 15 is currently the best laptop under
+                <span className="text-background"> ₹1.3L</span> if battery life
+                and display quality are your priorities.
               </p>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <button className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-background text-ink text-[13px] font-medium hover:bg-background/90 transition-colors">
+                  Buy now <ArrowRight size={14} />
+                </button>
+                <button className="inline-flex items-center gap-2 h-10 px-4 rounded-full border border-background/25 text-background/85 text-[13px] hover:border-background/50 transition-colors">
+                  Wait for Prime Day
+                </button>
+                <span className="text-[11px] text-background/50 ml-auto">
+                  Save an est. ₹6,000 in 4 days
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -1043,6 +1285,7 @@ function AIReview() {
     </section>
   );
 }
+
 
 /* ---------- Buy Now or Wait ---------- */
 
