@@ -382,10 +382,12 @@ function TrustBar() {
   const row = [...stores, ...stores];
   return (
     <section className="border-y border-line bg-surface-2/60 py-6">
-      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
+      <div className="mx-auto max-w-[1440px] px-6 md:px-12">
         <div className="flex items-center gap-8">
-          <span className="eyebrow shrink-0 hidden md:inline">Trusted stores</span>
-          <div className="hairline hidden md:block max-w-[80px]" />
+          <span className="eyebrow shrink-0 hidden md:inline max-w-[180px] leading-relaxed">
+            Trusted by thousands of smart shoppers
+          </span>
+          <div className="hairline hidden md:block max-w-[60px]" />
           <div className="relative flex-1 overflow-hidden mask-fade">
             <div className="flex w-max anim-marquee gap-16">
               {row.map((s, i) => (
