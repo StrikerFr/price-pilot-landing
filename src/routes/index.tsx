@@ -2380,18 +2380,51 @@ function UpcomingSales() {
 
         {/* Cinematic horizontal journey */}
         <div className="relative mt-10 -mx-6 md:-mx-10">
-          <div className="flex gap-6 md:gap-8 overflow-x-auto scroll-smooth snap-x snap-mandatory px-6 md:px-10 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            ref={scrollerRef}
+            className="flex gap-6 md:gap-8 overflow-x-auto scroll-smooth snap-x snap-mandatory px-6 md:px-10 py-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            style={{ perspective: "1600px" }}
+          >
             {sales.map((s, i) => (
-              <div key={s.name} className="snap-start">
+              <button
+                key={s.name}
+                type="button"
+                data-sale-card
+                onClick={() => setActiveIndex(i)}
+                className={
+                  "snap-center text-left transition-[opacity,filter,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] " +
+                  (i === activeIndex
+                    ? "opacity-100"
+                    : "opacity-60 hover:opacity-90 blur-[0.5px] hover:blur-0 scale-[0.96]")
+                }
+              >
                 <SaleCard sale={s} index={i} active={i === activeIndex} />
-              </div>
+              </button>
             ))}
             <div className="shrink-0 w-4" />
           </div>
-          {/* Edge fades — match section background */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 md:w-32 bg-gradient-to-r from-[oklch(0.97_0.008_75)] via-[oklch(0.97_0.008_75)]/70 to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 md:w-32 bg-gradient-to-l from-[oklch(0.97_0.008_75)] via-[oklch(0.97_0.008_75)]/70 to-transparent z-10" />
+          {/* Edge fades — subtle, tuned to section bg, no hard white */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 md:w-40 z-10" style={{ background: "linear-gradient(to right, oklch(0.97 0.008 75) 0%, oklch(0.97 0.008 75 / 0.6) 40%, transparent 100%)" }} />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 md:w-40 z-10" style={{ background: "linear-gradient(to left, oklch(0.97 0.008 75) 0%, oklch(0.97 0.008 75 / 0.6) 40%, transparent 100%)" }} />
         </div>
+
+        {/* Progress bar for auto-cycle */}
+        <div className="mt-4 flex items-center gap-3">
+          <span className="text-[10px] tracking-[0.22em] uppercase text-ink-muted">
+            {String(activeIndex + 1).padStart(2, "0")} / {String(sales.length).padStart(2, "0")}
+          </span>
+          <div className="relative flex-1 h-px bg-line overflow-hidden">
+            <div
+              key={activeIndex}
+              className="absolute inset-y-0 left-0 bg-ink"
+              style={{ animation: "sale-progress 3.8s linear forwards" }}
+            />
+          </div>
+          <span className="text-[10px] tracking-[0.22em] uppercase text-ink-muted hidden md:inline">
+            {sales[activeIndex].name}
+          </span>
+        </div>
+
 
         {/* Bottom ticker */}
         <div className="relative mt-16 border-t border-line pt-8">
