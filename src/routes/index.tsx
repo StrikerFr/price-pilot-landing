@@ -697,7 +697,12 @@ function FeatureStrip() {
   const steps = journey.length;
   const raw = p * steps;
   const active = Math.min(steps - 1, Math.max(0, Math.floor(raw)));
-  const local = Math.min(1, Math.max(0, raw - active));
+  const rawLocal = Math.min(1, Math.max(0, raw - active));
+  // eased local progress for smoother, more cinematic transitions
+  const local =
+    rawLocal < 0.5
+      ? 2 * rawLocal * rawLocal
+      : 1 - Math.pow(-2 * rawLocal + 2, 2) / 2;
 
   const current = journey[active];
   const next = journey[Math.min(steps - 1, active + 1)];
