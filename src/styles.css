@@ -210,20 +210,42 @@
 @utility anim-caret        { animation: caret-blink 1.1s steps(1) infinite; }
 @utility anim-spin-slow    { animation: spin-slow 40s linear infinite; }
 
-/* ===== Slanted section transitions ===== */
+/* ===== Smooth slanted section transitions =====
+   Polygon vertices sample an ease-in-out (cosine) curve
+   from y=0 to y=MAX across x=0%..100%, giving soft S-shaped edges. */
 @utility slant-l {
   margin-top: -1px;
-  clip-path: polygon(0 0, 100% 56px, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0% 0px, 10% 2px, 20% 6px, 30% 12px, 40% 20px,
+    50% 30px, 60% 40px, 70% 48px, 80% 54px, 90% 58px,
+    100% 60px, 100% 100%, 0% 100%
+  );
   filter: drop-shadow(0 -10px 24px oklch(0.15 0.02 60 / 0.14))
           drop-shadow(0 -1px 0 oklch(0.15 0.02 60 / 0.05));
 }
 @utility slant-r {
   margin-top: -1px;
-  clip-path: polygon(0 56px, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0% 60px, 10% 58px, 20% 54px, 30% 48px, 40% 40px,
+    50% 30px, 60% 20px, 70% 12px, 80% 6px, 90% 2px,
+    100% 0px, 100% 100%, 0% 100%
+  );
   filter: drop-shadow(0 -10px 24px oklch(0.15 0.02 60 / 0.14))
           drop-shadow(0 -1px 0 oklch(0.15 0.02 60 / 0.05));
 }
 @media (min-width: 768px) {
-  .slant-l { clip-path: polygon(0 0, 100% 110px, 100% 100%, 0 100%); }
-  .slant-r { clip-path: polygon(0 110px, 100% 0, 100% 100%, 0 100%); }
+  .slant-l {
+    clip-path: polygon(
+      0% 0px, 10% 3px, 20% 11px, 30% 24px, 40% 41px,
+      50% 60px, 60% 79px, 70% 96px, 80% 109px, 90% 117px,
+      100% 120px, 100% 100%, 0% 100%
+    );
+  }
+  .slant-r {
+    clip-path: polygon(
+      0% 120px, 10% 117px, 20% 109px, 30% 96px, 40% 79px,
+      50% 60px, 60% 41px, 70% 24px, 80% 11px, 90% 3px,
+      100% 0px, 100% 100%, 0% 100%
+    );
+  }
 }
