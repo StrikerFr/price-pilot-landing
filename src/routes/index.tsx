@@ -2308,7 +2308,11 @@ function UpcomingSales() {
     scroller.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
   }, [activeIndex]);
 
+  return (
+    <section className="slant-r relative z-10 overflow-hidden py-28 md:py-36 bg-surface-2/60">
+      {/* Ambient background */}
       <div
+
         className="pointer-events-none absolute inset-0 opacity-70"
         style={{
           background:
