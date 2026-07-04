@@ -1327,82 +1327,255 @@ function FinalCTA() {
   );
 }
 
-/* ---------- Footer ---------- */
+/* ---------- Footer — The final interaction ---------- */
+
+const FOOTER_PLACEHOLDERS = [
+  "Gaming laptop under ₹90,000",
+  "Best phone for photography",
+  "Monitor for programming",
+  "Mechanical keyboard",
+  "Noise cancelling headphones",
+];
+
+const FOOTER_STATUS = [
+  "Finding the best gaming laptops",
+  "Comparing prices across 40+ stores",
+  "Reading 12,480 reviews",
+  "Checking 90-day price history",
+  "Finding today's best deal",
+];
 
 function Footer() {
-  const cols = useMemo(
-    () => [
-      {
-        title: "Shop",
-        links: ["Deals", "Categories", "Trending", "Price Drops", "Sales Calendar"],
-      },
-      {
-        title: "Intelligence",
-        links: ["AI Search", "Compare", "Review Summary", "Buy or Wait", "Alerts"],
-      },
-      {
-        title: "Company",
-        links: ["About", "Careers", "Press", "Contact", "Blog"],
-      },
-      {
-        title: "Legal",
-        links: ["Privacy", "Terms", "Cookies", "Affiliate disclosure"],
-      },
-    ],
+  const ref = useRef<HTMLElement>(null);
+  const [spot, setSpot] = useState({ x: 50, y: 50, active: false });
+  const [phIdx, setPhIdx] = useState(0);
+  const [statusIdx, setStatusIdx] = useState(0);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect();
+      setSpot({
+        x: ((e.clientX - r.left) / r.width) * 100,
+        y: ((e.clientY - r.top) / r.height) * 100,
+        active: true,
+      });
+    };
+    const onLeave = () => setSpot((s) => ({ ...s, active: false }));
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+
+  useEffect(() => {
+    const a = setInterval(
+      () => setPhIdx((i) => (i + 1) % FOOTER_PLACEHOLDERS.length),
+      3200,
+    );
+    const b = setInterval(
+      () => setStatusIdx((i) => (i + 1) % FOOTER_STATUS.length),
+      2400,
+    );
+    return () => {
+      clearInterval(a);
+      clearInterval(b);
+    };
+  }, []);
+
+  // Deterministic drifting particles
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 18 }, (_, i) => {
+        const s = Math.sin(i * 12.9898) * 43758.5453;
+        const r = (n: number) => {
+          const v = Math.sin(s + n) * 43758.5453;
+          return v - Math.floor(v);
+        };
+        return {
+          left: r(1) * 100,
+          top: 10 + r(2) * 80,
+          size: 1 + r(3) * 2,
+          delay: r(4) * 8,
+          duration: 14 + r(5) * 12,
+          opacity: 0.1 + r(6) * 0.25,
+        };
+      }),
     [],
   );
 
   return (
-    <footer className="bg-background border-t border-line">
-      <div className="mx-auto max-w-[1400px] px-6 md:px-10 pt-24 pb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          <div className="lg:col-span-4">
-            <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-background text-[11px] font-semibold">
-                P
+    <footer
+      ref={ref}
+      className="relative overflow-hidden"
+      style={{ background: "oklch(0.985 0.008 75)" }}
+    >
+      {/* Cursor spotlight */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-700"
+        style={{
+          opacity: spot.active ? 1 : 0,
+          background: `radial-gradient(500px circle at ${spot.x}% ${spot.y}%, oklch(1 0.02 75 / 0.9), transparent 60%)`,
+        }}
+      />
+
+      {/* Top hairline fade — soft transition from previous section */}
+      <div
+        className="pointer-events-none absolute top-0 inset-x-0 h-40"
+        style={{
+          background:
+            "linear-gradient(to bottom, oklch(0.98 0.008 75), transparent)",
+        }}
+      />
+
+      {/* Drifting particles */}
+      <div className="pointer-events-none absolute inset-0">
+        {particles.map((p, i) => (
+          <span
+            key={i}
+            className="absolute rounded-full bg-ink"
+            style={{
+              left: `${p.left}%`,
+              top: `${p.top}%`,
+              width: p.size,
+              height: p.size,
+              opacity: p.opacity,
+              animation: `footer-drift ${p.duration}s ease-in-out ${p.delay}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Main stage */}
+      <div className="relative mx-auto max-w-[1200px] px-6 md:px-10 pt-40 md:pt-56 pb-24">
+        {/* AI status — tiny animated line above headline */}
+        <div className="flex items-center justify-center gap-2.5 text-[11px] tracking-[0.28em] uppercase text-ink-muted/70 h-4">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-60" />
+            <span className="relative h-1.5 w-1.5 rounded-full bg-accent" />
+          </span>
+          <span
+            key={statusIdx}
+            className="anim-fade-up"
+            style={{ animation: "footer-fade 0.7s ease-out" }}
+          >
+            {FOOTER_STATUS[statusIdx]}…
+          </span>
+        </div>
+
+        {/* Massive editorial headline */}
+        <h2
+          className="display mt-10 text-center text-ink font-medium"
+          style={{
+            fontSize: "clamp(56px, 11vw, 128px)",
+            lineHeight: 0.95,
+            letterSpacing: "-0.045em",
+          }}
+        >
+          One last search.
+        </h2>
+
+        <p className="mt-8 text-center text-ink-muted text-[15px] max-w-xl mx-auto leading-relaxed">
+          The AI is listening. Describe what you're looking for and we'll do
+          the rest.
+        </p>
+
+        {/* Giant search — the hero of the footer */}
+        <div
+          className="relative mx-auto mt-14 w-full"
+          style={{ maxWidth: 960 }}
+        >
+          {/* Ambient glow behind search */}
+          <div
+            className="pointer-events-none absolute -inset-10 rounded-[48px] transition-opacity duration-700"
+            style={{
+              opacity: focused ? 1 : 0.55,
+              background:
+                "radial-gradient(closest-side, oklch(1 0.03 75 / 0.9), transparent 70%)",
+            }}
+          />
+          <label
+            className="relative flex items-center gap-4 rounded-full bg-surface/95 backdrop-blur-md border transition-all duration-500"
+            style={{
+              height: 76,
+              paddingLeft: 28,
+              paddingRight: 8,
+              borderColor: focused
+                ? "oklch(0.68 0.17 45 / 0.5)"
+                : "oklch(0.2 0.02 60 / 0.1)",
+              boxShadow: focused
+                ? "0 40px 80px -30px oklch(0.68 0.17 45 / 0.35), 0 0 0 6px oklch(0.68 0.17 45 / 0.06)"
+                : "0 30px 60px -30px rgba(60,40,20,0.2)",
+            }}
+          >
+            <Search size={20} className="text-ink-muted shrink-0" />
+            <div className="relative flex-1 h-full">
+              <input
+                type="text"
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                placeholder=""
+                className="peer absolute inset-0 w-full h-full bg-transparent outline-none text-[17px] text-ink placeholder:text-transparent"
+              />
+              <span
+                key={phIdx}
+                className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-[17px] text-ink-muted peer-focus:opacity-0 transition-opacity duration-300"
+                style={{ animation: "footer-fade 0.6s ease-out" }}
+              >
+                {FOOTER_PLACEHOLDERS[phIdx]}
               </span>
-              <span className="display text-xl">PricePilot</span>
             </div>
-            <p className="mt-6 max-w-xs text-ink-soft text-[14px] leading-relaxed">
-              The AI shopping copilot. Every store, every price, every review —
-              in one calm interface.
-            </p>
-            <div className="mt-8 inline-flex items-center gap-2 text-[12px] text-ink-muted">
-              <span className="h-2 w-2 rounded-full bg-accent" />
-              All systems normal · Live prices
-            </div>
-          </div>
-
-          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {cols.map((c) => (
-              <div key={c.title}>
-                <div className="eyebrow mb-5">{c.title}</div>
-                <ul className="space-y-3">
-                  {c.links.map((l) => (
-                    <li key={l}>
-                      <a
-                        href="#"
-                        className="link-underline text-[14px] text-ink-soft hover:text-ink transition-colors"
-                      >
-                        {l}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-24 pt-8 border-t border-line flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-[12px] text-ink-muted">
-          <span>© 2026 PricePilot. Crafted in Bengaluru.</span>
-          <span>Prices in ₹ · Updated hourly</span>
-        </div>
-
-        <div className="display mt-20 text-[18vw] leading-[0.85] tracking-tighter text-ink/[0.06] select-none pointer-events-none">
-          PricePilot
+            <button
+              type="button"
+              className="group h-[60px] px-6 rounded-full bg-ink text-surface flex items-center gap-2.5 text-[14px] font-medium tracking-tight transition-transform duration-300 hover:scale-[1.02]"
+            >
+              Ask AI
+              <ArrowRight
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-0.5"
+              />
+            </button>
+          </label>
         </div>
       </div>
+
+      {/* Very bottom — minimal signature */}
+      <div className="relative">
+        <div
+          className="mx-auto max-w-[1200px] h-px"
+          style={{ background: "oklch(0.2 0.02 60 / 0.08)" }}
+        />
+        <div className="mx-auto max-w-[1200px] px-6 md:px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[12px] text-ink-muted">
+          <div className="flex items-center gap-2">
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-ink text-surface text-[9px] font-semibold">
+              P
+            </span>
+            <span className="tracking-tight">PricePilot</span>
+            <span className="opacity-40">·</span>
+            <span className="opacity-70">© 2026</span>
+          </div>
+          <nav className="flex items-center gap-6">
+            <a href="#" className="hover:text-ink transition-colors">Privacy</a>
+            <a href="#" className="hover:text-ink transition-colors">Terms</a>
+            <a href="#" className="hover:text-ink transition-colors">Contact</a>
+          </nav>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes footer-drift {
+          0%, 100% { transform: translate(0, 0); }
+          50%      { transform: translate(8px, -18px); }
+        }
+        @keyframes footer-fade {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </footer>
   );
 }
