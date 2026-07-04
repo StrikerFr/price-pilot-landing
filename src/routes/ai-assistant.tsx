@@ -353,8 +353,10 @@ function buildOffers(p: { id: string; name: string; brand: string; price: number
 
 function parseAssistant(raw: string) {
   const picks: string[] = [];
+  const validIds = new Set(PRODUCTS.map((p) => p.id));
   let body = raw.replace(/\[\[PICK:([a-z0-9-]+)\]\]/gi, (_, id) => {
-    if (!picks.includes(id)) picks.push(id);
+    const key = String(id).toLowerCase();
+    if (validIds.has(key) && !picks.includes(key)) picks.push(key);
     return "";
   });
   let sources: string[] = [];
