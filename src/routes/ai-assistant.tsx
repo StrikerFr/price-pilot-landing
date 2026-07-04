@@ -264,85 +264,14 @@ function AssistantMessage({ text, query }: { text: string; query: string }) {
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div className="text-[11px] uppercase tracking-[0.22em] text-ink-muted flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Best matching prices · cheapest highlighted
+              Live prices · cheapest highlighted
             </div>
-            <span className="text-[11px] text-ink-muted">Amazon · Flipkart · Croma</span>
+            <span className="text-[11px] text-ink-muted">Amazon · Flipkart · Croma · Reliance · Vijay Sales</span>
           </div>
           <div className="grid gap-3">
-            {picks.map((id) => {
-              const p = PRODUCTS.find((x) => x.id === id);
-              if (!p) return null;
-              const offers = buildOffers(p);
-              const cheapest = offers.reduce((a, b) => (a.price <= b.price ? a : b));
-              const savings = Math.max(0, p.mrp - cheapest.price);
-              const savingsPct = p.mrp > 0 ? Math.round((savings / p.mrp) * 100) : 0;
-              return (
-                <div key={id} className="rounded-2xl border border-line bg-surface hover:border-ink/25 transition-all overflow-hidden">
-                  {/* Header */}
-                  <div className="flex items-start gap-4 p-4">
-                    <img src={p.img} alt="" className="h-16 w-16 rounded-xl object-cover bg-surface-2 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-[14.5px] font-semibold text-ink truncate">{p.brand} {p.name}</div>
-                          <div className="text-[11.5px] text-ink-muted mt-0.5">{p.category} · ★ {p.rating}</div>
-                        </div>
-                        <span className="shrink-0 text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-[oklch(0.42_0.14_45)] whitespace-nowrap">{p.verdict}</span>
-                      </div>
-                      <div className="mt-2 flex items-baseline gap-2 flex-wrap">
-                        <span className="text-[17px] font-semibold text-ink tabular-nums">{inr(cheapest.price)}</span>
-                        {savings > 0 && (
-                          <>
-                            <span className="text-[12px] text-ink-muted line-through tabular-nums">{inr(p.mrp)}</span>
-                            <span className="text-[11px] font-medium text-[oklch(0.5_0.15_150)]">−{savingsPct}%</span>
-                          </>
-                        )}
-                        <span className="text-[11px] text-ink-muted ml-auto">Lowest at <span className="text-ink font-medium">{cheapest.store}</span></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Store offers */}
-                  <div className="border-t border-line divide-y divide-line">
-                    {offers
-                      .slice()
-                      .sort((a, b) => a.price - b.price)
-                      .map((o) => {
-                        const isBest = o.store === cheapest.store;
-                        return (
-                          <a
-                            key={o.store}
-                            href={o.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-2 transition-colors group/offer"
-                          >
-                            <span className={"h-6 w-6 rounded-md grid place-items-center text-[10px] font-bold " + o.badgeClass}>
-                              {o.initial}
-                            </span>
-                            <span className="text-[13px] text-ink font-medium">{o.store}</span>
-                            {isBest && (
-                              <span className="text-[9.5px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[oklch(0.5_0.15_150)]/12 text-[oklch(0.38_0.14_150)]">Cheapest</span>
-                            )}
-                            <span className="ml-auto flex items-center gap-2">
-                              <span className={"text-[13.5px] tabular-nums " + (isBest ? "font-semibold text-ink" : "text-ink-soft")}>{inr(o.price)}</span>
-                              <span className="text-[10.5px] text-accent font-medium opacity-70 group-hover/offer:opacity-100 transition">Visit →</span>
-                            </span>
-                          </a>
-                        );
-                      })}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between border-t border-line bg-surface-2/40 px-4 py-2.5">
-                    <span className="text-[10.5px] text-ink-muted">90-day low <span className="text-ink font-medium tabular-nums">{inr(p.lowest)}</span></span>
-                    <Link to="/product/$id" params={{ id }} className="text-[11.5px] font-medium text-ink hover:text-accent transition-colors">
-                      Full details & price history →
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+            {picks.map((id) => (
+              <PickCard key={id} id={id} />
+            ))}
           </div>
         </div>
       )}
@@ -350,24 +279,136 @@ function AssistantMessage({ text, query }: { text: string; query: string }) {
   );
 }
 
-type Offer = { store: string; price: number; url: string; initial: string; badgeClass: string };
+type LiveOffer = { store: string; price: number | null; url: string; initial: string; badgeClass: string };
 
-const STORES: { name: string; initial: string; badgeClass: string; search: (q: string) => string; delta: number }[] = [
-  { name: "Amazon", initial: "a", badgeClass: "bg-[oklch(0.94_0.05_75)] text-[oklch(0.42_0.14_45)]", search: (q) => `https://www.amazon.in/s?k=${encodeURIComponent(q)}`, delta: 0 },
-  { name: "Flipkart", initial: "F", badgeClass: "bg-[oklch(0.92_0.06_240)] text-[oklch(0.4_0.15_250)]", search: (q) => `https://www.flipkart.com/search?q=${encodeURIComponent(q)}`, delta: 0.018 },
-  { name: "Croma", initial: "C", badgeClass: "bg-[oklch(0.92_0.08_25)] text-[oklch(0.42_0.15_25)]", search: (q) => `https://www.croma.com/searchB?q=${encodeURIComponent(q)}`, delta: 0.037 },
-];
+function timeAgo(ms: number) {
+  const s = Math.max(1, Math.round((Date.now() - ms) / 1000));
+  if (s < 60) return `${s}s ago`;
+  const m = Math.round(s / 60);
+  if (m < 60) return `${m}m ago`;
+  return `${Math.round(m / 60)}h ago`;
+}
 
-function buildOffers(p: { id: string; name: string; brand: string; price: number }): Offer[] {
-  // deterministic small variance per product+store so cheapest rotates across cards
-  const seed = p.id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  const q = `${p.brand} ${p.name}`;
-  return STORES.map((s, i) => {
-    const jitter = (((seed * (i + 3)) % 41) - 20) / 1000; // -0.02..+0.02
-    const factor = 1 + s.delta + jitter;
-    const raw = Math.round((p.price * factor) / 10) * 10;
-    return { store: s.name, price: raw, url: s.search(q), initial: s.initial, badgeClass: s.badgeClass };
+function PickCard({ id }: { id: string }) {
+  const p = PRODUCTS.find((x) => x.id === id);
+  const [offers, setOffers] = useState<LiveOffer[] | null>(null);
+  const [fetchedAt, setFetchedAt] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    fetch(`/api/live-prices?id=${encodeURIComponent(id)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { offers?: LiveOffer[]; fetchedAt?: number } | null) => {
+        if (!alive) return;
+        if (data?.offers) {
+          setOffers(data.offers);
+          setFetchedAt(data.fetchedAt ?? Date.now());
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [id]);
+
+  if (!p) return null;
+
+  const priced = (offers ?? []).filter((o): o is LiveOffer & { price: number } => typeof o.price === "number");
+  const cheapest = priced.length ? priced.reduce((a, b) => (a.price <= b.price ? a : b)) : null;
+  const displayPrice = cheapest?.price ?? p.price;
+  const savings = Math.max(0, p.mrp - displayPrice);
+  const savingsPct = p.mrp > 0 ? Math.round((savings / p.mrp) * 100) : 0;
+  const sorted = (offers ?? []).slice().sort((a, b) => {
+    if (a.price == null && b.price == null) return 0;
+    if (a.price == null) return 1;
+    if (b.price == null) return -1;
+    return a.price - b.price;
   });
+
+  return (
+    <div className="rounded-2xl border border-line bg-surface hover:border-ink/25 transition-all overflow-hidden">
+      <div className="flex items-start gap-4 p-4">
+        <img src={p.img} alt="" className="h-16 w-16 rounded-xl object-cover bg-surface-2 shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[14.5px] font-semibold text-ink truncate">{p.brand} {p.name}</div>
+              <div className="text-[11.5px] text-ink-muted mt-0.5">{p.category} · ★ {p.rating}</div>
+            </div>
+            <span className="shrink-0 text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-[oklch(0.42_0.14_45)] whitespace-nowrap">{p.verdict}</span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2 flex-wrap">
+            <span className="text-[17px] font-semibold text-ink tabular-nums">{inr(displayPrice)}</span>
+            {savings > 0 && (
+              <>
+                <span className="text-[12px] text-ink-muted line-through tabular-nums">{inr(p.mrp)}</span>
+                <span className="text-[11px] font-medium text-[oklch(0.5_0.15_150)]">−{savingsPct}%</span>
+              </>
+            )}
+            {cheapest && (
+              <span className="text-[11px] text-ink-muted ml-auto">Lowest at <span className="text-ink font-medium">{cheapest.store}</span></span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-line divide-y divide-line">
+        {loading && !offers && (
+          <div className="px-4 py-3 text-[12px] text-ink-muted flex items-center gap-2">
+            <span className="inline-flex gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-ink-muted animate-bounce" />
+              <span className="h-1.5 w-1.5 rounded-full bg-ink-muted animate-bounce" style={{ animationDelay: "120ms" }} />
+              <span className="h-1.5 w-1.5 rounded-full bg-ink-muted animate-bounce" style={{ animationDelay: "240ms" }} />
+            </span>
+            Fetching live prices across stores…
+          </div>
+        )}
+        {sorted.map((o) => {
+          const isBest = cheapest ? o.store === cheapest.store && o.price === cheapest.price : false;
+          return (
+            <a
+              key={o.store}
+              href={o.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-2 transition-colors group/offer"
+            >
+              <span className={"h-6 w-6 rounded-md grid place-items-center text-[10px] font-bold " + o.badgeClass}>
+                {o.initial}
+              </span>
+              <span className="text-[13px] text-ink font-medium">{o.store}</span>
+              {isBest && (
+                <span className="text-[9.5px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[oklch(0.5_0.15_150)]/12 text-[oklch(0.38_0.14_150)]">Cheapest</span>
+              )}
+              <span className="ml-auto flex items-center gap-2">
+                {o.price != null ? (
+                  <span className={"text-[13.5px] tabular-nums " + (isBest ? "font-semibold text-ink" : "text-ink-soft")}>{inr(o.price)}</span>
+                ) : (
+                  <span className="text-[11.5px] text-ink-muted italic">Check on site</span>
+                )}
+                <span className="text-[10.5px] text-accent font-medium opacity-70 group-hover/offer:opacity-100 transition">Visit →</span>
+              </span>
+            </a>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-between border-t border-line bg-surface-2/40 px-4 py-2.5">
+        <span className="text-[10.5px] text-ink-muted">
+          90-day low <span className="text-ink font-medium tabular-nums">{inr(p.lowest)}</span>
+          {fetchedAt && <span className="ml-2">· live · updated {timeAgo(fetchedAt)}</span>}
+        </span>
+        <Link to="/product/$id" params={{ id }} className="text-[11.5px] font-medium text-ink hover:text-accent transition-colors">
+          Full details & price history →
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 function parseAssistant(raw: string) {
