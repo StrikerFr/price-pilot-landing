@@ -2183,71 +2183,199 @@ const trending = [
   { img: catPhones, name: "Aurora Pro 15", cat: "Phones" },
 ];
 
-function Trending() {
-  const scrollRef = useRef<HTMLDivElement>(null);
+const trendingExtras: { price: string; drop: string; spark: number[] }[] = [
+  { price: "₹54,990", drop: "-18%", spark: [8, 6, 7, 5, 4, 3, 2] },
+  { price: "₹24,900", drop: "-12%", spark: [7, 7, 6, 5, 6, 4, 3] },
+  { price: "₹32,499", drop: "-22%", spark: [9, 8, 6, 7, 5, 4, 2] },
+  { price: "₹18,750", drop: "-9%", spark: [6, 6, 5, 5, 4, 4, 3] },
+  { price: "₹89,900", drop: "-15%", spark: [8, 7, 7, 6, 5, 5, 4] },
+  { price: "₹1,29,999", drop: "-11%", spark: [9, 8, 8, 7, 6, 6, 5] },
+];
+
+function Sparkline({ data }: { data: number[] }) {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const w = 60;
+  const h = 18;
+  const pts = data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * w;
+      const y = h - ((v - min) / Math.max(1, max - min)) * h;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
   return (
-    <section className="slant-l relative z-10 py-28 md:py-36 bg-background">
-      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
-        <div className="flex items-end justify-between mb-12 gap-8">
-          <div>
-            <div className="eyebrow">Trending now</div>
-            <h2 className="display mt-4 text-4xl md:text-6xl">
-              What India is buying.
-            </h2>
-          </div>
-          <div className="hidden md:flex gap-2">
-            <button
-              onClick={() => scrollRef.current?.scrollBy({ left: -400, behavior: "smooth" })}
-              className="grid h-11 w-11 place-items-center rounded-full border border-line hover:border-ink transition-colors"
-              aria-label="Scroll left"
-            >
-              <ArrowRight size={16} className="rotate-180" />
-            </button>
-            <button
-              onClick={() => scrollRef.current?.scrollBy({ left: 400, behavior: "smooth" })}
-              className="grid h-11 w-11 place-items-center rounded-full border border-line hover:border-ink transition-colors"
-              aria-label="Scroll right"
-            >
-              <ArrowRight size={16} />
-            </button>
+    <svg width={w} height={h} className="overflow-visible">
+      <polyline
+        points={pts}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function TrendingCard({
+  t,
+  i,
+  rank,
+}: {
+  t: (typeof trending)[number];
+  i: number;
+  rank: number;
+}) {
+  const ex = trendingExtras[i % trendingExtras.length];
+  return (
+    <a
+      href="#"
+      className="group relative shrink-0 w-[260px] md:w-[320px] block"
+    >
+      <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-surface-2">
+        <img
+          src={t.img}
+          alt={t.name}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-110"
+        />
+        {/* soft vignette */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* rank badge */}
+        <span className="absolute top-4 left-4 text-[11px] font-medium text-background bg-ink/75 backdrop-blur rounded-full px-2.5 py-1">
+          #{rank} Trending
+        </span>
+
+        {/* drop chip */}
+        <span className="absolute top-4 right-4 text-[11px] font-semibold text-background bg-[oklch(0.55_0.18_25)] rounded-full px-2.5 py-1 shadow-[0_6px_18px_-6px_oklch(0.55_0.18_25_/_0.5)]">
+          {ex.drop}
+        </span>
+
+        {/* bottom info panel — slides up on hover */}
+        <div className="absolute inset-x-3 bottom-3 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)]">
+          <div className="rounded-2xl bg-background/85 backdrop-blur-md border border-line/60 px-3.5 py-2.5 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted">
+                Live price
+              </div>
+              <div className="text-[15px] font-semibold text-ink leading-tight">
+                {ex.price}
+              </div>
+            </div>
+            <div className="text-ink-muted">
+              <Sparkline data={ex.spark} />
+            </div>
           </div>
         </div>
       </div>
 
+      <div className="mt-4 flex items-center justify-between">
+        <div>
+          <div className="text-[11px] uppercase tracking-[0.14em] text-ink-muted">
+            {t.cat}
+          </div>
+          <div className="text-[15px] font-medium text-ink mt-1">{t.name}</div>
+        </div>
+        <span className="grid h-9 w-9 place-items-center rounded-full border border-line group-hover:border-ink group-hover:bg-ink group-hover:text-background transition-all duration-300">
+          <ArrowUpRight size={14} />
+        </span>
+      </div>
+    </a>
+  );
+}
+
+function TrendingMarquee({
+  items,
+  direction = "left",
+  duration = 60,
+}: {
+  items: typeof trending;
+  direction?: "left" | "right";
+  duration?: number;
+}) {
+  const loop = [...items, ...items];
+  return (
+    <div
+      className="group/marquee relative overflow-hidden"
+      style={{
+        maskImage:
+          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+        WebkitMaskImage:
+          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+      }}
+    >
       <div
-        ref={scrollRef}
-        className="flex gap-6 overflow-x-auto pl-6 md:pl-10 pr-6 md:pr-10 pb-4 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-6 w-max py-2"
+        style={{
+          animation: `marquee ${duration}s linear infinite${direction === "right" ? " reverse" : ""}`,
+          animationPlayState: "running",
+        }}
+        onMouseEnter={(e) =>
+          (e.currentTarget.style.animationPlayState = "paused")
+        }
+        onMouseLeave={(e) =>
+          (e.currentTarget.style.animationPlayState = "running")
+        }
       >
-        {trending.map((t, i) => (
-          <a
-            key={i}
-            href="#"
-            className="group shrink-0 w-[280px] md:w-[380px] snap-start"
-          >
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-surface-2">
-              <img
-                src={t.img}
-                alt={t.name}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <span className="absolute top-4 left-4 text-[11px] font-medium text-background bg-ink/70 backdrop-blur rounded-full px-2.5 py-1">
-                #{i + 1} Trending
-              </span>
-            </div>
-            <div className="mt-5 flex items-center justify-between">
-              <div>
-                <div className="text-[12px] text-ink-muted">{t.cat}</div>
-                <div className="text-[16px] font-medium text-ink mt-0.5">
-                  {t.name}
-                </div>
-              </div>
-              <span className="grid h-9 w-9 place-items-center rounded-full border border-line group-hover:border-ink group-hover:bg-ink group-hover:text-background transition-all">
-                <ArrowUpRight size={14} />
-              </span>
-            </div>
-          </a>
+        {loop.map((t, i) => (
+          <TrendingCard
+            key={`${direction}-${i}`}
+            t={t}
+            i={i % items.length}
+            rank={(i % items.length) + 1}
+          />
         ))}
+      </div>
+    </div>
+  );
+}
+
+function Trending() {
+  return (
+    <section className="slant-l relative z-10 py-28 md:py-36 bg-background overflow-hidden">
+      {/* ambient background numeral */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-16 right-[-4vw] text-[26vw] font-black leading-none text-ink/[0.03] select-none"
+      >
+        01
+      </div>
+
+      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
+        <div className="flex items-end justify-between mb-12 gap-8 flex-wrap">
+          <div>
+            <div className="eyebrow flex items-center gap-3">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[oklch(0.55_0.18_25)] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[oklch(0.55_0.18_25)]" />
+              </span>
+              Trending now · updated live
+            </div>
+            <h2 className="display mt-4 text-4xl md:text-6xl">
+              What India is buying.
+            </h2>
+            <p className="mt-4 max-w-xl text-[15px] text-ink-soft">
+              A living feed of the most-tracked products across PricePilot this
+              hour. Hover any card to pause the scroll.
+            </p>
+          </div>
+          <div className="hidden md:flex items-center gap-2 text-[12px] text-ink-muted">
+            <span className="h-px w-10 bg-line" />
+            auto-scrolling
+            <span className="h-px w-10 bg-line" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-5">
+        <TrendingMarquee items={trending} direction="left" duration={55} />
+        <TrendingMarquee
+          items={[...trending].reverse()}
+          direction="right"
+          duration={70}
+        />
       </div>
     </section>
   );
