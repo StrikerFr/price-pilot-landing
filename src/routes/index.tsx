@@ -1107,19 +1107,6 @@ function FeatureStrip() {
                 </span>
               </div>
             </div>
-
-            {/* peek at next image */}
-            <div
-              aria-hidden
-              className="hidden md:block absolute -right-8 top-8 bottom-8 w-16 rounded-r-[24px] overflow-hidden opacity-40"
-              style={{ transform: `translateX(${local * 40}px)` }}
-            >
-              <img
-                src={next.image}
-                alt=""
-                className="h-full w-full object-cover blur-[2px]"
-              />
-            </div>
           </div>
         </div>
 
@@ -1132,10 +1119,10 @@ function FeatureStrip() {
         </div>
 
         <style>{`
-          @keyframes scan-sweep {
-            0%   { transform: translateY(-100%); opacity: 0; }
-            30%  { opacity: 1; }
-            100% { transform: translateY(100%); opacity: 0; }
+          @keyframes sheen-sweep {
+            0%   { transform: translateX(-60%); opacity: 0; }
+            25%  { opacity: 1; }
+            100% { transform: translateX(60%); opacity: 0; }
           }
         `}</style>
       </div>
