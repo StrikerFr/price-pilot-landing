@@ -134,22 +134,37 @@ function Nav() {
 
 /* ---------- Hero ---------- */
 
-const placeholders = [
-  "Gaming laptop under ₹90,000",
-  "Best phone for photography",
-  "Mechanical keyboard",
-  "OLED monitor",
-  "Wireless headphones",
+/* ---------- Hero data ---------- */
+
+type Scene = {
+  query: string;
+  match: string;
+  score: string;
+  price: string;
+  // per-product emphasis 0..1
+  laptop: number;
+  phone: number;
+  headphones: number;
+};
+
+const scenes: Scene[] = [
+  { query: "Gaming laptop under ₹90k",       match: "ASUS TUF A15 Ryzen 7",  score: "9.2", price: "₹86,499", laptop: 1.0, phone: 0.55, headphones: 0.65 },
+  { query: "Mechanical keyboard for coding", match: "Keychron K2 Pro",       score: "9.1", price: "₹12,499", laptop: 0.6, phone: 0.5,  headphones: 0.6  },
+  { query: "Best phone camera",              match: "iPhone 15 Pro",         score: "9.5", price: "₹1,19,900", laptop: 0.55, phone: 1.0, headphones: 0.55 },
+  { query: "OLED monitor",                   match: "LG 27\" UltraGear OLED", score: "9.3", price: "₹79,999", laptop: 0.85, phone: 0.5, headphones: 0.6 },
+  { query: "Wireless headphones",            match: "Sony WH-1000XM5",       score: "9.6", price: "₹24,990", laptop: 0.55, phone: 0.55, headphones: 1.0 },
 ];
 
-const suggestions = [
-  { label: "Gaming Laptop", meta: "₹90k" },
-  { label: "Mirrorless Camera", meta: "Beginner" },
-  { label: "Mechanical Keyboard", meta: "Coding" },
+const thinkingSteps = [
+  "Searching",
+  "Checking prices",
+  "Reading reviews",
+  "Comparing stores",
+  "Finding best option",
 ];
 
-// Deterministic dust particle positions (avoid SSR mismatch)
-const dust = Array.from({ length: 22 }, (_, i) => {
+// Deterministic particle positions (avoid SSR mismatch)
+const dust = Array.from({ length: 28 }, (_, i) => {
   const rand = (seed: number) => {
     const x = Math.sin(seed * 9973.13) * 43758.5453;
     return x - Math.floor(x);
@@ -157,19 +172,85 @@ const dust = Array.from({ length: 22 }, (_, i) => {
   return {
     left: rand(i + 1) * 100,
     top: rand(i + 7) * 100,
-    delay: rand(i + 13) * 8,
-    duration: 10 + rand(i + 19) * 10,
+    delay: rand(i + 13) * 12,
+    duration: 14 + rand(i + 19) * 14,
     size: 1 + Math.floor(rand(i + 23) * 2),
-    opacity: 0.15 + rand(i + 29) * 0.25,
+    opacity: 0.1 + rand(i + 29) * 0.2,
   };
 });
 
+/** Typewriter that types → holds → deletes, then advances. */
+function useTypewriter(text: string, onComplete: () => void) {
+  const [display, setDisplay] = useState("");
+  const [phase, setPhase] = useState<"typing" | "holding" | "deleting">("typing");
+  const completedRef = useRef(false);
+
+  useEffect(() => {
+    setDisplay("");
+    setPhase("typing");
+    completedRef.current = false;
+  }, [text]);
+
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    if (phase === "typing") {
+      if (display.length < text.length) {
+        t = setTimeout(() => setDisplay(text.slice(0, display.length + 1)), 55 + Math.random() * 40);
+      } else {
+        t = setTimeout(() => setPhase("holding"), 1600);
+      }
+    } else if (phase === "holding") {
+      t = setTimeout(() => setPhase("deleting"), 1400);
+    } else {
+      if (display.length > 0) {
+        t = setTimeout(() => setDisplay(text.slice(0, display.length - 1)), 22);
+      } else if (!completedRef.current) {
+        completedRef.current = true;
+        onComplete();
+      }
+    }
+    return () => clearTimeout(t);
+  }, [display, phase, text, onComplete]);
+
+  return { display, phase };
+}
+
 function Hero() {
-  const [idx, setIdx] = useState(0);
+  const [sceneIdx, setSceneIdx] = useState(0);
   const [query, setQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  const [thinkIdx, setThinkIdx] = useState(0);
+  const [showCard, setShowCard] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
+  const [light, setLight] = useState({ x: 50, y: 40 });
   const navigate = useNavigate();
+
+  const scene = scenes[sceneIdx];
+  const isTypingUser = focused || query.length > 0;
+
+  const advanceScene = () => setSceneIdx((i) => (i + 1) % scenes.length);
+  const { display: typed, phase } = useTypewriter(scene.query, advanceScene);
+
+  // AI thinking indicator cycles when a query has finished typing.
+  useEffect(() => {
+    if (isTypingUser) return;
+    if (phase !== "holding") { setShowCard(false); return; }
+    setThinkIdx(0);
+    setShowCard(false);
+    let i = 0;
+    const t = setInterval(() => {
+      i += 1;
+      if (i >= thinkingSteps.length) {
+        clearInterval(t);
+        setShowCard(true);
+      } else {
+        setThinkIdx(i);
+      }
+    }, 260);
+    return () => clearInterval(t);
+  }, [phase, sceneIdx, isTypingUser]);
 
   const submit = (q: string) => {
     const trimmed = q.trim();
@@ -177,24 +258,22 @@ function Hero() {
     navigate({ to: "/ai-assistant", search: { q: trimmed } });
   };
 
+  // Pointer tracking (parallax + light direction)
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % placeholders.length), 2800);
-    return () => clearInterval(t);
-  }, []);
-
-
-  useEffect(() => {
-    const el = stageRef.current;
+    const el = heroRef.current;
     if (!el) return;
     let raf = 0;
     const onMove = (e: MouseEvent) => {
       const r = el.getBoundingClientRect();
-      const x = (e.clientX - (r.left + r.width / 2)) / r.width;
-      const y = (e.clientY - (r.top + r.height / 2)) / r.height;
+      const nx = (e.clientX - r.left) / r.width;
+      const ny = (e.clientY - r.top) / r.height;
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setParallax({ x, y }));
+      raf = requestAnimationFrame(() => {
+        setParallax({ x: nx - 0.5, y: ny - 0.5 });
+        setLight({ x: nx * 100, y: ny * 100 });
+      });
     };
-    const onLeave = () => setParallax({ x: 0, y: 0 });
+    const onLeave = () => { setParallax({ x: 0, y: 0 }); setLight({ x: 50, y: 40 }); };
     el.addEventListener("mousemove", onMove);
     el.addEventListener("mouseleave", onLeave);
     return () => {
@@ -206,23 +285,39 @@ function Hero() {
 
   const px = (depth: number) => ({
     transform: `translate3d(${parallax.x * depth}px, ${parallax.y * depth}px, 0)`,
-    transition: "transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
+    transition: "transform 1200ms cubic-bezier(0.2,0.8,0.2,1)",
   });
 
-  return (
-    <section className="relative overflow-hidden min-h-screen flex items-center pt-32 md:pt-36 pb-24">
-      {/* Ambient warm light — barely there */}
-      <div className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute left-[68%] top-[42%] -translate-x-1/2 -translate-y-1/2 h-[1100px] w-[1100px] rounded-full opacity-60"
-          style={{
-            background:
-              "radial-gradient(closest-side, oklch(0.965 0.025 65 / 0.85), transparent 72%)",
-          }}
-        />
-      </div>
+  // Directional drop-shadow driven by cursor light position
+  const shadow = (strength = 1) => {
+    const sx = (light.x - 50) * -0.35 * strength;
+    const sy = (light.y - 40) * -0.4  * strength;
+    return `drop-shadow(${sx}px ${28 + sy}px ${34 * strength}px rgba(60,40,20,0.22)) drop-shadow(${sx * 0.4}px ${10 + sy * 0.4}px ${12 * strength}px rgba(60,40,20,0.10))`;
+  };
 
-      {/* Dust particles */}
+  const headlineWords = ["Every", "Product.", "One", "Decision."];
+
+  return (
+    <section
+      ref={heroRef}
+      className="relative overflow-hidden min-h-screen flex items-center pt-32 md:pt-36 pb-24"
+    >
+      {/* Dynamic ambient light — follows cursor, very subtle */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-[background] duration-[1200ms] ease-out"
+        style={{
+          background: `radial-gradient(700px circle at ${light.x}% ${light.y}%, oklch(0.985 0.03 70 / 0.9), transparent 60%)`,
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(1200px circle at 70% 45%, oklch(0.965 0.025 65 / 0.55), transparent 65%)",
+        }}
+      />
+
+      {/* Particles */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {dust.map((d, i) => (
           <span
@@ -240,10 +335,9 @@ function Hero() {
         ))}
       </div>
 
-      <div className="relative w-full mx-auto grid max-w-[1520px] grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 lg:gap-16 px-5 sm:px-8 md:px-16">
+      <div className="relative w-full mx-auto grid max-w-[1520px] grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 lg:gap-20 px-5 sm:px-8 md:px-16">
         {/* LEFT — Editorial column */}
         <div className="lg:col-span-6 flex flex-col justify-center">
-          {/* Tiny editorial marker */}
           <div
             className="flex items-center gap-3 text-[11px] tracking-[0.24em] uppercase text-ink-muted anim-reveal"
             style={{ animationDelay: "0ms" }}
@@ -253,53 +347,69 @@ function Hero() {
             <span>The AI Shopping Copilot</span>
           </div>
 
-          <h1
-            className="display mt-8 sm:mt-12 lg:mt-14 text-[42px] xs:text-[52px] sm:text-[72px] md:text-[88px] lg:text-[104px] xl:text-[112px] leading-[0.9] tracking-[-0.05em] text-ink anim-reveal text-balance"
-            style={{ animationDelay: "120ms", fontWeight: 700 }}
-          >
-            Every Product.
-            <br />
-            One Decision.
+          {/* Word-by-word staggered headline */}
+          <h1 className="display mt-8 sm:mt-12 lg:mt-14 text-[42px] xs:text-[52px] sm:text-[72px] md:text-[88px] lg:text-[104px] xl:text-[112px] leading-[0.9] tracking-[-0.05em] text-ink text-balance" style={{ fontWeight: 700 }}>
+            <span className="block overflow-hidden">
+              <span className="block anim-rise" style={{ animationDelay: "80ms" }}>Every</span>
+            </span>
+            <span className="block overflow-hidden">
+              <span className="block anim-rise" style={{ animationDelay: "220ms" }}>Product.</span>
+            </span>
+            <span className="block overflow-hidden mt-1">
+              <span className="block anim-rise" style={{ animationDelay: "380ms" }}>One</span>
+            </span>
+            <span className="block overflow-hidden">
+              <span className="block anim-rise" style={{ animationDelay: "520ms" }}>Decision.</span>
+            </span>
+            {/* SR-only for a11y */}
+            <span className="sr-only">{headlineWords.join(" ")}</span>
           </h1>
 
           <p
             className="mt-8 sm:mt-12 lg:mt-14 max-w-md text-[15px] sm:text-[17px] leading-[1.55] text-ink-soft anim-reveal"
-            style={{ animationDelay: "260ms" }}
+            style={{ animationDelay: "700ms" }}
           >
             Compare products, prices and reviews across every major store
             before you buy.
           </p>
 
-          {/* Premium AI search */}
+          {/* Central AI search — the heart of the hero */}
           <form
-            onSubmit={(e) => { e.preventDefault(); submit(query || placeholders[idx]); }}
+            onSubmit={(e) => { e.preventDefault(); submit(query || scene.query); }}
             className="mt-10 sm:mt-14 lg:mt-16 group relative anim-reveal"
-            style={{ animationDelay: "360ms" }}
+            style={{ animationDelay: "820ms" }}
           >
-            {/* focus glow */}
-            <div className="pointer-events-none absolute -inset-3 rounded-[32px] bg-[oklch(0.94_0.03_65)] opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-70 group-focus-within:opacity-100" />
+            {/* Breathing focus halo */}
+            <div
+              className="pointer-events-none absolute -inset-6 rounded-[36px] opacity-60 blur-3xl transition-opacity duration-700"
+              style={{
+                background:
+                  "radial-gradient(closest-side, oklch(0.94 0.05 65 / 0.9), transparent 70%)",
+                animation: "halo-breathe 5.5s ease-in-out infinite",
+              }}
+            />
 
-            <div className="relative flex items-center gap-2 sm:gap-4 h-[64px] sm:h-[76px] rounded-[22px] sm:rounded-[26px] border border-line/80 bg-surface/95 backdrop-blur-sm pl-4 sm:pl-7 pr-2 sm:pr-2.5 transition-all duration-500 group-hover:border-ink/30 group-focus-within:border-ink/40"
-              style={{ boxShadow: "0 1px 0 oklch(1 0 0), 0 30px 60px -40px oklch(0.2 0.02 60 / 0.2)" }}
+            <div
+              className="relative flex items-center gap-2 sm:gap-4 h-[64px] sm:h-[76px] rounded-[22px] sm:rounded-[26px] border border-line/80 bg-surface/95 backdrop-blur-sm pl-4 sm:pl-7 pr-2 sm:pr-2.5 transition-all duration-500 group-hover:border-ink/30 group-focus-within:border-ink/40"
+              style={{ boxShadow: "0 1px 0 oklch(1 0 0), 0 30px 60px -40px oklch(0.2 0.02 60 / 0.22)" }}
             >
               <Search size={20} className="text-ink-muted shrink-0 transition-colors duration-500 group-focus-within:text-ink" strokeWidth={1.5} />
               <div className="relative flex-1 min-w-0 h-full flex items-center overflow-hidden">
                 <input
                   type="text"
                   value={query}
+                  onFocus={() => setFocused(true)}
+                  onBlur={() => setFocused(false)}
                   onChange={(e) => setQuery(e.target.value)}
                   aria-label="Ask PricePilot AI"
                   className="peer absolute inset-0 h-full w-full bg-transparent outline-none text-[15px] sm:text-[18px] text-ink placeholder:text-transparent"
                 />
-                {query.length === 0 && (
-                  <div className="pointer-events-none flex items-center peer-focus:hidden max-w-full overflow-hidden">
-                    <span
-                      key={idx}
-                      className="text-[15px] sm:text-[18px] text-ink-soft/80 anim-reveal truncate"
-                    >
-                      {placeholders[idx]}
+                {!isTypingUser && (
+                  <div className="pointer-events-none flex items-center max-w-full overflow-hidden">
+                    <span className="text-[15px] sm:text-[18px] text-ink-soft/90 truncate tabular-nums">
+                      {typed}
                     </span>
-                    <span className="ml-1 inline-block h-[18px] sm:h-[22px] w-[1.5px] bg-ink-soft/70 anim-caret shrink-0" />
+                    <span className="ml-1 inline-block h-[18px] sm:h-[22px] w-[1.5px] bg-ink/70 anim-caret shrink-0" />
                   </div>
                 )}
               </div>
@@ -316,210 +426,159 @@ function Hero() {
               </button>
             </div>
 
-            {/* Premium example suggestions */}
-            <div className="mt-10 space-y-1">
-              {suggestions.map((s, i) => (
-                <button
-                  key={s.label}
-                  type="button"
-                  onClick={() => submit(s.label)}
-                  className="group/row w-full flex items-center gap-4 py-2.5 text-left anim-reveal"
-                  style={{ animationDelay: `${520 + i * 120}ms` }}
-                >
-                  <span className="text-[11px] tracking-widest text-ink-muted/70 w-8">
-                    0{i + 1}
+            {/* AI thinking line — appears after each auto-query lands */}
+            <div className="mt-5 h-5 flex items-center gap-2 text-[12px] tracking-[0.02em] text-ink-muted">
+              {!isTypingUser && phase === "holding" && !showCard && (
+                <span key={thinkIdx} className="flex items-center gap-2 anim-fade-slide">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-70" />
+                    <span className="relative h-1.5 w-1.5 rounded-full bg-accent" />
                   </span>
-                  <span className="text-[15px] text-ink-soft group-hover/row:text-ink transition-colors">
-                    {s.label}
-                  </span>
-                  <span className="flex-1 relative h-px bg-ink-muted/15 overflow-hidden">
-                    <span className="absolute inset-y-0 left-0 w-0 bg-ink group-hover/row:w-full transition-all duration-700" />
-                  </span>
-                  <span className="text-[13px] text-ink-muted group-hover/row:text-ink-soft transition-colors">
-                    {s.meta}
-                  </span>
-                  <ArrowUpRight
-                    size={14}
-                    className="text-ink-muted opacity-0 -translate-x-1 group-hover/row:opacity-100 group-hover/row:translate-x-0 transition-all duration-500"
-                  />
-                </button>
-              ))}
+                  <span>{thinkingSteps[thinkIdx]}<span className="anim-dots" /></span>
+                </span>
+              )}
             </div>
           </form>
         </div>
 
-
-        {/* RIGHT — Product installation */}
+        {/* RIGHT — Orbiting product stage */}
         <div
           ref={stageRef}
-          className="lg:col-span-6 relative min-h-[440px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[820px]"
+          className="lg:col-span-6 relative min-h-[440px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[780px]"
         >
-
-          {/* Editorial index numeral */}
           <div className="pointer-events-none absolute right-2 top-4 z-30 flex items-center gap-3 text-[10px] tracking-[0.35em] uppercase text-ink-muted/60">
             <span className="hairline w-10" />
             <span>Composition / 01</span>
           </div>
 
-          {/* Backdrop disc — anchors the composition */}
+          {/* Backdrop disc */}
           <div
             className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[620px] w-[620px] rounded-full"
             style={{
               background:
-                "radial-gradient(closest-side, oklch(0.985 0.012 70 / 1), oklch(0.965 0.02 65 / 0.6) 55%, transparent 78%)",
+                "radial-gradient(closest-side, oklch(0.985 0.012 70 / 1), oklch(0.965 0.02 65 / 0.55) 55%, transparent 78%)",
             }}
           />
-          {/* Thin ring — subtle editorial frame */}
+          {/* Editorial rings — slow rotate to feel alive */}
           <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[560px] w-[560px] rounded-full border"
-            style={{ borderColor: "oklch(0.2 0.02 60 / 0.06)" }}
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[560px] w-[560px] rounded-full border anim-spin-slower"
+            style={{ borderColor: "oklch(0.2 0.02 60 / 0.07)" }}
           />
           <div
             className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[720px] w-[720px] rounded-full border"
             style={{ borderColor: "oklch(0.2 0.02 60 / 0.035)" }}
           />
 
-          {/* Ambient key light */}
+          {/* Dynamic ground shadow — shifts with cursor light */}
           <div
-            className="pointer-events-none absolute left-[46%] top-[38%] -translate-x-1/2 -translate-y-1/2 h-[520px] w-[520px] rounded-full"
+            className="absolute left-1/2 bottom-[14%] -translate-x-1/2 h-[46px] w-[540px] rounded-[50%] blur-3xl transition-all duration-[1200ms] ease-out"
             style={{
-              background:
-                "radial-gradient(closest-side, oklch(1 0.02 75 / 0.85), transparent 72%)",
+              background: "oklch(0.2 0.02 60 / 0.22)",
+              transform: `translate(calc(-50% + ${(light.x - 50) * -0.6}px), 0) scaleX(${1 + Math.abs(light.x - 50) * 0.002})`,
             }}
           />
 
-          {/* Layered ground shadows for depth */}
+          {/* ===== Orbiting products ===== */}
+
+          {/* Phone — top right, slow orbit + gentle rotate */}
           <div
-            className="absolute left-1/2 bottom-[14%] -translate-x-1/2 h-[42px] w-[520px] rounded-[50%] blur-3xl"
-            style={{ background: "oklch(0.2 0.02 60 / 0.22)" }}
-          />
-          <div
-            className="absolute left-1/2 bottom-[16%] -translate-x-1/2 h-[24px] w-[360px] rounded-[50%] blur-xl"
-            style={{ background: "oklch(0.2 0.02 60 / 0.18)" }}
-          />
-
-          {/* ===== Product composition — diagonal editorial layout =====
-              Flow: Phone (top-right) → Laptop (center) → Headphones (bottom-left)
-              Annotations align to the outer margins so the eye reads a clean Z. */}
-
-          {/* Phone — top right, tucked against laptop */}
-          <img
-            src={heroPhone}
-            alt="Phone"
-            width={640}
-            height={896}
-            loading="lazy"
-            className="absolute right-[14%] top-[10%] w-[150px] md:w-[190px] anim-float-slow will-change-transform z-20"
+            className="absolute right-[12%] top-[8%] w-[150px] md:w-[190px] z-20 will-change-transform"
             style={{
-              ...px(22),
-              transform: `translate3d(${parallax.x * 22}px, ${parallax.y * 22}px, 0) rotate(6deg)`,
-              filter:
-                "drop-shadow(0 40px 40px rgba(60,40,20,0.20)) drop-shadow(0 14px 14px rgba(60,40,20,0.10))",
-            }}
-          />
-
-          {/* Laptop — hero centerpiece */}
-          <img
-            src={heroLaptop}
-            alt="Laptop"
-            width={1024}
-            height={768}
-            className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[560px] anim-float will-change-transform z-10"
-            style={{
-              ...px(12),
-              filter:
-                "drop-shadow(0 70px 55px rgba(60,40,20,0.20)) drop-shadow(0 22px 22px rgba(60,40,20,0.08))",
-            }}
-          />
-
-          {/* Headphones — bottom left, foreground anchor */}
-          <img
-            src={heroHeadphones}
-            alt="Headphones"
-            width={768}
-            height={768}
-            loading="lazy"
-            className="absolute left-[6%] bottom-[10%] w-[210px] md:w-[270px] anim-float will-change-transform z-20"
-            style={{
-              ...px(26),
-              transform: `translate3d(${parallax.x * 26}px, ${parallax.y * 26}px, 0) rotate(-6deg)`,
-              filter:
-                "drop-shadow(0 50px 40px rgba(60,40,20,0.22)) drop-shadow(0 18px 18px rgba(60,40,20,0.10))",
-            }}
-          />
-
-          {/* Floating price tag — top left, annotates the phone */}
-          <div
-            className="absolute left-[3%] top-[8%] z-30 anim-float-slow will-change-transform"
-            style={{
-              ...px(30),
-              transform: `translate3d(${parallax.x * 30}px, ${parallax.y * 30}px, 0)`,
+              ...px(24),
+              animation: "orbit-a 22s ease-in-out infinite",
             }}
           >
-            <div className="rounded-2xl bg-surface/95 backdrop-blur-md border border-ink/8 shadow-[0_20px_50px_-20px_rgba(60,40,20,0.25)] px-4 py-3 min-w-[190px]">
-              <div className="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-ink-muted/70">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                Live price
-              </div>
-              <div className="mt-1.5 flex items-baseline gap-2">
-                <span className="text-[22px] font-semibold tracking-tight text-ink tabular-nums">
-                  ₹72,999
-                </span>
-                <span className="text-[11px] font-medium text-accent tabular-nums">
-                  ↓ ₹6,000
-                </span>
-              </div>
-              <div className="mt-0.5 text-[11px] text-ink-muted">
-                Flipkart · lowest in 90 days
-              </div>
-            </div>
+            <img
+              src={heroPhone}
+              alt="Phone"
+              width={640}
+              height={896}
+              loading="lazy"
+              className="w-full will-change-transform transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+              style={{
+                transform: `rotate(6deg) scale(${0.85 + scene.phone * 0.3})`,
+                filter: shadow(0.9),
+                animation: "spin-drift 34s ease-in-out infinite",
+              }}
+            />
           </div>
 
-          {/* Score badge — mid right, aligned with laptop */}
+          {/* Laptop — centerpiece, floats, scales with scene */}
           <div
-            className="absolute right-[3%] top-[44%] z-30 anim-float-slow will-change-transform hidden md:block"
+            className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[560px] z-10 will-change-transform"
             style={{
               ...px(14),
-              transform: `translate3d(${parallax.x * 14}px, ${parallax.y * 14}px, 0)`,
+              animation: "orbit-b 26s ease-in-out infinite",
             }}
           >
-            <div className="rounded-xl bg-surface/95 backdrop-blur-md border border-ink/8 px-3.5 py-2.5 shadow-[0_10px_30px_-12px_rgba(60,40,20,0.2)]">
-              <div className="text-[9px] tracking-[0.3em] uppercase text-ink-muted/70">
-                Score
-              </div>
-              <div className="text-[20px] font-semibold text-ink tabular-nums leading-none mt-1">
-                9.4<span className="text-ink-muted/50 text-[12px]">/10</span>
-              </div>
-            </div>
+            <img
+              src={heroLaptop}
+              alt="Laptop"
+              width={1024}
+              height={768}
+              className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+              style={{
+                transform: `scale(${0.9 + scene.laptop * 0.16})`,
+                filter: shadow(1.2),
+              }}
+            />
           </div>
 
-          {/* AI verdict chip — bottom right, closes the Z */}
+          {/* Headphones — bottom left, slow swing */}
           <div
-            className="absolute right-[6%] bottom-[12%] z-30 anim-float will-change-transform"
+            className="absolute left-[4%] bottom-[8%] w-[210px] md:w-[270px] z-20 will-change-transform"
             style={{
-              ...px(18),
-              transform: `translate3d(${parallax.x * 18}px, ${parallax.y * 18}px, 0)`,
+              ...px(28),
+              animation: "orbit-c 24s ease-in-out infinite",
+              transformOrigin: "top center",
             }}
           >
-            <div className="rounded-full bg-ink text-surface px-4 py-2.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.4)] flex items-center gap-2.5">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-70" />
-                <span className="relative h-2 w-2 rounded-full bg-accent" />
-              </span>
-              <span className="text-[12px] tracking-[0.02em] font-medium">
-                AI verdict · Buy now
-              </span>
+            <img
+              src={heroHeadphones}
+              alt="Headphones"
+              width={768}
+              height={768}
+              loading="lazy"
+              className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+              style={{
+                transform: `rotate(-6deg) scale(${0.85 + scene.headphones * 0.3})`,
+                filter: shadow(1),
+                animation: "swing 8s ease-in-out infinite",
+                transformOrigin: "top center",
+              }}
+            />
+          </div>
+
+          {/* Floating Best Match card — appears after AI "finds" the option */}
+          <div
+            className={`absolute right-[4%] top-[38%] z-30 will-change-transform transition-all duration-700 ${
+              showCard && !isTypingUser ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"
+            }`}
+            style={px(16)}
+          >
+            <div
+              className="rounded-2xl bg-surface/95 backdrop-blur-md border border-ink/8 px-4 py-3.5 min-w-[220px]"
+              style={{ boxShadow: "0 24px 60px -24px rgba(60,40,20,0.28)" }}
+            >
+              <div className="flex items-center gap-2 text-[10px] tracking-[0.28em] uppercase text-ink-muted/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                Best match
+              </div>
+              <div key={scene.match} className="mt-1.5 text-[15px] font-medium text-ink anim-fade-slide leading-tight">
+                {scene.match}
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[11.5px] text-ink-muted tabular-nums">
+                <span className="text-ink-soft"><span className="text-ink font-semibold">{scene.score}</span> AI Score</span>
+                <span className="text-ink font-semibold">{scene.price}</span>
+              </div>
             </div>
           </div>
         </div>
-
       </div>
 
       {/* Elegant scroll indicator */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
-        <span className="text-[10px] tracking-[0.3em] uppercase text-ink-muted/70">
-          Scroll
-        </span>
+        <span className="text-[10px] tracking-[0.3em] uppercase text-ink-muted/70">Scroll</span>
         <span className="relative block h-14 w-px bg-ink-muted/20 overflow-hidden">
           <span
             className="absolute left-1/2 -translate-x-1/2 top-0 h-3 w-px bg-ink"
@@ -530,13 +589,62 @@ function Hero() {
 
       <style>{`
         @keyframes dust-drift {
-          0%, 100% { transform: translate(0, 0); opacity: var(--tw-opacity, 0.2); }
-          50%      { transform: translate(6px, -14px); }
+          0%, 100% { transform: translate(0, 0); }
+          50%      { transform: translate(6px, -18px); }
         }
         @keyframes scroll-line {
           0%   { transform: translate(-50%, -100%); }
           60%  { transform: translate(-50%, 400%); }
           100% { transform: translate(-50%, 400%); opacity: 0; }
+        }
+        @keyframes halo-breathe {
+          0%, 100% { opacity: 0.35; transform: scale(1); }
+          50%      { opacity: 0.75; transform: scale(1.05); }
+        }
+        @keyframes orbit-a {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50%      { transform: translate3d(-14px, 18px, 0); }
+        }
+        @keyframes orbit-b {
+          0%, 100% { transform: translate(-50%, -50%); }
+          50%      { transform: translate(calc(-50% + 10px), calc(-50% - 12px)); }
+        }
+        @keyframes orbit-c {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50%      { transform: translate3d(16px, -14px, 0); }
+        }
+        @keyframes spin-drift {
+          0%, 100% { rotate: 0deg; }
+          50%      { rotate: 3deg; }
+        }
+        @keyframes swing {
+          0%, 100% { transform: rotate(-6deg); }
+          50%      { transform: rotate(-2deg); }
+        }
+        @keyframes rise {
+          from { opacity: 0; transform: translateY(105%); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .anim-rise { animation: rise 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+        @keyframes fade-slide {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .anim-fade-slide { animation: fade-slide 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+        @keyframes dots {
+          0%   { content: ""; }
+          33%  { content: "."; }
+          66%  { content: ".."; }
+          100% { content: "..."; }
+        }
+        .anim-dots::after {
+          content: "...";
+          display: inline-block;
+          width: 14px;
+          animation: dots 1.2s steps(1) infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .anim-rise, .anim-fade-slide { animation: none !important; opacity: 1 !important; transform: none !important; }
         }
       `}</style>
     </section>
