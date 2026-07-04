@@ -25,7 +25,7 @@ function compact(text: string) {
 
 export function extractPriceCap(query: string): number | null {
   const q = clean(query);
-  const match = q.match(/(?:under|below|less than|upto|up to|within|budget|<=|<)\s*(\d+(?:\.\d+)?)\s*(k|lakh|lac|l)?\b/i);
+  const match = q.match(/(?:under|below|less than|upto|up to|within|budget|<=|<)\s*(\d+(?:\.\d+)?)\s*(k|lakh|lac|l)?\s*(?:rs|rupees?)?\b/i);
   if (!match) return null;
   let cap = Number(match[1]);
   if (!Number.isFinite(cap) || cap <= 0) return null;
