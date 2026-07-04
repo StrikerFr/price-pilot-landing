@@ -21,6 +21,7 @@ import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as ApiLivePricesRouteImport } from './routes/api/live-prices'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const WishlistRoute = WishlistRouteImport.update({
@@ -83,6 +84,11 @@ const ProductIdRoute = ProductIdRouteImport.update({
   path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLivePricesRoute = ApiLivePricesRouteImport.update({
+  id: '/api/live-prices',
+  path: '/api/live-prices',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wishlist': typeof WishlistRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/live-prices': typeof ApiLivePricesRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wishlist': typeof WishlistRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/live-prices': typeof ApiLivePricesRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesById {
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/wishlist': typeof WishlistRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/live-prices': typeof ApiLivePricesRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/wishlist'
     | '/api/chat'
+    | '/api/live-prices'
     | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/wishlist'
     | '/api/chat'
+    | '/api/live-prices'
     | '/product/$id'
   id:
     | '__root__'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/wishlist'
     | '/api/chat'
+    | '/api/live-prices'
     | '/product/$id'
   fileRoutesById: FileRoutesById
 }
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WishlistRoute: typeof WishlistRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiLivePricesRoute: typeof ApiLivePricesRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/live-prices': {
+      id: '/api/live-prices'
+      path: '/api/live-prices'
+      fullPath: '/api/live-prices'
+      preLoaderRoute: typeof ApiLivePricesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -308,6 +328,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WishlistRoute: WishlistRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiLivePricesRoute: ApiLivePricesRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport
