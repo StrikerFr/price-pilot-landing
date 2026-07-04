@@ -527,12 +527,24 @@ function Hero() {
                 Each orbit wrapper rotates around the center; an inner wrapper counter-rotates
                 so the product stays upright while circling. */}
 
-            {/* Inner ring (r=190) — Phone */}
+            {/*
+              Orbit pattern: parent div rotates the whole circle; the child
+              sits at one anchor on that circle and counter-rotates at the
+              same speed so it stays upright while circling the center.
+              All satellites orbit at the same speed (60s) but start at
+              different angles via negative animation-delays, so the whole
+              constellation moves as one system instead of drifting apart.
+            */}
+
+            {/* Inner ring — Phone (12 o'clock start) */}
             <div
               className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2"
-              style={{ animation: "orbit-ring 44s linear infinite" }}
+              style={{ animation: "orbit-ring 60s linear infinite", animationDelay: "0s" }}
             >
-              <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 will-change-transform" style={{ animation: "orbit-ring 44s linear infinite reverse" }}>
+              <div
+                className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 will-change-transform"
+                style={{ animation: "orbit-ring 60s linear infinite reverse", animationDelay: "0s" }}
+              >
                 <div style={{ animation: "float-y-slow 7s ease-in-out infinite", ...px(24) }}>
                   <img
                     src={heroPhone}
@@ -540,9 +552,9 @@ function Hero() {
                     width={640}
                     height={896}
                     loading="lazy"
-                    className="w-[140px] md:w-[170px] transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+                    className="w-[130px] md:w-[160px] transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
                     style={{
-                      transform: `rotate(-8deg) scale(${0.9 + scene.phone * 0.32})`,
+                      transform: `scale(${0.9 + scene.phone * 0.32})`,
                       filter: shadow(1),
                     }}
                   />
@@ -550,12 +562,15 @@ function Hero() {
               </div>
             </div>
 
-            {/* Mid ring (r=280) — Earbud */}
+            {/* Inner ring — Earbud (opposite the phone, 6 o'clock) */}
             <div
-              className="pointer-events-none absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2"
-              style={{ animation: "orbit-ring 70s linear infinite", animationDelay: "-15s" }}
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2"
+              style={{ animation: "orbit-ring 60s linear infinite", animationDelay: "-30s" }}
             >
-              <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 will-change-transform" style={{ animation: "orbit-ring 70s linear infinite reverse", animationDelay: "-15s" }}>
+              <div
+                className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 will-change-transform"
+                style={{ animation: "orbit-ring 60s linear infinite reverse", animationDelay: "-30s" }}
+              >
                 <div style={{ animation: "float-y 6s ease-in-out infinite", ...px(20) }}>
                   <img
                     src={heroEarbud}
@@ -563,19 +578,22 @@ function Hero() {
                     width={640}
                     height={640}
                     loading="lazy"
-                    className="w-[92px] md:w-[112px]"
-                    style={{ transform: "rotate(-15deg)", filter: shadow(0.7) }}
+                    className="w-[80px] md:w-[100px]"
+                    style={{ filter: shadow(0.7) }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Mid ring — Watch (opposite side) */}
+            {/* Outer ring — Watch (3 o'clock start) */}
             <div
               className="pointer-events-none absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2"
-              style={{ animation: "orbit-ring 70s linear infinite", animationDelay: "-45s" }}
+              style={{ animation: "orbit-ring 90s linear infinite", animationDelay: "-22s" }}
             >
-              <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 will-change-transform" style={{ animation: "orbit-ring 70s linear infinite reverse", animationDelay: "-45s" }}>
+              <div
+                className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 will-change-transform"
+                style={{ animation: "orbit-ring 90s linear infinite reverse", animationDelay: "-22s" }}
+              >
                 <div style={{ animation: "float-y-slow 8s ease-in-out infinite", ...px(22) }}>
                   <img
                     src={heroWatch}
@@ -583,19 +601,22 @@ function Hero() {
                     width={768}
                     height={768}
                     loading="lazy"
-                    className="w-[130px] md:w-[160px]"
-                    style={{ transform: "rotate(8deg)", filter: shadow(0.85) }}
+                    className="w-[120px] md:w-[150px]"
+                    style={{ filter: shadow(0.85) }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Outer ring (r=370) — Camera */}
+            {/* Outer ring — Camera (9 o'clock start) */}
             <div
-              className="pointer-events-none absolute left-1/2 top-1/2 h-[740px] w-[740px] -translate-x-1/2 -translate-y-1/2"
-              style={{ animation: "orbit-ring 110s linear infinite reverse", animationDelay: "-25s" }}
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2"
+              style={{ animation: "orbit-ring 90s linear infinite", animationDelay: "-67s" }}
             >
-              <div className="absolute left-[14%] bottom-[10%] will-change-transform" style={{ animation: "orbit-ring 110s linear infinite", animationDelay: "-25s" }}>
+              <div
+                className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 will-change-transform"
+                style={{ animation: "orbit-ring 90s linear infinite reverse", animationDelay: "-67s" }}
+              >
                 <div style={{ animation: "float-y 9s ease-in-out infinite", ...px(30) }}>
                   <img
                     src={heroCamera}
@@ -603,19 +624,18 @@ function Hero() {
                     width={768}
                     height={640}
                     loading="lazy"
-                    className="w-[150px] md:w-[190px]"
-                    style={{ transform: "rotate(-10deg)", filter: shadow(1.1) }}
+                    className="w-[140px] md:w-[175px]"
+                    style={{ filter: shadow(1.1) }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Headphones — bottom left, gentle swing */}
+            {/* Headphones — anchored bottom-left, gentle sway (not on ring) */}
             <div
-              className="absolute left-[2%] bottom-[6%] w-[200px] md:w-[260px] z-20 will-change-transform"
+              className="absolute left-[2%] bottom-[6%] w-[190px] md:w-[240px] z-20 will-change-transform"
               style={{
                 ...px(28),
-                animation: "orbit-c 24s ease-in-out infinite",
                 transformOrigin: "top center",
               }}
             >
@@ -627,20 +647,19 @@ function Hero() {
                 loading="lazy"
                 className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
                 style={{
-                  transform: `rotate(-6deg) scale(${0.85 + scene.headphones * 0.3})`,
+                  transform: `scale(${0.9 + scene.headphones * 0.24})`,
                   filter: shadow(1),
-                  animation: "swing 8s ease-in-out infinite",
+                  animation: "swing 9s ease-in-out infinite",
                   transformOrigin: "top center",
                 }}
               />
             </div>
 
-            {/* Laptop — centerpiece */}
+            {/* Laptop — stable centerpiece, only breathing scale */}
             <div
-              className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[540px] z-10 will-change-transform"
+              className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[520px] z-10 will-change-transform"
               style={{
                 ...px(14),
-                animation: "orbit-b 26s ease-in-out infinite",
                 transformStyle: "preserve-3d",
               }}
             >
@@ -651,8 +670,9 @@ function Hero() {
                 height={768}
                 className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
                 style={{
-                  transform: `translateZ(40px) scale(${0.9 + scene.laptop * 0.16})`,
+                  transform: `translateZ(40px) scale(${0.92 + scene.laptop * 0.12})`,
                   filter: shadow(1.3),
+                  animation: "float-y-slow 10s ease-in-out infinite",
                 }}
               />
             </div>
