@@ -312,76 +312,175 @@ function Hero() {
         {/* RIGHT — Product installation */}
         <div
           ref={stageRef}
-          className="lg:col-span-6 relative min-h-[600px] lg:min-h-[780px]"
+          className="lg:col-span-6 relative min-h-[640px] lg:min-h-[820px]"
         >
-          {/* Soft ambient key light — subtle radial only */}
+          {/* Editorial index numeral */}
+          <div className="pointer-events-none absolute right-2 top-4 z-30 flex items-center gap-3 text-[10px] tracking-[0.35em] uppercase text-ink-muted/60">
+            <span className="hairline w-10" />
+            <span>Composition / 01</span>
+          </div>
+
+          {/* Backdrop disc — anchors the composition */}
           <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[720px] w-[720px] rounded-full opacity-90"
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[620px] w-[620px] rounded-full"
             style={{
               background:
-                "radial-gradient(closest-side, oklch(0.99 0.006 80 / 0.9), transparent 70%)",
+                "radial-gradient(closest-side, oklch(0.985 0.012 70 / 1), oklch(0.965 0.02 65 / 0.6) 55%, transparent 78%)",
+            }}
+          />
+          {/* Thin ring — subtle editorial frame */}
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[560px] w-[560px] rounded-full border"
+            style={{ borderColor: "oklch(0.2 0.02 60 / 0.06)" }}
+          />
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[720px] w-[720px] rounded-full border"
+            style={{ borderColor: "oklch(0.2 0.02 60 / 0.035)" }}
+          />
+
+          {/* Ambient key light */}
+          <div
+            className="pointer-events-none absolute left-[46%] top-[38%] -translate-x-1/2 -translate-y-1/2 h-[520px] w-[520px] rounded-full"
+            style={{
+              background:
+                "radial-gradient(closest-side, oklch(1 0.02 75 / 0.85), transparent 72%)",
             }}
           />
 
-          {/* Ground shadow — soft natural */}
+          {/* Layered ground shadows for depth */}
           <div
-            className="absolute left-1/2 bottom-[16%] -translate-x-1/2 h-[36px] w-[500px] rounded-[50%] blur-2xl"
+            className="absolute left-1/2 bottom-[14%] -translate-x-1/2 h-[42px] w-[520px] rounded-[50%] blur-3xl"
             style={{ background: "oklch(0.2 0.02 60 / 0.22)" }}
           />
           <div
-            className="absolute left-[18%] bottom-[14%] h-[18px] w-[230px] rounded-[50%] blur-xl"
+            className="absolute left-1/2 bottom-[16%] -translate-x-1/2 h-[24px] w-[360px] rounded-[50%] blur-xl"
             style={{ background: "oklch(0.2 0.02 60 / 0.18)" }}
           />
-          <div
-            className="absolute right-[10%] top-[16%] h-[14px] w-[140px] rounded-[50%] blur-xl"
-            style={{ background: "oklch(0.2 0.02 60 / 0.14)" }}
-          />
 
-          {/* Laptop — hero object, centered slightly lower */}
-          <img
-            src={heroLaptop}
-            alt="Laptop"
-            width={1024}
-            height={768}
-            className="absolute left-1/2 top-[54%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[640px] anim-float will-change-transform"
-            style={{
-              ...px(10),
-              filter:
-                "drop-shadow(0 60px 55px rgba(60,40,20,0.14)) drop-shadow(0 20px 20px rgba(60,40,20,0.06))",
-            }}
-          />
-
-          {/* Phone — upper right, elegant angle */}
-          <img
-            src={heroPhone}
-            alt="Phone"
-            width={640}
-            height={896}
-            loading="lazy"
-            className="absolute right-[4%] top-[3%] w-[150px] md:w-[200px] anim-float-slow will-change-transform"
-            style={{
-              ...px(22),
-              transform: `translate3d(${parallax.x * 22}px, ${parallax.y * 22}px, 0) rotate(6deg)`,
-              filter:
-                "drop-shadow(0 40px 45px rgba(60,40,20,0.18)) drop-shadow(0 15px 15px rgba(60,40,20,0.08))",
-            }}
-          />
-
-          {/* Headphones — lower left */}
+          {/* Headphones — foreground anchor, bottom-left */}
           <img
             src={heroHeadphones}
             alt="Headphones"
             width={768}
             height={768}
             loading="lazy"
-            className="absolute left-[0%] bottom-[6%] w-[210px] md:w-[270px] anim-float will-change-transform"
+            className="absolute left-[2%] bottom-[8%] w-[240px] md:w-[300px] anim-float will-change-transform z-20"
             style={{
-              ...px(18),
-              transform: `translate3d(${parallax.x * 18}px, ${parallax.y * 18}px, 0) rotate(-4deg)`,
+              ...px(26),
+              transform: `translate3d(${parallax.x * 26}px, ${parallax.y * 26}px, 0) rotate(-8deg)`,
               filter:
-                "drop-shadow(0 40px 45px rgba(60,40,20,0.16)) drop-shadow(0 15px 15px rgba(60,40,20,0.08))",
+                "drop-shadow(0 50px 40px rgba(60,40,20,0.22)) drop-shadow(0 18px 18px rgba(60,40,20,0.10))",
             }}
           />
+
+          {/* Laptop — hero centerpiece */}
+          <img
+            src={heroLaptop}
+            alt="Laptop"
+            width={1024}
+            height={768}
+            className="absolute left-1/2 top-[50%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[600px] anim-float will-change-transform z-10"
+            style={{
+              ...px(12),
+              filter:
+                "drop-shadow(0 70px 55px rgba(60,40,20,0.18)) drop-shadow(0 22px 22px rgba(60,40,20,0.08))",
+            }}
+          />
+
+          {/* Phone — upper right, overlapping laptop for depth */}
+          <img
+            src={heroPhone}
+            alt="Phone"
+            width={640}
+            height={896}
+            loading="lazy"
+            className="absolute right-[8%] top-[6%] w-[170px] md:w-[210px] anim-float-slow will-change-transform z-20"
+            style={{
+              ...px(22),
+              transform: `translate3d(${parallax.x * 22}px, ${parallax.y * 22}px, 0) rotate(9deg)`,
+              filter:
+                "drop-shadow(0 50px 45px rgba(60,40,20,0.22)) drop-shadow(0 18px 18px rgba(60,40,20,0.10))",
+            }}
+          />
+
+          {/* Floating price tag — top left */}
+          <div
+            className="absolute left-[4%] top-[14%] z-30 anim-float-slow will-change-transform"
+            style={{
+              ...px(30),
+              transform: `translate3d(${parallax.x * 30}px, ${parallax.y * 30}px, 0)`,
+            }}
+          >
+            <div className="rounded-2xl bg-surface/95 backdrop-blur-md border border-ink/8 shadow-[0_20px_50px_-20px_rgba(60,40,20,0.25)] px-4 py-3 min-w-[190px]">
+              <div className="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-ink-muted/70">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                Live price
+              </div>
+              <div className="mt-1.5 flex items-baseline gap-2">
+                <span className="text-[22px] font-semibold tracking-tight text-ink tabular-nums">
+                  ₹72,999
+                </span>
+                <span className="text-[11px] font-medium text-accent tabular-nums">
+                  ↓ ₹6,000
+                </span>
+              </div>
+              <div className="mt-0.5 text-[11px] text-ink-muted">
+                Flipkart · lowest in 90 days
+              </div>
+            </div>
+          </div>
+
+          {/* AI verdict chip — bottom right */}
+          <div
+            className="absolute right-[4%] bottom-[18%] z-30 anim-float will-change-transform"
+            style={{
+              ...px(18),
+              transform: `translate3d(${parallax.x * 18}px, ${parallax.y * 18}px, 0)`,
+            }}
+          >
+            <div className="rounded-full bg-ink text-surface px-4 py-2.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.4)] flex items-center gap-2.5">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-70" />
+                <span className="relative h-2 w-2 rounded-full bg-accent" />
+              </span>
+              <span className="text-[12px] tracking-[0.02em] font-medium">
+                AI verdict · Buy now
+              </span>
+            </div>
+          </div>
+
+          {/* Metric badge — mid right */}
+          <div
+            className="absolute right-[2%] top-[46%] z-30 anim-float-slow will-change-transform hidden md:block"
+            style={{
+              ...px(14),
+              transform: `translate3d(${parallax.x * 14}px, ${parallax.y * 14}px, 0)`,
+            }}
+          >
+            <div className="rounded-xl bg-surface/90 backdrop-blur-md border border-ink/8 px-3 py-2 shadow-[0_10px_30px_-12px_rgba(60,40,20,0.2)]">
+              <div className="text-[9px] tracking-[0.3em] uppercase text-ink-muted/70">
+                Score
+              </div>
+              <div className="text-[18px] font-semibold text-ink tabular-nums leading-none mt-1">
+                9.4<span className="text-ink-muted/50 text-[12px]">/10</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Hairline connectors — editorial detail */}
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full z-0"
+            aria-hidden
+          >
+            <line
+              x1="16%" y1="22%" x2="34%" y2="40%"
+              stroke="oklch(0.2 0.02 60 / 0.12)" strokeWidth="1" strokeDasharray="2 4"
+            />
+            <line
+              x1="88%" y1="18%" x2="70%" y2="34%"
+              stroke="oklch(0.2 0.02 60 / 0.12)" strokeWidth="1" strokeDasharray="2 4"
+            />
+          </svg>
         </div>
       </div>
 
