@@ -41,16 +41,26 @@ import saleBlackFriday from "@/assets/sale-blackfriday.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PricePilot — Shop Smarter with AI" },
+      { title: "PricePilot — AI Shopping Copilot for India" },
       {
         name: "description",
         content:
-          "PricePilot is the AI shopping copilot that finds the best products, compares prices across every store, and tells you exactly when to buy.",
+          "Ask, don't scroll. PricePilot is the AI shopping copilot that recommends, compares prices across every store, and tells you when to buy — grounded in live retrieved data.",
       },
+      { property: "og:title", content: "PricePilot — AI Shopping Copilot for India" },
+      {
+        property: "og:description",
+        content:
+          "One conversation. Every store. The smartest buying decision — grounded in live retrieved data.",
+      },
+      { property: "og:url", content: "https://price-pilot-landing.lovable.app/" },
+      { property: "og:type", content: "website" },
     ],
+    links: [{ rel: "canonical", href: "https://price-pilot-landing.lovable.app/" }],
   }),
   component: LandingPage,
 });
+
 
 /* ---------- Nav ---------- */
 
