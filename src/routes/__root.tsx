@@ -92,6 +92,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "PricePilot — Shop Smarter with AI" },
+      { name: "description", content: "PricePilot is the AI shopping copilot that finds the best products, compares prices across every store, and tells you exactly when to buy." },
+      { property: "og:description", content: "PricePilot is the AI shopping copilot that finds the best products, compares prices across every store, and tells you exactly when to buy." },
+      { name: "twitter:description", content: "PricePilot is the AI shopping copilot that finds the best products, compares prices across every store, and tells you exactly when to buy." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d17ead18-af43-4627-a379-864ae84505a4/id-preview-1174de53--cf201770-ff66-4fdf-a5cf-410493ea53a8.lovable.app-1783169668233.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d17ead18-af43-4627-a379-864ae84505a4/id-preview-1174de53--cf201770-ff66-4fdf-a5cf-410493ea53a8.lovable.app-1783169668233.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
