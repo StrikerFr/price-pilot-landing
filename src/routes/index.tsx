@@ -350,8 +350,9 @@ function Hero() {
         {/* RIGHT — Product installation */}
         <div
           ref={stageRef}
-          className="lg:col-span-6 relative min-h-[640px] lg:min-h-[820px]"
+          className="lg:col-span-6 relative min-h-[440px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[820px]"
         >
+
           {/* Editorial index numeral */}
           <div className="pointer-events-none absolute right-2 top-4 z-30 flex items-center gap-3 text-[10px] tracking-[0.35em] uppercase text-ink-muted/60">
             <span className="hairline w-10" />
