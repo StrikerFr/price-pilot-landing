@@ -53,15 +53,7 @@ export const Route = createFileRoute("/")({
 
 /* ---------- Nav ---------- */
 
-const navItems = [
-  "Deals",
-  "Categories",
-  "Compare",
-  "Price Drops",
-  "Sales Calendar",
-  "News",
-  "AI Assistant",
-];
+import { NAV_ITEMS } from "@/lib/nav";
 
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -81,34 +73,25 @@ function Nav() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-6 md:px-10">
-        <a href="#" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <span className="grid h-7 w-7 place-items-center rounded-full bg-ink text-background text-[10px] font-semibold">
             P
           </span>
           <span className="display text-lg tracking-tight">PricePilot</span>
-        </a>
+        </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) =>
-            item === "Deals" ? (
-              <Link
-                key={item}
-                to="/deals"
-                className="link-underline px-3 py-2 text-[13px] font-medium text-ink-soft hover:text-ink transition-colors"
-              >
-                {item}
-              </Link>
-            ) : (
-              <a
-                key={item}
-                href="#"
-                className="link-underline px-3 py-2 text-[13px] font-medium text-ink-soft hover:text-ink transition-colors"
-              >
-                {item}
-              </a>
-            ),
-          )}
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.label}
+              to={item.to}
+              className="link-underline px-3 py-2 text-[13px] font-medium text-ink-soft hover:text-ink transition-colors"
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
+
 
         <div className="flex items-center gap-1">
           <button className="grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2 transition-colors">
