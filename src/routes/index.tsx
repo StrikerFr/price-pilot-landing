@@ -1907,7 +1907,7 @@ function Footer() {
   return (
     <footer
       ref={ref}
-      className="relative overflow-hidden"
+      className="rounded-t-[40px] md:rounded-t-[72px] -mt-6 md:-mt-14 relative z-10 overflow-hidden shadow-[0_-24px_60px_-30px_oklch(0.15_0.02_60_/_0.12)]"
       style={{ background: "oklch(0.985 0.008 75)" }}
     >
       {/* Cursor spotlight */}
