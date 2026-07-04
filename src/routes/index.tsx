@@ -1293,39 +1293,6 @@ function Trending() {
   );
 }
 
-/* ---------- Final CTA ---------- */
-
-function FinalCTA() {
-  return (
-    <section className="relative overflow-hidden bg-ink text-background py-32 md:py-48">
-      <div className="pointer-events-none absolute inset-0 opacity-30">
-        <div className="absolute -left-40 top-10 h-[500px] w-[500px] rounded-full bg-accent/40 blur-3xl" />
-        <div className="absolute -right-32 bottom-0 h-[400px] w-[400px] rounded-full bg-[oklch(0.5_0.05_60)] blur-3xl" />
-      </div>
-      <div className="relative mx-auto max-w-[1400px] px-6 md:px-10 text-center">
-        <div className="eyebrow text-background/60">Ready when you are</div>
-        <h2 className="display mt-8 text-6xl md:text-9xl leading-[0.9] text-balance">
-          Ready to shop
-          <br />
-          <span className="italic font-normal opacity-80">smarter?</span>
-        </h2>
-        <p className="mt-8 max-w-xl mx-auto text-background/70 text-[17px]">
-          One search. Every store. The smartest buying decision.
-        </p>
-
-        <div className="mt-12 mx-auto max-w-2xl flex items-center gap-2 rounded-2xl bg-background/10 backdrop-blur border border-background/15 p-2 pl-5">
-          <Sparkles size={18} className="text-accent shrink-0" />
-          <span className="flex-1 text-left text-background/60 text-[15px] py-3">
-            Ask anything — "Best OLED TV under ₹80,000"
-          </span>
-          <button className="inline-flex items-center gap-1.5 h-11 px-5 rounded-xl bg-background text-ink text-sm font-medium hover:bg-background/90 transition-colors">
-            Ask AI <ArrowRight size={15} />
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ---------- Footer — The final interaction ---------- */
 
@@ -1597,7 +1564,7 @@ function LandingPage() {
         <BuyOrWait />
         <UpcomingSales />
         <Trending />
-        <FinalCTA />
+        
       </main>
       <Footer />
     </div>
