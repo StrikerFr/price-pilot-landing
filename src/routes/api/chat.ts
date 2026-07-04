@@ -60,7 +60,8 @@ export const Route = createFileRoute("/api/chat")({
           body: JSON.stringify({
             model: MODEL,
             stream: true,
-            temperature: 0.4,
+            temperature: 0.6,
+            max_tokens: 2048,
             messages: [{ role: "system", content: SYSTEM }, ...messages],
           }),
         });
