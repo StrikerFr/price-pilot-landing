@@ -241,12 +241,15 @@ function AssistantMessage({ text, query }: { text: string; query: string }) {
   });
   const fallbackPicks = getCatalogMatches(query, 3).map((p) => p.id);
   const picks = [...aiPicks, ...fallbackPicks.filter((id) => !aiPicks.includes(id))].slice(0, 3);
+  const displayBody = picks.length > 0
+    ? body.replace(/(^|\n).*we don't currently track.*live catalog.*(\n|$)/gi, "\n").trim()
+    : body;
   return (
     <div>
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ink-muted mb-2">
         <Sparkles size={11} className="text-accent" /> PricePilot
       </div>
-      <div className="text-[15.5px] leading-relaxed text-ink whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }} />
+      <div className="text-[15.5px] leading-relaxed text-ink whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderMarkdown(displayBody) }} />
       {sources.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {sources.map((s) => (
