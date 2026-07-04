@@ -17,62 +17,101 @@ export const Route = createFileRoute("/ai-assistant")({
 });
 
 const SUGGESTED = [
-  "Best 14-inch laptop under ₹90,000 for programming",
-  "Sony WH-1000XM6 vs Bose QuietComfort Ultra — which one for daily commute?",
-  "Should I wait for the Pixel 11 or buy the 10 today?",
-  "OLED monitor under ₹80,000 for design and coding",
-  "A camera for weekend travel — good in low light, easy to carry",
-  "Best gaming laptop deals right now, RTX 5070 or above",
+  "Best 14-inch laptop under ₹100,000 for programming",
+  "Sony WH-1000XM6 vs AirPods Pro 3 — which for daily commute?",
+  "Should I buy the iPhone 17 Pro now or wait?",
+  "OLED monitor for design and coding",
+  "A camera for weekend travel — good in low light",
+  "Best gaming handheld right now",
 ];
 
-const RECENT = [
-  "Compared MacBook Air M3 vs Zenbook S16",
-  "Wireless earbuds under ₹15,000",
-  "Best 4K TV for a well-lit room",
+const STAGES = [
+  "Understanding your request",
+  "Retrieving live catalog",
+  "Reading reviews",
+  "Ranking options",
+  "Generating recommendation",
 ];
 
-type Msg =
-  | { role: "user"; text: string }
-  | { role: "assistant"; text: string; sources?: string[]; picks?: string[] };
-
-const SEED_CONV: Msg[] = [
-  { role: "user", text: "Best 14-inch laptop under ₹90,000 for programming" },
-  {
-    role: "assistant",
-    text: "For programming under ₹90,000, the pick is the **MacBook Air M3**. It gives you the best battery on this list (18h real-world), silent fanless operation, and Xcode/Docker/Node all behave. If you need Windows or a discrete GPU, the ASUS Zenbook 14 OLED (Ultra 7 155H) is the runner-up at ₹86,990.",
-    sources: ["notebookcheck.net", "rtings.com", "amazon.in", "flipkart.com"],
-    picks: ["macbook-air-m3", "iphone-17-pro"],
-  },
-];
+type Msg = { role: "user" | "assistant"; text: string };
 
 function AIAssistantPage() {
-  const [messages, setMessages] = useState<Msg[]>(SEED_CONV);
+  const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [stage, setStage] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, thinking]);
 
-  const send = (text: string) => {
+  useEffect(() => {
+    if (!thinking) return;
+    setStage(0);
+    const t = setInterval(() => setStage((s) => Math.min(s + 1, STAGES.length - 1)), 700);
+    return () => clearInterval(t);
+  }, [thinking]);
+
+  const send = async (text: string) => {
     const t = text.trim();
-    if (!t) return;
-    setMessages((m) => [...m, { role: "user", text: t }]);
+    if (!t || thinking) return;
+    setError(null);
     setInput("");
+
+    const nextHistory: Msg[] = [...messages, { role: "user", text: t }];
+    setMessages([...nextHistory, { role: "assistant", text: "" }]);
     setThinking(true);
-    setTimeout(() => {
-      setMessages((m) => [
-        ...m,
-        {
-          role: "assistant",
-          text: `Here's my quick take on "${t}". Based on 4,300+ verified sources and today's live pricing, the standout right now is **${PRODUCTS[0].name}**. It's currently at its 90-day low, review sentiment is consistently strong, and it comfortably beats its rivals on total cost of ownership across a two-year window.`,
-          sources: ["rtings.com", "notebookcheck.net", "amazon.in", "reddit.com/r/buildapc"],
-          picks: [PRODUCTS[0].id, PRODUCTS[2].id],
-        },
-      ]);
+
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: ctrl.signal,
+        body: JSON.stringify({
+          messages: nextHistory.map((m) => ({
+            role: m.role,
+            content: m.text,
+          })),
+        }),
+      });
+
+      if (!res.ok || !res.body) {
+        const errTxt = await res.text().catch(() => "");
+        throw new Error(errTxt || `Request failed (${res.status})`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let acc = "";
+      let firstChunk = true;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        acc += decoder.decode(value, { stream: true });
+        if (firstChunk) {
+          setThinking(false);
+          firstChunk = false;
+        }
+        setMessages((cur) => {
+          const copy = cur.slice();
+          copy[copy.length - 1] = { role: "assistant", text: acc };
+          return copy;
+        });
+      }
+    } catch (e: any) {
+      if (e?.name === "AbortError") return;
+      setError(e?.message || "Something went wrong. Try again.");
+      setMessages((cur) => cur.slice(0, -1));
+    } finally {
       setThinking(false);
-    }, 900);
+      abortRef.current = null;
+    }
   };
 
   return (
@@ -83,18 +122,23 @@ function AIAssistantPage() {
         </div>
 
         <div className="relative mx-auto max-w-[900px] px-6 text-center">
-          <div className="eyebrow inline-flex items-center gap-2"><Sparkles size={11} /> PricePilot Intelligence</div>
+          <div className="eyebrow inline-flex items-center gap-2"><Sparkles size={11} /> PricePilot Intelligence · powered by Groq</div>
           <h1 className="mt-5 display text-[13vw] md:text-[6.5vw] lg:text-[6rem] leading-[0.95] tracking-tight">
             Ask, <span className="italic font-normal text-ink-soft">don't scroll.</span>
           </h1>
-          <p className="mt-6 text-[15.5px] text-ink-soft max-w-[52ch] mx-auto leading-relaxed">A shopping conversation, not a search bar. Compare products, read the reviews for you, watch prices — and answer straight.</p>
+          <p className="mt-6 text-[15.5px] text-ink-soft max-w-[52ch] mx-auto leading-relaxed">A shopping conversation, not a search bar. Grounded in live retrieved data — never hallucinated.</p>
         </div>
       </section>
 
       {/* Chat */}
       <section className="relative mx-auto max-w-[900px] px-4 md:px-0 mt-14">
         <div className="rounded-[36px] border border-line bg-surface overflow-hidden soft-shadow">
-          <div ref={scrollRef} className="max-h-[62vh] overflow-y-auto px-6 md:px-10 py-8 space-y-8">
+          <div ref={scrollRef} className="max-h-[62vh] min-h-[280px] overflow-y-auto px-6 md:px-10 py-8 space-y-8">
+            {messages.length === 0 && !thinking && (
+              <div className="text-center py-10">
+                <div className="text-[13px] text-ink-muted">Start a conversation — try a prompt below.</div>
+              </div>
+            )}
             {messages.map((m, i) => (
               <Reveal key={i} delay={0}>
                 {m.role === "user" ? (
@@ -102,36 +146,7 @@ function AIAssistantPage() {
                     <div className="max-w-[80%] px-5 py-3 rounded-2xl bg-ink text-background text-[14.5px] leading-relaxed">{m.text}</div>
                   </div>
                 ) : (
-                  <div>
-                    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ink-muted mb-2"><Sparkles size={11} className="text-accent" /> PricePilot</div>
-                    <div className="text-[15.5px] leading-relaxed text-ink" dangerouslySetInnerHTML={{ __html: renderMarkdown(m.text) }} />
-                    {m.sources && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {m.sources.map((s) => (
-                          <span key={s} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-line text-[11px] text-ink-soft">
-                            <span className="h-1.5 w-1.5 rounded-full bg-accent" /> {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {m.picks && (
-                      <div className="mt-5 grid sm:grid-cols-2 gap-3">
-                        {m.picks.map((id) => {
-                          const p = PRODUCTS.find((x) => x.id === id)!;
-                          return (
-                            <Link key={id} to="/product/$id" params={{ id }} className="group flex items-center gap-3 p-3 rounded-2xl border border-line hover:border-ink/40 hover:bg-surface-2 transition-all">
-                              <img src={p.img} alt="" className="h-12 w-12 rounded-lg object-cover bg-surface-2" />
-                              <div className="flex-1 min-w-0">
-                                <div className="text-[13px] font-semibold truncate">{p.name}</div>
-                                <div className="text-[11px] text-ink-muted">{p.category} · {inr(p.price)}</div>
-                              </div>
-                              <span className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-[oklch(0.42_0.14_45)]">{p.verdict}</span>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
+                  <AssistantMessage text={m.text} />
                 )}
               </Reveal>
             ))}
@@ -143,8 +158,11 @@ function AIAssistantPage() {
                   <span className="h-1.5 w-1.5 rounded-full bg-ink-muted animate-bounce" style={{ animationDelay: "120ms" }} />
                   <span className="h-1.5 w-1.5 rounded-full bg-ink-muted animate-bounce" style={{ animationDelay: "240ms" }} />
                 </span>
-                Reading reviews & checking live prices…
+                {STAGES[stage]}…
               </div>
+            )}
+            {error && (
+              <div className="text-[13px] text-accent border border-accent/30 bg-accent/5 rounded-2xl px-4 py-3">{error}</div>
             )}
           </div>
 
@@ -162,7 +180,7 @@ function AIAssistantPage() {
                 placeholder="Ask anything — a product, a comparison, a buying question…"
                 className="flex-1 resize-none bg-transparent outline-none text-[15px] leading-relaxed placeholder:text-ink-muted min-h-[24px] max-h-40"
               />
-              <button type="submit" aria-label="Send" className="grid h-9 w-9 place-items-center rounded-full bg-ink text-background hover:bg-ink/90 transition-colors">
+              <button type="submit" disabled={thinking || !input.trim()} aria-label="Send" className="grid h-9 w-9 place-items-center rounded-full bg-ink text-background hover:bg-ink/90 transition-colors disabled:opacity-40">
                 <ArrowUp size={16} strokeWidth={2} />
               </button>
             </div>
@@ -175,16 +193,9 @@ function AIAssistantPage() {
         <div className="eyebrow mb-4">Try asking</div>
         <div className="grid sm:grid-cols-2 gap-2">
           {SUGGESTED.map((p) => (
-            <button key={p} onClick={() => send(p)} className="group text-left px-4 py-3 rounded-2xl border border-line hover:border-ink/50 hover:bg-surface-2 transition-all text-[13.5px] text-ink">
+            <button key={p} onClick={() => send(p)} disabled={thinking} className="group text-left px-4 py-3 rounded-2xl border border-line hover:border-ink/50 hover:bg-surface-2 transition-all text-[13.5px] text-ink disabled:opacity-50">
               {p}
             </button>
-          ))}
-        </div>
-
-        <div className="eyebrow mt-10 mb-3">Recent</div>
-        <div className="flex flex-wrap gap-2">
-          {RECENT.map((r) => (
-            <button key={r} className="px-3 py-1.5 rounded-full border border-line text-[12px] text-ink-soft hover:text-ink hover:border-ink transition-all">{r}</button>
           ))}
         </div>
       </section>
@@ -192,9 +203,70 @@ function AIAssistantPage() {
   );
 }
 
+function AssistantMessage({ text }: { text: string }) {
+  const { body, picks, sources } = parseAssistant(text);
+  return (
+    <div>
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ink-muted mb-2">
+        <Sparkles size={11} className="text-accent" /> PricePilot
+      </div>
+      <div className="text-[15.5px] leading-relaxed text-ink whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: renderMarkdown(body) }} />
+      {sources.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {sources.map((s) => (
+            <span key={s} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-line text-[11px] text-ink-soft">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" /> {s}
+            </span>
+          ))}
+        </div>
+      )}
+      {picks.length > 0 && (
+        <div className="mt-5 grid sm:grid-cols-2 gap-3">
+          {picks.map((id) => {
+            const p = PRODUCTS.find((x) => x.id === id);
+            if (!p) return null;
+            return (
+              <Link key={id} to="/product/$id" params={{ id }} className="group flex items-center gap-3 p-3 rounded-2xl border border-line hover:border-ink/40 hover:bg-surface-2 transition-all">
+                <img src={p.img} alt="" className="h-12 w-12 rounded-lg object-cover bg-surface-2" />
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-semibold truncate">{p.name}</div>
+                  <div className="text-[11px] text-ink-muted">{p.category} · {inr(p.price)}</div>
+                </div>
+                <span className="text-[10.5px] font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-[oklch(0.42_0.14_45)]">{p.verdict}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function parseAssistant(raw: string) {
+  const picks: string[] = [];
+  let body = raw.replace(/\[\[PICK:([a-z0-9-]+)\]\]/gi, (_, id) => {
+    if (!picks.includes(id)) picks.push(id);
+    return "";
+  });
+  let sources: string[] = [];
+  const srcMatch = body.match(/(^|\n)\s*sources?\s*[:\-]\s*(.+)$/i);
+  if (srcMatch) {
+    sources = srcMatch[2]
+      .split(/[,;]/)
+      .map((s) => s.trim().replace(/[.\s]+$/, ""))
+      .filter(Boolean)
+      .slice(0, 6);
+    body = body.slice(0, srcMatch.index).trimEnd();
+  }
+  return { body: body.trim(), picks: picks.slice(0, 3), sources };
+}
+
 function renderMarkdown(text: string) {
   return text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/\*\*([^*]+)\*\*/g, '<strong class="text-ink font-semibold">$1</strong>');
+    .replace(/\*\*([^*]+)\*\*/g, '<strong class="text-ink font-semibold">$1</strong>')
+    .replace(/\n{2,}/g, "</p><p class='mt-3'>")
+    .replace(/^/, "<p>")
+    .concat("</p>");
 }
