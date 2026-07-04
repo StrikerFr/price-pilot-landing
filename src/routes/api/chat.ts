@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PRODUCTS } from "@/lib/mock";
+import { findBestShoppingQuery, getCatalogMatches } from "@/lib/catalog-match";
 
 type Msg = { role: "user" | "assistant" | "system"; content: string };
 
@@ -24,7 +25,8 @@ RESPONSE FORMAT (strict):
 - Open with ONE punchy sentence directly answering the question (a specific pick, or a clear "yes/no/wait").
 - Then 2–4 short paragraphs of reasoning: why this pick, tradeoffs, who it suits, what to avoid.
 - Use **bold** for product names, model numbers, and key prices.
-- Append inline tokens [[PICK:product-id]] ONLY when the LIVE CATALOG below contains a product that genuinely matches the user's requested CATEGORY and any hard constraints (price cap, size, use case). Match category strictly: a "gaming mouse" query must NOT pick a keyboard; a "mousepad" query must NOT pick headphones or a keyboard; a "laptop under ₹50k" query must NOT pick a ₹95k MacBook. If no catalog item is a true category + constraint match, emit ZERO [[PICK:...]] tokens and briefly tell the user "we don't currently track that in our live catalog — recommendations above are based on market knowledge." Never pad picks with unrelated categories. Never invent ids — only use ids literally in the catalog. Max 3 picks, top choice first.
+- For every matching catalog product you recommend, mention its exact catalog price and verdict from LIVE CATALOG. When the user asks for links/prices/cheapest, use the previous shopping request in the conversation and keep the answer focused on store links and price comparison.
+- Append inline tokens [[PICK:product-id]] ONLY when the LIVE CATALOG below contains a product that genuinely matches the user's requested CATEGORY and any hard constraints (price cap, size, use case). Match category strictly: a "gaming mouse" query must pick only Mice, not Keyboards or Gaming handhelds; a "mousepad" query must pick only Mousepads; a "laptop under ₹50k" query must NOT pick a ₹95k MacBook. If no catalog item is a true category + constraint match, emit ZERO [[PICK:...]] tokens and briefly tell the user "we don't currently track that in our live catalog — recommendations above are based on market knowledge." Never pad picks with unrelated categories. Never invent ids — only use ids literally in the catalog. Max 3 picks, top choice first.
 - End with a "Sources:" line listing 3–5 real, relevant domains (rtings.com, notebookcheck.net, gsmarena.com, dpreview.com, amazon.in, flipkart.com, reddit.com/r/IndianGaming, wirecutter.com, mkbhd, techradar.com etc.). Format: "Sources: a, b, c".
 
 TONE: Confident, concise, editorial. No hedging fluff. No "I'm just an AI". No "I don't have live data" refusals — always give the user a real, useful recommendation.
@@ -50,6 +52,10 @@ export const Route = createFileRoute("/api/chat")({
         }
         const messages = Array.isArray(body.messages) ? body.messages : [];
         if (!messages.length) return new Response("No messages", { status: 400 });
+
+        const userTexts = messages.filter((m) => m.role === "user").map((m) => m.content);
+        const catalogQuery = findBestShoppingQuery(userTexts);
+        const serverPickTokens = getCatalogMatches(catalogQuery, 3).map((p) => `[[PICK:${p.id}]]`);
 
         const upstream = await fetch(GROQ_URL, {
           method: "POST",
@@ -102,6 +108,9 @@ export const Route = createFileRoute("/api/chat")({
             } catch (e) {
               controller.error(e);
               return;
+            }
+            if (serverPickTokens.length) {
+              controller.enqueue(encoder.encode(`\n\n${serverPickTokens.join("")}`));
             }
             controller.close();
           },
