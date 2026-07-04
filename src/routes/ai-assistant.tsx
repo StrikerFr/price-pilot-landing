@@ -169,7 +169,7 @@ function AIAssistantPage() {
                     <div className="max-w-[80%] px-5 py-3 rounded-2xl bg-ink text-background text-[14.5px] leading-relaxed">{m.text}</div>
                   </div>
                 ) : (
-                  <AssistantMessage text={m.text} />
+                  <AssistantMessage text={m.text} query={findPrevUserQuery(messages, i)} />
                 )}
               </Reveal>
             ))}
@@ -226,8 +226,48 @@ function AIAssistantPage() {
   );
 }
 
-function AssistantMessage({ text }: { text: string }) {
-  const { body, picks, sources } = parseAssistant(text);
+function findPrevUserQuery(msgs: Msg[], idx: number): string {
+  for (let i = idx - 1; i >= 0; i--) if (msgs[i].role === "user") return msgs[i].text;
+  return "";
+}
+
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  Laptops: ["laptop", "notebook", "macbook", "ultrabook", "chromebook"],
+  Smartphones: ["phone", "smartphone", "iphone", "android", "pixel", "mobile"],
+  Audio: ["headphone", "headphones", "earbud", "earbuds", "earphone", "iem", "airpods", "audio"],
+  Monitors: ["monitor", "display", "screen"],
+  Gaming: ["gaming console", "handheld", "steam deck", "switch", "console"],
+  Keyboards: ["keyboard", "keycap", "mechanical"],
+  Smartwatches: ["watch", "smartwatch", "wearable"],
+  Cameras: ["camera", "mirrorless", "dslr", "point and shoot"],
+};
+
+function isPickRelevant(product: { category: string; price: number; brand: string; name: string }, query: string): boolean {
+  const q = query.toLowerCase();
+  if (!q) return true;
+  const kws = CATEGORY_KEYWORDS[product.category] ?? [];
+  const brandNameHit = q.includes(product.brand.toLowerCase()) || q.includes(product.name.toLowerCase());
+  const categoryHit = kws.some((k) => q.includes(k)) || brandNameHit;
+  if (!categoryHit) return false;
+  // Price cap parsing: "under 5000", "below ₹50,000", "less than 100k"
+  const priceMatch = q.match(/(?:under|below|less than|upto|up to|<)\s*₹?\s*([\d,]+)\s*(k|lakh|lac)?/i);
+  if (priceMatch) {
+    let cap = parseInt(priceMatch[1].replace(/,/g, ""), 10);
+    const unit = (priceMatch[2] || "").toLowerCase();
+    if (unit === "k") cap *= 1000;
+    else if (unit === "lakh" || unit === "lac") cap *= 100000;
+    if (Number.isFinite(cap) && cap > 0 && product.price > cap) return false;
+  }
+  return true;
+}
+
+function AssistantMessage({ text, query }: { text: string; query: string }) {
+  const parsed = parseAssistant(text);
+  const { body, sources } = parsed;
+  const picks = parsed.picks.filter((id) => {
+    const p = PRODUCTS.find((x) => x.id === id);
+    return p ? isPickRelevant(p, query) : false;
+  });
   return (
     <div>
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ink-muted mb-2">
