@@ -563,236 +563,360 @@ function TrustBar() {
   );
 }
 
-/* ---------- The Journey (What it does) ---------- */
+/* ---------- The Journey (What it does) — sticky parallax ---------- */
 
 const journey = [
-  { icon: Search, title: "AI Search", copy: "Describe what you need, naturally." },
-  { icon: Scale, title: "Compare", copy: "Every option, side-by-side." },
-  { icon: Bot, title: "Review Intelligence", copy: "Thousands of reviews, one verdict." },
-  { icon: TrendingDown, title: "Buy or Wait", copy: "Know the perfect moment to click buy." },
-  { icon: Tag, title: "Best Price", copy: "Every major store, one glance." },
-  { icon: CalendarDays, title: "Upcoming Sales", copy: "Never miss another big drop." },
+  {
+    icon: Search,
+    tag: "Ask",
+    title: "Describe it. In your words.",
+    copy: "Type what you're looking for the way you'd tell a friend. Our AI turns messy intent into the exact product you meant.",
+    image: heroPhone,
+    stat: { label: "Understood in", value: "0.4s" },
+    chip: "quiet mechanical keyboard under ₹20k",
+  },
+  {
+    icon: Scale,
+    tag: "Compare",
+    title: "Every option, side by side.",
+    copy: "Specs, prices, real-world tradeoffs. We line up the shortlist so the winner becomes obvious in seconds.",
+    image: dealKeyboard,
+    stat: { label: "Options weighed", value: "142" },
+    chip: "Keychron Q1  vs  Nuphy Air75",
+  },
+  {
+    icon: Bot,
+    tag: "Analyze",
+    title: "Thousands of reviews. One verdict.",
+    copy: "We read Amazon, Reddit, YouTube and trusted publications, then hand you the honest take — not the marketing one.",
+    image: heroHeadphones,
+    stat: { label: "Reviews scanned", value: "18,432" },
+    chip: "Confidence  ·  98%",
+  },
+  {
+    icon: TrendingDown,
+    tag: "Time it",
+    title: "Buy today, or wait 12 days.",
+    copy: "Live price history across the internet tells you whether right now is the smart moment — or if patience saves you ₹6,000.",
+    image: dealCamera,
+    stat: { label: "Est. savings", value: "₹6,000" },
+    chip: "Wait until Prime Day →",
+  },
+  {
+    icon: Tag,
+    tag: "Price",
+    title: "Every major store. One glance.",
+    copy: "Amazon, Flipkart, Croma, Reliance, official brand stores — the cheapest verified price surfaces first, always.",
+    image: dealEarbuds,
+    stat: { label: "Best price", value: "₹18,999" },
+    chip: "Amazon  ·  -24%",
+  },
+  {
+    icon: CalendarDays,
+    tag: "Alert",
+    title: "Never miss another big drop.",
+    copy: "Prime Day, Big Billion, Black Friday — the sales you actually care about, delivered before the internet is picked clean.",
+    image: salePrimeDay,
+    stat: { label: "Next big sale", value: "04d 12h" },
+    chip: "Prime Day  ·  Jul 16",
+  },
 ];
 
-function JourneyPreview({ kind, active }: { kind: number; active: boolean }) {
-  // Tiny in-node previews that fade in on hover
-  const base =
-    "pointer-events-none absolute inset-x-4 top-full mt-4 rounded-2xl border border-line bg-background/95 backdrop-blur-sm p-4 shadow-[0_20px_60px_-30px_oklch(0.15_0.02_60_/_0.35)] transition-all duration-500";
-  const state = active
-    ? "opacity-100 translate-y-0"
-    : "opacity-0 -translate-y-1 pointer-events-none";
-  return (
-    <div className={`${base} ${state}`} aria-hidden={!active}>
-      {kind === 0 && (
-        <div className="flex items-center gap-2 text-[12px] text-ink-soft">
-          <Search size={12} />
-          <span className="text-ink">"quiet mechanical keyboard under ₹20k"</span>
-          <span className="ml-auto h-3 w-[1px] bg-ink animate-pulse" />
-        </div>
-      )}
-      {kind === 1 && (
-        <div className="grid grid-cols-2 gap-2 text-[11px]">
-          <div className="rounded-lg bg-surface-2 px-2 py-1.5"><div className="text-ink-muted">Keychron Q1</div><div className="text-ink font-semibold">₹18,999</div></div>
-          <div className="rounded-lg bg-ink text-background px-2 py-1.5"><div className="opacity-60">Nuphy Air75</div><div className="font-semibold">₹15,499</div></div>
-        </div>
-      )}
-      {kind === 2 && (
-        <div className="space-y-1.5">
-          <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden"><div className="h-full w-[92%] bg-ink" /></div>
-          <div className="flex justify-between text-[10px] text-ink-muted"><span>9.4 / 10</span><span>18,432 reviews</span></div>
-        </div>
-      )}
-      {kind === 3 && (
-        <svg viewBox="0 0 120 32" className="w-full h-8">
-          <polyline points="0,20 20,18 40,22 60,14 80,16 100,8 120,4" fill="none" stroke="oklch(0.68 0.17 45)" strokeWidth="1.5" />
-          <circle cx="120" cy="4" r="2" fill="oklch(0.68 0.17 45)" />
-        </svg>
-      )}
-      {kind === 4 && (
-        <div className="space-y-1 text-[11px]">
-          {["Amazon ₹18,999","Flipkart ₹19,499","Reliance ₹20,100"].map((s,i)=>(
-            <div key={s} className="flex justify-between"><span className="text-ink-muted">{s.split(" ")[0]}</span><span className={i===0?"text-ink font-semibold":"text-ink-soft"}>{s.split(" ")[1]}</span></div>
-          ))}
-        </div>
-      )}
-      {kind === 5 && (
-        <div className="flex items-center gap-2 text-[11px] text-ink-soft">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-          <span>Prime Day in <span className="text-ink font-semibold tabular-nums">04d 12h 38m</span></span>
-        </div>
-      )}
-    </div>
-  );
+function useScrollProgress<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [p, setP] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      const wh = window.innerHeight;
+      const total = rect.height - wh;
+      const scrolled = -rect.top;
+      const next = Math.max(0, Math.min(1, scrolled / Math.max(1, total)));
+      setP(next);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+  return { ref, p };
 }
 
 function FeatureStrip() {
-  const { ref, inView } = useInView<HTMLDivElement>(0.15);
-  const [hovered, setHovered] = useState<number | null>(null);
+  const { ref, p } = useScrollProgress<HTMLDivElement>();
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  // Map progress across 6 steps
+  const steps = journey.length;
+  const raw = p * steps;
+  const active = Math.min(steps - 1, Math.max(0, Math.floor(raw)));
+  const local = Math.min(1, Math.max(0, raw - active)); // 0..1 within current step
+
+  const current = journey[active];
+  const next = journey[Math.min(steps - 1, active + 1)];
+
+  const onMove = (e: React.MouseEvent) => {
+    const b = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+    setMouse({
+      x: (e.clientX - b.left) / b.width - 0.5,
+      y: (e.clientY - b.top) / b.height - 0.5,
+    });
+  };
 
   return (
-    <section className="slant-r relative z-10 py-28 md:py-40 bg-surface-2/60 overflow-hidden">
-      {/* subtle grid backdrop */}
+    <section
+      ref={ref}
+      className="slant-r relative z-10 bg-surface-2/60"
+      style={{ height: `${steps * 100}vh` }}
+    >
       <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.35]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, oklch(0.55 0.008 70 / 0.06) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.55 0.008 70 / 0.06) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
-          maskImage:
-            "radial-gradient(ellipse at center, black 40%, transparent 78%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-[520px] w-[900px] rounded-full opacity-60"
-        style={{ background: "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.10), transparent 70%)" }}
-      />
+        className="sticky top-0 h-screen w-full overflow-hidden"
+        onMouseMove={onMove}
+        onMouseLeave={() => setMouse({ x: 0, y: 0 })}
+      >
+        {/* ambient backdrop */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, oklch(0.55 0.008 70 / 0.06) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.55 0.008 70 / 0.06) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+            maskImage: "radial-gradient(ellipse at center, black 35%, transparent 78%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-40 right-0 h-[640px] w-[900px] rounded-full opacity-70 transition-transform duration-1000"
+          style={{
+            background:
+              "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.14), transparent 70%)",
+            transform: `translate(${mouse.x * 30}px, ${mouse.y * 30}px)`,
+          }}
+        />
 
-      <div ref={ref} className="relative mx-auto max-w-[1400px] px-6 md:px-10">
-        {/* headline */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-24 md:mb-32">
-          <div>
-            <div className={`eyebrow transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
-              The journey
+        {/* giant background numeral */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 flex items-center justify-center select-none"
+        >
+          <div className="relative w-full max-w-[1400px] mx-auto px-6 md:px-10">
+            <div
+              key={active}
+              className="absolute right-[42%] top-1/2 -translate-y-1/2 text-[38vw] md:text-[26vw] leading-none font-semibold text-ink/[0.035] tabular-nums transition-opacity duration-700"
+              style={{ letterSpacing: "-0.06em" }}
+            >
+              0{active + 1}
             </div>
-            <h2
-              className={`display mt-5 text-5xl md:text-[88px] leading-[0.95] tracking-tight text-balance transition-all duration-1000 ${
-                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-              }`}
-            >
-              Find. <span className="text-ink-muted">Compare.</span> <span className="text-ink">Decide.</span>
-            </h2>
-            <p
-              className={`mt-6 max-w-md text-ink-soft text-base md:text-lg transition-all duration-1000 delay-150 ${
-                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
-            >
-              Six quiet steps between wanting something and owning it well.
-            </p>
           </div>
-          <a
-            href="#"
-            className="hidden md:inline-flex items-center gap-1.5 link-underline text-sm text-ink-soft self-end"
-          >
-            See how it works <ArrowUpRight size={14} />
-          </a>
         </div>
 
-        {/* the path */}
-        <div className="relative">
-          {/* animated SVG connector - desktop */}
-          <svg
-            aria-hidden
-            viewBox="0 0 1200 140"
-            preserveAspectRatio="none"
-            className="hidden md:block absolute left-0 right-0 top-[46px] w-full h-[140px] pointer-events-none"
-          >
-            <defs>
-              <linearGradient id="journeyStroke" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%" stopColor="oklch(0.16 0.01 70)" stopOpacity="0.15" />
-                <stop offset="50%" stopColor="oklch(0.68 0.17 45)" stopOpacity="0.9" />
-                <stop offset="100%" stopColor="oklch(0.16 0.01 70)" stopOpacity="0.15" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M 0 60 C 150 20, 250 100, 400 60 S 650 20, 800 60 S 1050 100, 1200 60"
-              fill="none"
-              stroke="url(#journeyStroke)"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              style={{
-                strokeDasharray: 2400,
-                strokeDashoffset: inView ? 0 : 2400,
-                transition: "stroke-dashoffset 2200ms cubic-bezier(0.2,0.8,0.2,1)",
-              }}
-            />
-            {/* pulsing dot travelling the path */}
-            <circle r="3" fill="oklch(0.68 0.17 45)">
-              <animateMotion
-                dur="6s"
-                repeatCount="indefinite"
-                path="M 0 60 C 150 20, 250 100, 400 60 S 650 20, 800 60 S 1050 100, 1200 60"
-              />
-            </circle>
-          </svg>
+        <div className="relative h-full mx-auto max-w-[1400px] px-6 md:px-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+          {/* LEFT — story panel */}
+          <div className="md:col-span-5 relative z-10">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="eyebrow">The Journey</span>
+              <span className="h-px w-10 bg-line" />
+              <span className="text-[11px] font-medium text-ink-muted tabular-nums">
+                0{active + 1} <span className="text-ink-muted/50">/ 06</span>
+              </span>
+            </div>
 
-          {/* mobile vertical rail */}
-          <div
-            aria-hidden
-            className="md:hidden absolute left-[27px] top-6 bottom-6 w-[1.5px]"
-            style={{
-              background:
-                "linear-gradient(to bottom, transparent, oklch(0.16 0.01 70 / 0.2) 15%, oklch(0.68 0.17 45 / 0.6) 50%, oklch(0.16 0.01 70 / 0.2) 85%, transparent)",
-            }}
-          />
+            {/* rotating title stack */}
+            <div className="relative h-[220px] md:h-[280px]">
+              {journey.map((s, i) => {
+                const dist = i - active - local;
+                const opacity = Math.max(0, 1 - Math.abs(dist) * 1.6);
+                const ty = dist * 40;
+                return (
+                  <div
+                    key={s.title}
+                    aria-hidden={i !== active}
+                    className="absolute inset-0"
+                    style={{
+                      opacity,
+                      transform: `translateY(${ty}px)`,
+                      transition: "opacity 500ms ease, transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
+                      pointerEvents: i === active ? "auto" : "none",
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line bg-background">
+                        <s.icon size={14} strokeWidth={1.6} />
+                      </span>
+                      <span className="text-[11px] uppercase tracking-[0.2em] text-ink-muted">
+                        {s.tag}
+                      </span>
+                    </div>
+                    <h2 className="display text-4xl md:text-6xl leading-[0.98] tracking-tight text-balance">
+                      {s.title}
+                    </h2>
+                  </div>
+                );
+              })}
+            </div>
 
-          <ol className="relative grid grid-cols-1 md:grid-cols-6 gap-y-14 md:gap-x-4">
-            {journey.map((n, i) => {
-              const active = hovered === i;
-              return (
-                <li
-                  key={n.title}
-                  onMouseEnter={() => setHovered(i)}
-                  onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
-                  className={`group relative flex md:flex-col items-start md:items-center gap-5 md:gap-0 pl-0 md:pl-0 transition-all duration-700 ${
-                    inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-                  }`}
-                  style={{ transitionDelay: `${400 + i * 120}ms` }}
+            {/* copy */}
+            <div className="relative h-[110px] mt-2">
+              {journey.map((s, i) => (
+                <p
+                  key={s.copy}
+                  className="absolute inset-0 max-w-md text-ink-soft text-base md:text-[17px] leading-relaxed"
+                  style={{
+                    opacity: i === active ? 1 - local * 0.4 : 0,
+                    transform: `translateY(${(i - active - local) * 20}px)`,
+                    transition: "opacity 500ms ease, transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
+                  }}
                 >
-                  {/* node */}
-                  <div className="relative shrink-0">
-                    <span
-                      aria-hidden
-                      className={`absolute inset-0 -m-2 rounded-full transition-all duration-500 ${
-                        active ? "bg-accent/15 scale-110" : "bg-transparent scale-90"
-                      }`}
-                    />
-                    <span
-                      className={`relative grid h-14 w-14 place-items-center rounded-full bg-background border transition-all duration-500 ${
-                        active
-                          ? "border-ink shadow-[0_10px_30px_-10px_oklch(0.68_0.17_45_/_0.5)] scale-110"
-                          : "border-line group-hover:border-ink/60"
-                      }`}
-                    >
-                      <n.icon
-                        size={20}
-                        strokeWidth={1.5}
-                        className={`text-ink transition-transform duration-500 ${active ? "rotate-[8deg]" : ""}`}
+                  {s.copy}
+                </p>
+              ))}
+            </div>
+
+            {/* progress rail */}
+            <div className="mt-10 flex items-center gap-2">
+              {journey.map((s, i) => {
+                const isDone = i < active;
+                const isCurrent = i === active;
+                return (
+                  <div key={s.title} className="flex-1 group">
+                    <div className="h-[2px] w-full bg-line/70 overflow-hidden rounded-full">
+                      <div
+                        className="h-full bg-ink transition-all duration-500"
+                        style={{
+                          width: isDone ? "100%" : isCurrent ? `${local * 100}%` : "0%",
+                        }}
                       />
-                    </span>
-                    <span className="absolute -top-2 -right-2 text-[10px] font-medium text-ink-muted tabular-nums">
-                      0{i + 1}
-                    </span>
-                  </div>
-
-                  {/* label */}
-                  <div className="md:mt-8 md:text-center md:px-2 max-w-[220px]">
-                    <div className="text-[15px] font-semibold text-ink tracking-tight">
-                      {n.title}
                     </div>
+                    <div className="mt-2 flex items-center gap-1.5 text-[10px] tabular-nums text-ink-muted">
+                      <span className={isCurrent ? "text-ink font-semibold" : ""}>0{i + 1}</span>
+                      <span className="hidden md:inline truncate">{s.tag}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* RIGHT — image stage with parallax */}
+          <div className="md:col-span-7 relative h-[52vh] md:h-[72vh]">
+            {/* stage frame */}
+            <div className="absolute inset-0 rounded-[28px] overflow-hidden bg-background border border-line/60 shadow-[0_40px_120px_-40px_oklch(0.15_0.02_60_/_0.35)]">
+              {/* image stack */}
+              {journey.map((s, i) => {
+                const dist = i - active - local; // -inf..+inf, 0 = fully in
+                const inFrame = Math.abs(dist) < 1.2;
+                const opacity = Math.max(0, 1 - Math.abs(dist) * 1.15);
+                const scale = 1.08 - Math.min(0.08, Math.abs(dist) * 0.06);
+                const tx = dist * 60 + mouse.x * 12;
+                const ty = -dist * 40 + mouse.y * 10;
+                return (
+                  <div
+                    key={s.image}
+                    aria-hidden={i !== active}
+                    className="absolute inset-0 will-change-transform"
+                    style={{
+                      opacity: inFrame ? opacity : 0,
+                      transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`,
+                      transition: "opacity 700ms cubic-bezier(0.2,0.8,0.2,1), transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
+                    }}
+                  >
+                    <img
+                      src={s.image}
+                      alt={s.title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                    {/* subtle vignette */}
                     <div
-                      className={`mt-1.5 text-[13px] leading-snug text-ink-muted transition-all duration-500 ${
-                        active ? "text-ink-soft" : ""
-                      }`}
-                    >
-                      {n.copy}
-                    </div>
+                      className="absolute inset-0"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, transparent 40%, oklch(0.15 0.02 60 / 0.35) 100%)",
+                      }}
+                    />
                   </div>
+                );
+              })}
 
-                  {/* hover preview (desktop only, below the node) */}
-                  <div className="hidden md:block">
-                    <JourneyPreview kind={i} active={active} />
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
+              {/* floating chip (top-left) */}
+              <div
+                key={`chip-${active}`}
+                className="absolute top-6 left-6 flex items-center gap-2 rounded-full bg-background/90 backdrop-blur-md border border-line px-4 py-2 text-[12px] text-ink shadow-[0_8px_24px_-12px_oklch(0.15_0.02_60_/_0.4)]"
+                style={{
+                  transform: `translate(${mouse.x * -18}px, ${mouse.y * -12}px)`,
+                  transition: "transform 400ms cubic-bezier(0.2,0.8,0.2,1)",
+                }}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="font-medium">{current.chip}</span>
+              </div>
+
+              {/* stat card (bottom-right) */}
+              <div
+                key={`stat-${active}`}
+                className="absolute bottom-6 right-6 rounded-2xl bg-background/95 backdrop-blur-md border border-line px-5 py-4 shadow-[0_20px_40px_-20px_oklch(0.15_0.02_60_/_0.5)]"
+                style={{
+                  transform: `translate(${mouse.x * -24}px, ${mouse.y * -16}px)`,
+                  transition: "transform 500ms cubic-bezier(0.2,0.8,0.2,1)",
+                }}
+              >
+                <div className="text-[10px] uppercase tracking-[0.2em] text-ink-muted">
+                  {current.stat.label}
+                </div>
+                <div className="mt-1 display text-3xl tabular-nums text-ink">
+                  {current.stat.value}
+                </div>
+              </div>
+
+              {/* corner meta */}
+              <div className="absolute top-6 right-6 flex items-center gap-1.5 text-[10px] font-medium text-background/90 mix-blend-difference">
+                <span className="tabular-nums">0{active + 1}</span>
+                <span className="opacity-50">→</span>
+                <span className="tabular-nums opacity-60">
+                  0{Math.min(steps, active + 2)}
+                </span>
+              </div>
+            </div>
+
+            {/* peek at next image */}
+            <div
+              aria-hidden
+              className="hidden md:block absolute -right-8 top-8 bottom-8 w-16 rounded-r-[24px] overflow-hidden opacity-40"
+              style={{ transform: `translateX(${local * 40}px)` }}
+            >
+              <img
+                src={next.image}
+                alt=""
+                className="h-full w-full object-cover blur-[2px]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* scroll hint */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-ink-muted">
+          <span>Scroll</span>
+          <span className="h-px w-8 bg-ink-muted/40 relative overflow-hidden">
+            <span className="absolute inset-y-0 left-0 w-1/3 bg-ink animate-[marquee_2s_linear_infinite]" />
+          </span>
         </div>
       </div>
     </section>
   );
 }
+
 
 
 /* ---------- Today's Deals ---------- */
