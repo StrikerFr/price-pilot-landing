@@ -49,8 +49,12 @@ export function SiteNav({ onOpenSearch }: { onOpenSearch: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState<MenuKey>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [pill, setPill] = useState<{ left: number; width: number; opacity: number }>({ left: 0, width: 0, opacity: 0 });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const itemRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -61,74 +65,125 @@ export function SiteNav({ onOpenSearch }: { onOpenSearch: () => void }) {
 
   useEffect(() => { setMobileOpen(false); setOpen(null); }, [pathname]);
 
-  const openMenu = (k: MenuKey) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setOpen(k);
-  };
-  const scheduleClose = () => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setOpen(null), 140);
-  };
-
   const isActive = (to: string) => pathname === to || (to !== "/" && pathname.startsWith(to));
   const hasMenu = (label: string): label is Exclude<MenuKey, null> =>
     label === "Categories" || label === "Deals" || label === "AI Assistant" || label === "News";
 
+  // Position the sliding pill under whichever item is hovered/open, or the active route.
+  useEffect(() => {
+    const target = hovered ?? open ?? NAV_ITEMS.find((i) => isActive(i.to))?.label ?? null;
+    if (!target || !navRef.current) {
+      setPill((p) => ({ ...p, opacity: 0 }));
+      return;
+    }
+    const el = itemRefs.current[target];
+    const parent = navRef.current;
+    if (!el) return;
+    const eRect = el.getBoundingClientRect();
+    const pRect = parent.getBoundingClientRect();
+    setPill({ left: eRect.left - pRect.left, width: eRect.width, opacity: 1 });
+  }, [hovered, open, pathname]);
+
+  const openMenu = (label: string) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setHovered(label);
+    if (hasMenu(label)) setOpen(label);
+    else setOpen(null);
+  };
+  const scheduleClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => { setOpen(null); setHovered(null); }, 140);
+  };
+
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled || open ? "bg-background/85 backdrop-blur-xl border-b border-line" : "bg-transparent"
+        className={`fixed inset-x-0 top-0 z-50 transition-[padding] duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
+          scrolled || open ? "pt-3" : "pt-5"
         }`}
         onMouseLeave={scheduleClose}
       >
-        <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-6 md:px-10">
-          <Link to="/" className="flex items-center gap-2 group">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-ink text-background text-[10px] font-semibold transition-transform group-hover:scale-105">P</span>
-            <span className="display text-lg tracking-tight">PricePilot</span>
-          </Link>
-
-          <nav className="hidden lg:flex items-center gap-1">
-            {NAV_ITEMS.map((item) => {
-              const active = isActive(item.to);
-              const menu = hasMenu(item.label);
-              return (
-                <div key={item.label} onMouseEnter={() => (menu ? openMenu(item.label as Exclude<MenuKey, null>) : setOpen(null))}>
-                  <Link
-                    to={item.to}
-                    className={`relative px-3 py-2 text-[13px] font-medium transition-colors ${
-                      active ? "text-ink" : "text-ink-soft hover:text-ink"
-                    }`}
-                  >
-                    {item.label}
-                    <span className={`absolute left-3 right-3 -bottom-0.5 h-px bg-ink origin-left transition-transform duration-500 ${active ? "scale-x-100" : "scale-x-0"}`} />
-                  </Link>
-                </div>
-              );
-            })}
-          </nav>
-
-          <div className="flex items-center gap-1">
-            <button onClick={onOpenSearch} aria-label="Search" className="hidden md:flex items-center gap-2 h-9 pl-3 pr-2 rounded-full text-[12.5px] text-ink-muted hover:text-ink hover:bg-surface-2 transition-colors border border-line/70">
-              <Search size={14} strokeWidth={1.8} />
-              <span className="hidden xl:inline">Search everything</span>
-              <kbd className="ml-1 hidden xl:inline text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-3 text-ink-soft">⌘K</kbd>
-            </button>
-            <button onClick={onOpenSearch} aria-label="Search" className="md:hidden grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2 transition-colors">
-              <Search size={17} strokeWidth={1.6} />
-            </button>
-            <Link to="/wishlist" aria-label="Wishlist" className="grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2 transition-colors">
-              <Heart size={17} strokeWidth={1.6} />
-            </Link>
-            <Link to="/profile" className="hidden md:inline-flex items-center gap-1.5 h-9 pl-3 pr-2 rounded-full bg-ink text-background text-[13px] font-medium magnetic hover:bg-ink/90">
-              Profile
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-background/15">
-                <User size={13} strokeWidth={1.8} />
+        {/* Floating shell — pill shape, glass, subtle border, animates on scroll */}
+        <div
+          className={`mx-auto max-w-[1400px] px-4 md:px-6 transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
+            scrolled || open ? "max-w-[1180px]" : ""
+          }`}
+        >
+          <div
+            className={`relative flex h-14 items-center justify-between rounded-full transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
+              scrolled || open
+                ? "px-3 md:px-4 bg-background/70 border border-line shadow-[0_10px_40px_-20px_oklch(0.15_0.02_60/0.25)] backdrop-blur-2xl backdrop-saturate-150"
+                : "px-4 md:px-6 bg-background/40 border border-line/40 backdrop-blur-xl backdrop-saturate-150"
+            }`}
+          >
+            <Link to="/" className="flex items-center gap-2.5 group pr-2">
+              <span className="relative grid h-8 w-8 place-items-center rounded-full bg-ink text-background text-[11px] font-semibold overflow-hidden">
+                <span className="relative z-10">P</span>
+                <span className="absolute inset-0 bg-gradient-to-br from-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </span>
+              <span className="display text-[17px] tracking-tight leading-none">PricePilot</span>
             </Link>
-            <button aria-label="Menu" onClick={() => setMobileOpen((v) => !v)} className="lg:hidden grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2 transition-colors">
-              <span className="flex flex-col gap-1"><span className="h-px w-4 bg-current" /><span className="h-px w-4 bg-current" /></span>
-            </button>
+
+            <nav
+              ref={navRef}
+              className="hidden lg:flex relative items-center px-1"
+              onMouseLeave={() => setHovered(null)}
+            >
+              {/* Sliding pill background */}
+              <span
+                aria-hidden
+                className="absolute top-1/2 -translate-y-1/2 h-9 rounded-full bg-surface-2/80 border border-line/60 transition-all duration-[420ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] pointer-events-none"
+                style={{ left: pill.left, width: pill.width, opacity: pill.opacity }}
+              />
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(item.to);
+                return (
+                  <div
+                    key={item.label}
+                    onMouseEnter={() => openMenu(item.label)}
+                    className="relative"
+                  >
+                    <Link
+                      ref={(el) => { itemRefs.current[item.label] = el; }}
+                      to={item.to}
+                      className={`relative z-10 flex items-center gap-1.5 px-3.5 h-9 rounded-full text-[13px] font-medium transition-colors duration-300 ${
+                        active ? "text-ink" : "text-ink-soft hover:text-ink"
+                      }`}
+                    >
+                      {item.label === "AI Assistant" && <Sparkles size={11} className="text-accent" />}
+                      {item.label}
+                    </Link>
+                  </div>
+                );
+              })}
+            </nav>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={onOpenSearch}
+                aria-label="Search"
+                className="hidden md:flex items-center gap-2 h-9 pl-3 pr-2 rounded-full text-[12.5px] text-ink-muted hover:text-ink transition-all border border-line/60 hover:border-ink/30 hover:bg-surface-2/60"
+              >
+                <Search size={14} strokeWidth={1.8} />
+                <span className="hidden xl:inline">Search everything</span>
+                <kbd className="ml-1 hidden xl:inline text-[10px] font-medium px-1.5 py-0.5 rounded bg-surface-3 text-ink-soft">⌘K</kbd>
+              </button>
+              <button onClick={onOpenSearch} aria-label="Search" className="md:hidden grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2/70 transition-colors">
+                <Search size={17} strokeWidth={1.6} />
+              </button>
+              <Link to="/wishlist" aria-label="Wishlist" className="grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2/70 hover:text-ink transition-colors">
+                <Heart size={17} strokeWidth={1.6} />
+              </Link>
+              <Link to="/profile" className="hidden md:inline-flex items-center gap-1.5 h-9 pl-3.5 pr-1.5 rounded-full bg-ink text-background text-[13px] font-medium hover:bg-ink/90 transition-all ml-1">
+                Profile
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-background/15">
+                  <User size={13} strokeWidth={1.8} />
+                </span>
+              </Link>
+              <button aria-label="Menu" onClick={() => setMobileOpen((v) => !v)} className="lg:hidden grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2/70 transition-colors">
+                <span className="flex flex-col gap-1"><span className="h-px w-4 bg-current" /><span className="h-px w-4 bg-current" /></span>
+              </button>
+            </div>
           </div>
         </div>
 
