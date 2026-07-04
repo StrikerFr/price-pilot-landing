@@ -2773,9 +2773,21 @@ function Footer() {
 /* ---------- Page ---------- */
 
 function LandingPage() {
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Nav />
+      <SiteNav onOpenSearch={() => setPaletteOpen(true)} />
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
       <main>
         <Hero />
         <TrustBar />
@@ -2787,7 +2799,6 @@ function LandingPage() {
         <BuyOrWait />
         <UpcomingSales />
         <Trending />
-        
       </main>
       <Footer />
     </div>
