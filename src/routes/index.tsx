@@ -2467,14 +2467,76 @@ function Footer() {
     <footer
       ref={ref}
       className="slant-r relative z-10 overflow-hidden shadow-[0_-24px_60px_-30px_oklch(0.15_0.02_60_/_0.12)]"
-      style={{ background: "oklch(0.985 0.008 75)" }}
+      style={{
+        background:
+          "radial-gradient(1200px 700px at 20% 10%, oklch(0.97 0.03 65), transparent 60%), radial-gradient(900px 600px at 85% 90%, oklch(0.96 0.04 30), transparent 55%), linear-gradient(180deg, oklch(0.985 0.008 75) 0%, oklch(0.965 0.014 60) 55%, oklch(0.95 0.02 45) 100%)",
+      }}
     >
+      {/* Aurora blob A — warm amber */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 -left-40 h-[70vh] w-[70vh] rounded-full blur-3xl opacity-70 mix-blend-multiply"
+        style={{
+          background:
+            "radial-gradient(closest-side, oklch(0.82 0.14 55 / 0.55), transparent 70%)",
+          animation: "aurora-shift 22s ease-in-out infinite",
+        }}
+      />
+      {/* Aurora blob B — rose */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-1/3 -right-40 h-[80vh] w-[80vh] rounded-full blur-3xl opacity-60 mix-blend-multiply"
+        style={{
+          background:
+            "radial-gradient(closest-side, oklch(0.78 0.16 25 / 0.45), transparent 70%)",
+          animation: "aurora-shift-2 28s ease-in-out infinite",
+        }}
+      />
+      {/* Aurora blob C — cool accent for contrast */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute bottom-[-20vh] left-1/3 h-[65vh] w-[65vh] rounded-full blur-3xl opacity-55 mix-blend-multiply"
+        style={{
+          background:
+            "radial-gradient(closest-side, oklch(0.78 0.10 240 / 0.35), transparent 70%)",
+          animation: "aurora-shift 34s ease-in-out infinite reverse",
+        }}
+      />
+
+      {/* Slow conic sheen */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[140vh] w-[140vh] -translate-x-1/2 -translate-y-1/2 opacity-[0.07]"
+        style={{
+          background:
+            "conic-gradient(from 0deg, transparent 0deg, oklch(0.4 0.15 50) 40deg, transparent 90deg, transparent 180deg, oklch(0.4 0.15 25) 220deg, transparent 270deg)",
+          animation: "conic-spin 60s linear infinite",
+          filter: "blur(40px)",
+        }}
+      />
+
+      {/* Fine grid overlay */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.05]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, oklch(0.2 0.02 60) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.2 0.02 60) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage:
+            "radial-gradient(ellipse at center, black 40%, transparent 80%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, black 40%, transparent 80%)",
+        }}
+      />
+
       {/* Cursor spotlight */}
       <div
         className="pointer-events-none absolute inset-0 transition-opacity duration-700"
         style={{
           opacity: spot.active ? 1 : 0,
-          background: `radial-gradient(500px circle at ${spot.x}% ${spot.y}%, oklch(1 0.02 75 / 0.9), transparent 60%)`,
+          background: `radial-gradient(600px circle at ${spot.x}% ${spot.y}%, oklch(1 0.03 75 / 0.85), transparent 60%)`,
+          mixBlendMode: "overlay",
         }}
       />
 
@@ -2504,6 +2566,17 @@ function Footer() {
           />
         ))}
       </div>
+
+      {/* Grain */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>\")",
+        }}
+      />
+
 
       {/* Main stage */}
       <div className="relative mx-auto max-w-[1200px] px-6 md:px-10 pt-40 md:pt-56 pb-24">
