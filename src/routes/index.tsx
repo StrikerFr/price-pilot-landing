@@ -1150,6 +1150,8 @@ const categories = [
   { name: "Audio", img: catAudio, count: "1,540" },
   { name: "Gaming", img: catGaming, count: "720" },
   { name: "Monitors", img: catMonitors, count: "510" },
+  { name: "Wearables", img: dealWatch, count: "640" },
+  { name: "Cameras", img: dealCamera, count: "380" },
   { name: "Accessories", img: catAccessories, count: "3,120" },
 ];
 
