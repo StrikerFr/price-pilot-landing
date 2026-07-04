@@ -169,7 +169,7 @@ function AIAssistantPage() {
                     <div className="max-w-[80%] px-5 py-3 rounded-2xl bg-ink text-background text-[14.5px] leading-relaxed">{m.text}</div>
                   </div>
                 ) : (
-                  <AssistantMessage text={m.text} />
+                  <AssistantMessage text={m.text} query={findPrevUserQuery(messages, i)} />
                 )}
               </Reveal>
             ))}
