@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { PageShell, Reveal } from "@/components/site/PageShell";
 import { PRODUCTS, inr } from "@/lib/mock";
+import { findBestShoppingQuery, getCatalogMatches, isProductRelevant } from "@/lib/catalog-match";
 import { ArrowUp, Sparkles } from "lucide-react";
 
 type ChatSearch = { q?: string };
@@ -169,7 +170,7 @@ function AIAssistantPage() {
                     <div className="max-w-[80%] px-5 py-3 rounded-2xl bg-ink text-background text-[14.5px] leading-relaxed">{m.text}</div>
                   </div>
                 ) : (
-                  <AssistantMessage text={m.text} query={findPrevUserQuery(messages, i)} />
+                  <AssistantMessage text={m.text} query={findRelevantUserQuery(messages, i)} />
                 )}
               </Reveal>
             ))}
@@ -226,48 +227,20 @@ function AIAssistantPage() {
   );
 }
 
-function findPrevUserQuery(msgs: Msg[], idx: number): string {
-  for (let i = idx - 1; i >= 0; i--) if (msgs[i].role === "user") return msgs[i].text;
-  return "";
-}
-
-const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  Laptops: ["laptop", "notebook", "macbook", "ultrabook", "chromebook"],
-  Smartphones: ["phone", "smartphone", "iphone", "android", "pixel", "mobile"],
-  Audio: ["headphone", "headphones", "earbud", "earbuds", "earphone", "iem", "airpods", "audio"],
-  Monitors: ["monitor", "display", "screen"],
-  Gaming: ["gaming console", "handheld", "steam deck", "switch", "console"],
-  Keyboards: ["keyboard", "keycap", "mechanical"],
-  Smartwatches: ["watch", "smartwatch", "wearable"],
-  Cameras: ["camera", "mirrorless", "dslr", "point and shoot"],
-};
-
-function isPickRelevant(product: { category: string; price: number; brand: string; name: string }, query: string): boolean {
-  const q = query.toLowerCase();
-  if (!q) return true;
-  const kws = CATEGORY_KEYWORDS[product.category] ?? [];
-  const brandNameHit = q.includes(product.brand.toLowerCase()) || q.includes(product.name.toLowerCase());
-  const categoryHit = kws.some((k) => q.includes(k)) || brandNameHit;
-  if (!categoryHit) return false;
-  // Price cap parsing: "under 5000", "below ₹50,000", "less than 100k"
-  const priceMatch = q.match(/(?:under|below|less than|upto|up to|<)\s*₹?\s*([\d,]+)\s*(k|lakh|lac)?/i);
-  if (priceMatch) {
-    let cap = parseInt(priceMatch[1].replace(/,/g, ""), 10);
-    const unit = (priceMatch[2] || "").toLowerCase();
-    if (unit === "k") cap *= 1000;
-    else if (unit === "lakh" || unit === "lac") cap *= 100000;
-    if (Number.isFinite(cap) && cap > 0 && product.price > cap) return false;
-  }
-  return true;
+function findRelevantUserQuery(msgs: Msg[], idx: number): string {
+  const previousUserTexts = msgs.slice(0, idx).filter((m) => m.role === "user").map((m) => m.text);
+  return findBestShoppingQuery(previousUserTexts);
 }
 
 function AssistantMessage({ text, query }: { text: string; query: string }) {
   const parsed = parseAssistant(text);
   const { body, sources } = parsed;
-  const picks = parsed.picks.filter((id) => {
+  const aiPicks = parsed.picks.filter((id) => {
     const p = PRODUCTS.find((x) => x.id === id);
-    return p ? isPickRelevant(p, query) : false;
+    return p ? isProductRelevant(p, query) : false;
   });
+  const fallbackPicks = getCatalogMatches(query, 3).map((p) => p.id);
+  const picks = [...aiPicks, ...fallbackPicks.filter((id) => !aiPicks.includes(id))].slice(0, 3);
   return (
     <div>
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ink-muted mb-2">
@@ -285,9 +258,12 @@ function AssistantMessage({ text, query }: { text: string; query: string }) {
       )}
       {picks.length > 0 && (
         <div className="mt-6">
-          <div className="text-[11px] uppercase tracking-[0.22em] text-ink-muted mb-3 flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            Top picks · live price check
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="text-[11px] uppercase tracking-[0.22em] text-ink-muted flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              Best matching prices · cheapest highlighted
+            </div>
+            <span className="text-[11px] text-ink-muted">Amazon · Flipkart · Croma</span>
           </div>
           <div className="grid gap-3">
             {picks.map((id) => {
@@ -417,6 +393,7 @@ function renderMarkdown(text: string) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/\*\*([^*]+)\*\*/g, '<strong class="text-ink font-semibold">$1</strong>')
+    .replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]])/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="font-medium text-accent underline decoration-accent/30 underline-offset-4 hover:decoration-accent">$1</a>')
     .replace(/\n{2,}/g, "</p><p class='mt-3'>")
     .replace(/^/, "<p>")
     .concat("</p>");
