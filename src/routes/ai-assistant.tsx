@@ -4,7 +4,12 @@ import { PageShell, Reveal } from "@/components/site/PageShell";
 import { PRODUCTS, inr } from "@/lib/mock";
 import { ArrowUp, Sparkles } from "lucide-react";
 
+type ChatSearch = { q?: string };
+
 export const Route = createFileRoute("/ai-assistant")({
+  validateSearch: (search: Record<string, unknown>): ChatSearch => ({
+    q: typeof search.q === "string" ? search.q : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "AI Assistant — PricePilot" },
@@ -15,6 +20,7 @@ export const Route = createFileRoute("/ai-assistant")({
   }),
   component: AIAssistantPage,
 });
+
 
 const SUGGESTED = [
   "Best 14-inch laptop under ₹100,000 for programming",
