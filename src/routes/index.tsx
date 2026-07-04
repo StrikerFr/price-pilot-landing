@@ -577,7 +577,7 @@ const features = [
 
 function FeatureStrip() {
   return (
-    <section className="slant-r relative z-10 py-24 md:py-32 bg-surface-2/60">
+    <section className="slant-r relative z-10 py-24 md:py-32 bg-surface-3">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="flex items-end justify-between mb-14">
           <div>
@@ -724,7 +724,7 @@ const categories = [
 
 function Categories() {
   return (
-    <section className="slant-r relative z-10 py-24 md:py-32 bg-surface-2/60">
+    <section className="slant-r relative z-10 py-24 md:py-32 bg-surface-3">
       <div className="mx-auto max-w-[1400px] px-6 md:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
           <div className="lg:col-span-8">
@@ -895,7 +895,7 @@ function Compare() {
 
           <div className="lg:col-span-4">
             <div className="relative">
-              <div className="absolute inset-0 bg-surface-2/60 rounded-[32px] -m-4" />
+              <div className="absolute inset-0 bg-surface-3 rounded-[32px] -m-4" />
               <div className="relative">
                 <RadarCompare />
               </div>
@@ -1045,7 +1045,7 @@ function AIReview() {
   return (
     <section
       ref={ref}
-      className="slant-r relative z-10 relative overflow-hidden py-28 md:py-40 bg-surface-2/60"
+      className="slant-r relative z-10 relative overflow-hidden py-28 md:py-40 bg-surface-3"
     >
       {/* Ambient warm lighting */}
       <div
@@ -1626,7 +1626,7 @@ function UpcomingSales() {
   );
 
   return (
-    <section className="slant-r relative z-10 relative overflow-hidden py-28 md:py-36 bg-surface-2/60">
+    <section className="slant-r relative z-10 relative overflow-hidden py-28 md:py-36 bg-surface-3">
       {/* Ambient background */}
       <div
         className="pointer-events-none absolute inset-0 opacity-70"
