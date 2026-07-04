@@ -77,36 +77,52 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "PricePilot — Shop Smarter with AI" },
+      { title: "PricePilot — AI Shopping Copilot for India" },
       {
         name: "description",
         content:
-          "Stop opening 20 shopping tabs. PricePilot finds the best products, compares prices across every store, and tells you when to buy.",
+          "PricePilot is the AI shopping copilot for India. Ask, don't scroll — get grounded recommendations, live price comparisons, and buy-or-wait verdicts across every store.",
       },
       { name: "author", content: "PricePilot" },
-      { property: "og:title", content: "PricePilot — Shop Smarter with AI" },
+      { name: "theme-color", content: "#f5f1ea" },
+      { property: "og:site_name", content: "PricePilot" },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "PricePilot — AI Shopping Copilot for India" },
       {
         property: "og:description",
         content:
-          "One search. Every store. The smartest buying decision — powered by AI.",
+          "Ask, don't scroll. PricePilot researches, compares and answers straight — grounded in live retrieved data.",
       },
-      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "PricePilot — Shop Smarter with AI" },
-      { name: "description", content: "PricePilot is the AI shopping copilot that finds the best products, compares prices across every store, and tells you exactly when to buy." },
-      { property: "og:description", content: "PricePilot is the AI shopping copilot that finds the best products, compares prices across every store, and tells you exactly when to buy." },
-      { name: "twitter:description", content: "PricePilot is the AI shopping copilot that finds the best products, compares prices across every store, and tells you exactly when to buy." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d17ead18-af43-4627-a379-864ae84505a4/id-preview-1174de53--cf201770-ff66-4fdf-a5cf-410493ea53a8.lovable.app-1783169668233.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d17ead18-af43-4627-a379-864ae84505a4/id-preview-1174de53--cf201770-ff66-4fdf-a5cf-410493ea53a8.lovable.app-1783169668233.png" },
+      { name: "twitter:title", content: "PricePilot — AI Shopping Copilot for India" },
+      {
+        name: "twitter:description",
+        content:
+          "Ask, don't scroll. PricePilot researches, compares and answers straight — grounded in live retrieved data.",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/favicon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "PricePilot",
+          url: "https://price-pilot-landing.lovable.app",
+          description:
+            "AI shopping copilot for India — grounded recommendations, live price comparisons, and buy-or-wait verdicts.",
+        }),
       },
     ],
   }),
@@ -115,6 +131,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
+
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
