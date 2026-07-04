@@ -23,8 +23,11 @@ import {
 } from "lucide-react";
 
 import heroLaptop from "@/assets/hero-laptop.png";
-import heroPhone from "@/assets/hero-phone.png";
+import heroPhone from "@/assets/hero-phone-2.png";
 import heroHeadphones from "@/assets/hero-headphones.png";
+import heroWatch from "@/assets/hero-watch.png";
+import heroEarbud from "@/assets/hero-earbud.png";
+import heroCamera from "@/assets/hero-camera.png";
 import catLaptops from "@/assets/cat-laptops.jpg";
 import catPhones from "@/assets/cat-phones.jpg";
 import catAudio from "@/assets/cat-audio.jpg";
