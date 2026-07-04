@@ -2460,7 +2460,7 @@ function UpcomingSales() {
   }, [activeIndex]);
 
   return (
-    <section className="slant-r relative z-10 overflow-hidden py-28 md:py-36 bg-surface-2/60">
+    <section className="slant-r relative z-10 overflow-hidden py-28 md:py-36" style={{ background: "oklch(0.965 0.006 80)" }}>
       {/* Ambient background */}
       <div
 
