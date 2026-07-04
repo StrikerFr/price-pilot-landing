@@ -111,17 +111,21 @@ function ComparePage() {
       <section className="mx-auto max-w-[1400px] px-6 md:px-10 mt-24">
         <div className="eyebrow mb-4">Specifications</div>
         <div className="rounded-3xl border border-line overflow-hidden">
-          {SPEC_ROWS.map((row, ri) => (
-            <div key={row.label} className={`grid ${gridCols(selected.length)} ${ri % 2 === 1 ? "bg-surface-2/60" : "bg-surface"}`}>
-              <div className="px-6 py-5 text-[12px] uppercase tracking-[0.14em] text-ink-muted border-r border-line">{row.label}</div>
-              {selected.map((p) => (
-                <div key={p.id} className="px-6 py-5 text-[14px] text-ink border-r border-line last:border-r-0">{row.value(p)}</div>
-              ))}
-              {Array.from({ length: 4 - selected.length }).map((_, i) => (
-                <div key={i} className="px-6 py-5 border-r border-line last:border-r-0" />
+          <div className="overflow-x-auto">
+            <div className="min-w-[720px]">
+              {SPEC_ROWS.map((row, ri) => (
+                <div key={row.label} className={`grid ${gridCols(selected.length)} ${ri % 2 === 1 ? "bg-surface-2/60" : "bg-surface"}`}>
+                  <div className="px-6 py-5 text-[12px] uppercase tracking-[0.14em] text-ink-muted border-r border-line sticky left-0 bg-inherit">{row.label}</div>
+                  {selected.map((p) => (
+                    <div key={p.id} className="px-6 py-5 text-[14px] text-ink border-r border-line last:border-r-0">{row.value(p)}</div>
+                  ))}
+                  {Array.from({ length: 4 - selected.length }).map((_, i) => (
+                    <div key={i} className="px-6 py-5 border-r border-line last:border-r-0" />
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
+          </div>
         </div>
       </section>
 

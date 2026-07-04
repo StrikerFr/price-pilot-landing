@@ -104,21 +104,21 @@ export function EditorialHero({
   right?: ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden pt-32 md:pt-40 pb-16 md:pb-24">
+    <section className="relative overflow-hidden pt-28 sm:pt-32 md:pt-40 pb-12 sm:pb-16 md:pb-24">
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute left-[70%] top-[30%] -translate-x-1/2 -translate-y-1/2 h-[900px] w-[900px] rounded-full opacity-60"
           style={{ background: "radial-gradient(closest-side, oklch(0.965 0.025 65 / 0.85), transparent 72%)" }}
         />
       </div>
-      <div className="relative mx-auto max-w-[1400px] px-6 md:px-10">
-        <div className="grid md:grid-cols-12 gap-10 items-end">
+      <div className="relative mx-auto max-w-[1400px] px-5 sm:px-6 md:px-10">
+        <div className="grid md:grid-cols-12 gap-8 md:gap-10 items-end">
           <div className="md:col-span-8">
             <div className="eyebrow">{kicker}</div>
-            <h1 className="mt-4 display text-[13vw] md:text-[7.5vw] lg:text-[6.4rem] leading-[0.95] tracking-tight text-balance">
+            <h1 className="mt-4 display text-[11vw] sm:text-[10vw] md:text-[7.5vw] lg:text-[6.4rem] leading-[0.95] tracking-tight text-balance">
               {title}
             </h1>
-            {lede && <p className="mt-6 max-w-[52ch] text-[15px] md:text-[17px] text-ink-soft leading-relaxed">{lede}</p>}
+            {lede && <p className="mt-5 sm:mt-6 max-w-[52ch] text-[14.5px] sm:text-[15px] md:text-[17px] text-ink-soft leading-relaxed">{lede}</p>}
           </div>
           {right && <div className="md:col-span-4">{right}</div>}
         </div>
