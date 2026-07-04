@@ -213,13 +213,13 @@
 /* ===== Slanted section transitions ===== */
 @utility slant-l {
   margin-top: -1px;
-  clip-path: polygon(0 0, 100% 90px, 100% 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 56px, 100% 100%, 0 100%);
 }
 @utility slant-r {
   margin-top: -1px;
-  clip-path: polygon(0 90px, 100% 0, 100% 100%, 0 100%);
+  clip-path: polygon(0 56px, 100% 0, 100% 100%, 0 100%);
 }
 @media (min-width: 768px) {
-  .slant-l { clip-path: polygon(0 0, 100% 180px, 100% 100%, 0 100%); }
-  .slant-r { clip-path: polygon(0 180px, 100% 0, 100% 100%, 0 100%); }
+  .slant-l { clip-path: polygon(0 0, 100% 110px, 100% 100%, 0 100%); }
+  .slant-r { clip-path: polygon(0 110px, 100% 0, 100% 100%, 0 100%); }
 }
