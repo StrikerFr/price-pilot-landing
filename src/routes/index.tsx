@@ -154,13 +154,22 @@ const dust = Array.from({ length: 22 }, (_, i) => {
 
 function Hero() {
   const [idx, setIdx] = useState(0);
+  const [query, setQuery] = useState("");
   const stageRef = useRef<HTMLDivElement>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
+
+  const submit = (q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    navigate({ to: "/ai-assistant", search: { q: trimmed } });
+  };
 
   useEffect(() => {
     const t = setInterval(() => setIdx((i) => (i + 1) % placeholders.length), 2800);
     return () => clearInterval(t);
   }, []);
+
 
   useEffect(() => {
     const el = stageRef.current;
