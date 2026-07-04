@@ -822,11 +822,18 @@ function FeatureStrip() {
           <div className="relative w-full max-w-[1400px] mx-auto px-6 md:px-10">
             <div
               key={active}
-              className="absolute right-[42%] top-1/2 -translate-y-1/2 text-[38vw] md:text-[26vw] leading-none font-semibold text-ink/[0.045] tabular-nums anim-reveal"
+              className="absolute right-[42%] top-1/2 -translate-y-1/2 text-[38vw] md:text-[26vw] leading-none font-semibold tabular-nums anim-reveal"
               style={{
                 letterSpacing: "-0.06em",
                 transform: `translate(-50%, calc(-50% + ${mouse.y * 20}px)) translateX(${mouse.x * 30}px)`,
                 transition: "transform 800ms cubic-bezier(0.2,0.8,0.2,1)",
+                backgroundImage:
+                  "linear-gradient(180deg, oklch(0.35 0.02 60 / 0.09), oklch(0.35 0.02 60 / 0.02))",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                WebkitTextStroke: "1px oklch(0.55 0.008 70 / 0.08)",
+                filter: "drop-shadow(0 20px 40px oklch(0.68 0.17 45 / 0.08))",
               }}
             >
               0{active + 1}
