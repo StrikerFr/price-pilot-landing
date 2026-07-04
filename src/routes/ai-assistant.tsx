@@ -124,6 +124,19 @@ function AIAssistantPage() {
     }
   };
 
+  // Auto-send when arriving with a ?q=... search param (from homepage hero/footer)
+  useEffect(() => {
+    if (kickedRef.current) return;
+    const seed = (q ?? "").trim();
+    if (!seed) return;
+    kickedRef.current = true;
+    void send(seed);
+    // Clear the query from the URL so a refresh doesn't re-fire it.
+    navigate({ search: {}, replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
+
+
   return (
     <PageShell>
       <section className="relative pt-28 md:pt-32">
