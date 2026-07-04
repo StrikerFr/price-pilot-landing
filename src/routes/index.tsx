@@ -89,15 +89,25 @@ function Nav() {
         </a>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) => (
-            <a
-              key={item}
-              href="#"
-              className="link-underline px-3 py-2 text-[13px] font-medium text-ink-soft hover:text-ink transition-colors"
-            >
-              {item}
-            </a>
-          ))}
+          {navItems.map((item) =>
+            item === "Deals" ? (
+              <Link
+                key={item}
+                to="/deals"
+                className="link-underline px-3 py-2 text-[13px] font-medium text-ink-soft hover:text-ink transition-colors"
+              >
+                {item}
+              </Link>
+            ) : (
+              <a
+                key={item}
+                href="#"
+                className="link-underline px-3 py-2 text-[13px] font-medium text-ink-soft hover:text-ink transition-colors"
+              >
+                {item}
+              </a>
+            ),
+          )}
         </nav>
 
         <div className="flex items-center gap-1">
