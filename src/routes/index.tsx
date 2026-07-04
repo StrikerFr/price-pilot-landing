@@ -351,17 +351,17 @@ function Hero() {
           </div>
 
           {/* Word-by-word staggered headline */}
-          <h1 className="display mt-8 sm:mt-12 lg:mt-14 text-[42px] xs:text-[52px] sm:text-[72px] md:text-[88px] lg:text-[104px] xl:text-[112px] leading-[0.9] tracking-[-0.05em] text-ink text-balance" style={{ fontWeight: 700 }}>
-            <span className="block overflow-hidden">
+          <h1 className="display mt-8 sm:mt-12 lg:mt-14 text-[42px] xs:text-[52px] sm:text-[72px] md:text-[88px] lg:text-[104px] xl:text-[112px] leading-[0.95] tracking-[-0.05em] text-ink text-balance" style={{ fontWeight: 700 }}>
+            <span className="block overflow-hidden pb-[0.14em] -mb-[0.08em]">
               <span className="block anim-rise" style={{ animationDelay: "80ms" }}>Every</span>
             </span>
-            <span className="block overflow-hidden">
+            <span className="block overflow-hidden pb-[0.06em]">
               <span className="block anim-rise" style={{ animationDelay: "220ms" }}>Product.</span>
             </span>
-            <span className="block overflow-hidden mt-1">
+            <span className="block overflow-hidden mt-1 pb-[0.06em]">
               <span className="block anim-rise" style={{ animationDelay: "380ms" }}>One</span>
             </span>
-            <span className="block overflow-hidden">
+            <span className="block overflow-hidden pb-[0.06em]">
               <span className="block anim-rise" style={{ animationDelay: "520ms" }}>Decision.</span>
             </span>
             {/* SR-only for a11y */}
