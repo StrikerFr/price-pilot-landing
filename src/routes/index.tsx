@@ -433,19 +433,20 @@ const stores = [
 function TrustBar() {
   const row = [...stores, ...stores];
   return (
-    <section className="border-y border-line bg-surface-2/60 py-6">
+    <section className="bg-background py-10 border-t border-line/60">
       <div className="mx-auto max-w-[1440px] px-6 md:px-12">
-        <div className="flex items-center gap-8">
-          <span className="eyebrow shrink-0 hidden md:inline max-w-[180px] leading-relaxed">
-            Trusted by thousands of smart shoppers
+        <div className="flex items-center gap-10 opacity-55">
+          <span className="text-[10px] tracking-[0.28em] uppercase text-ink-muted shrink-0 hidden md:inline max-w-[160px] leading-relaxed">
+            Trusted by thousands
+            <br />of smart shoppers
           </span>
-          <div className="hairline hidden md:block max-w-[60px]" />
+          <div className="hairline hidden md:block max-w-[48px]" />
           <div className="relative flex-1 overflow-hidden mask-fade">
-            <div className="flex w-max anim-marquee gap-16">
+            <div className="flex w-max anim-marquee gap-14">
               {row.map((s, i) => (
                 <span
                   key={i}
-                  className="display text-xl md:text-2xl text-ink-soft/70 whitespace-nowrap"
+                  className="text-[15px] font-medium tracking-tight text-ink-soft whitespace-nowrap"
                 >
                   {s}
                 </span>
