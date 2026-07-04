@@ -32,6 +32,10 @@ import dealKeyboard from "@/assets/deal-keyboard.jpg";
 import dealWatch from "@/assets/deal-watch.jpg";
 import dealEarbuds from "@/assets/deal-earbuds.jpg";
 import dealCamera from "@/assets/deal-camera.jpg";
+import salePrimeDay from "@/assets/sale-primeday.jpg";
+import saleGIF from "@/assets/sale-gif.jpg";
+import saleBBD from "@/assets/sale-bbd.jpg";
+import saleBlackFriday from "@/assets/sale-blackfriday.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
