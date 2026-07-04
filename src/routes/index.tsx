@@ -1947,10 +1947,11 @@ function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: 
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       className={
-        "group relative shrink-0 overflow-hidden rounded-[28px] border border-line/60 bg-ink transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform " +
+        "group relative shrink-0 overflow-hidden rounded-[32px] bg-ink transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform " +
+        "w-[86vw] sm:w-[420px] md:w-[440px] lg:w-[460px] h-[600px] md:h-[640px] " +
         (active
-          ? "w-[86vw] md:w-[460px] lg:w-[520px] h-[560px] md:h-[640px] shadow-[0_40px_120px_-40px_oklch(0.15_0.02_60_/_0.55)]"
-          : "w-[78vw] md:w-[380px] lg:w-[420px] h-[520px] md:h-[600px] shadow-[0_20px_60px_-30px_oklch(0.15_0.02_60_/_0.35)]") +
+          ? "shadow-[0_50px_140px_-40px_oklch(0.15_0.02_60_/_0.55),0_0_0_1px_oklch(0.72_0.16_55_/_0.35)]"
+          : "shadow-[0_24px_70px_-30px_oklch(0.15_0.02_60_/_0.35)] ring-1 ring-line/60") +
         " hover:-translate-y-2"
       }
       style={{
@@ -1964,16 +1965,20 @@ function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: 
         loading="lazy"
         width={1280}
         height={1600}
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.08]"
       />
       {/* Tint + gradient overlays */}
       <div className="absolute inset-0" style={{ background: sale.tint }} />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/30 to-ink/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/5" />
+      <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-transparent to-transparent" />
+      {/* Inner border highlight */}
+      <div className="pointer-events-none absolute inset-0 rounded-[32px] ring-1 ring-inset ring-background/10" />
+      {/* Hover glow */}
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
         style={{
           background:
-            "radial-gradient(120% 60% at 50% 100%, oklch(1 0.02 75 / 0.18), transparent 60%)",
+            "radial-gradient(120% 60% at 50% 100%, oklch(1 0.02 75 / 0.22), transparent 60%)",
         }}
       />
 
@@ -1984,7 +1989,7 @@ function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: 
         </span>
         <span
           className="text-[13px] font-medium tracking-tight transition-opacity duration-500 group-hover:opacity-100"
-          style={{ color: sale.logoTone, opacity: 0.85 }}
+          style={{ color: sale.logoTone, opacity: 0.9 }}
         >
           {sale.store}
         </span>
@@ -2000,11 +2005,11 @@ function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: 
       {/* Bottom content */}
       <div className="absolute inset-x-0 bottom-0 z-10 p-7">
         <div className="text-[12px] text-background/70">{sale.when}</div>
-        <h3 className="display mt-2 text-4xl md:text-5xl text-background leading-[0.95] text-balance">
+        <h3 className="display mt-2 text-4xl md:text-[44px] text-background leading-[0.98] text-balance">
           {sale.name}
         </h3>
 
-        <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tracking-wide text-background/70">
+        <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tracking-wide text-background/70">
           {sale.categories.map((c, i) => (
             <span key={c} className="flex items-center gap-2">
               {i > 0 && <span className="h-1 w-1 rounded-full bg-background/40" />}
@@ -2013,7 +2018,7 @@ function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: 
           ))}
         </div>
 
-        <p className="mt-5 text-[13px] leading-relaxed text-background/75 max-w-[38ch]">
+        <p className="mt-4 text-[13px] leading-relaxed text-background/75 max-w-[38ch]">
           {sale.insight}
         </p>
 
@@ -2137,9 +2142,9 @@ function UpcomingSales() {
             ))}
             <div className="shrink-0 w-4" />
           </div>
-          {/* Edge fades */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-surface to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-surface to-transparent" />
+          {/* Edge fades — match section background */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 md:w-32 bg-gradient-to-r from-[oklch(0.97_0.008_75)] via-[oklch(0.97_0.008_75)]/70 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 md:w-32 bg-gradient-to-l from-[oklch(0.97_0.008_75)] via-[oklch(0.97_0.008_75)]/70 to-transparent z-10" />
         </div>
 
         {/* Bottom ticker */}
@@ -2163,8 +2168,8 @@ function UpcomingSales() {
                   </span>
                 ))}
               </div>
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-surface to-transparent" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-surface to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[oklch(0.97_0.008_75)] to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[oklch(0.97_0.008_75)] to-transparent" />
             </div>
           </div>
         </div>
