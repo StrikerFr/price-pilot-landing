@@ -1,0 +1,19 @@
+# PricePilot
+
+> AI shopping copilot for India — ask, don't scroll. Grounded recommendations, live price comparisons, and buy-or-wait verdicts.
+
+PricePilot is a conversational shopping assistant. Instead of browsing product listings, users ask questions ("best 14-inch laptop under ₹100,000", "iPhone 17 Pro — buy now or wait?") and get editorial answers grounded in a live product catalog.
+
+## Pages
+- [Home](/): Landing page with hero search, categories, deals, and sales calendar.
+- [AI Assistant](/ai-assistant): Conversational shopping chat powered by Groq.
+- [Categories](/categories): Browse products by category.
+- [Deals](/deals): Curated best-in-class deals.
+- [Price Drops](/price-drops): Products at or near their 90-day low.
+- [Sales Calendar](/sales-calendar): Upcoming major sale events.
+- [Compare](/compare): Side-by-side product comparison.
+- [News](/news): Product news and buying guides.
+
+## Optional
+- [Wishlist](/wishlist)
+- [Profile](/profile)
