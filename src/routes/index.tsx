@@ -2124,21 +2124,40 @@ function Countdown({ days, active }: { days: number; active?: boolean }) {
 }
 
 function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: boolean }) {
-  const [hover, setHover] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, mx: 50, my: 50, hover: false });
+
+  const onMove = (e: React.MouseEvent<HTMLElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    setTilt({
+      rx: (0.5 - py) * 8,
+      ry: (px - 0.5) * 10,
+      mx: px * 100,
+      my: py * 100,
+      hover: true,
+    });
+  };
+  const onLeave = () => setTilt({ rx: 0, ry: 0, mx: 50, my: 50, hover: false });
+
   return (
     <article
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
       className={
-        "group relative shrink-0 overflow-hidden rounded-[32px] bg-ink transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform " +
+        "group relative shrink-0 overflow-hidden rounded-[32px] bg-ink transition-[box-shadow,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform " +
         "w-[86vw] sm:w-[420px] md:w-[440px] lg:w-[460px] h-[600px] md:h-[640px] " +
         (active
           ? "shadow-[0_50px_140px_-40px_oklch(0.15_0.02_60_/_0.55),0_0_0_1px_oklch(0.72_0.16_55_/_0.35)]"
-          : "shadow-[0_24px_70px_-30px_oklch(0.15_0.02_60_/_0.35)] ring-1 ring-line/60") +
-        " hover:-translate-y-2"
+          : "shadow-[0_24px_70px_-30px_oklch(0.15_0.02_60_/_0.35)] ring-1 ring-ink/20")
       }
       style={{
-        transform: hover ? "translateY(-8px)" : undefined,
+        transform: `perspective(1400px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg) translateY(${tilt.hover ? -10 : active ? -4 : 0}px)`,
+        transformStyle: "preserve-3d",
       }}
     >
       {/* Poster image */}
@@ -2148,45 +2167,70 @@ function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: 
         loading="lazy"
         width={1280}
         height={1600}
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.08]"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+        style={{ transform: `scale(${tilt.hover ? 1.09 : 1.02}) translate(${(tilt.mx - 50) * 0.06}px, ${(tilt.my - 50) * 0.06}px)` }}
       />
-      {/* Tint + gradient overlays */}
+      {/* Tint */}
       <div className="absolute inset-0" style={{ background: sale.tint }} />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/5" />
-      <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-transparent to-transparent" />
-      {/* Inner border highlight */}
-      <div className="pointer-events-none absolute inset-0 rounded-[32px] ring-1 ring-inset ring-background/10" />
-      {/* Hover glow */}
+      {/* Deep vignette kills bright poster edges */}
       <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(120% 60% at 50% 100%, oklch(1 0.02 75 / 0.22), transparent 60%)",
+            "radial-gradient(125% 95% at 50% 40%, transparent 42%, oklch(0.14 0.02 60 / 0.55) 78%, oklch(0.08 0.02 60 / 0.95) 100%)",
         }}
       />
+      {/* Bottom gradient */}
+      <div className="absolute inset-x-0 bottom-0 h-[72%] bg-gradient-to-t from-ink via-ink/70 to-transparent" />
+      {/* Top scrim */}
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-ink/70 to-transparent" />
+      {/* Grain */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.10] mix-blend-overlay"
+        style={{
+          backgroundImage: "radial-gradient(oklch(1 0 0) 1px, transparent 1px)",
+          backgroundSize: "3px 3px",
+        }}
+      />
+      {/* Cursor spotlight */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(340px circle at ${tilt.mx}% ${tilt.my}%, oklch(1 0.05 75 / 0.22), transparent 60%)`,
+        }}
+      />
+      {/* Soft inner ring, no white */}
+      <div className="pointer-events-none absolute inset-0 rounded-[32px] ring-1 ring-inset ring-background/[0.06]" />
+      {active && (
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[32px]"
+          style={{
+            boxShadow:
+              "inset 0 0 0 1px oklch(0.72 0.16 55 / 0.35), inset 0 0 60px oklch(0.72 0.16 55 / 0.18)",
+          }}
+        />
+      )}
 
-      {/* Top row: index + store logo */}
+      {/* Top row */}
       <div className="relative z-10 flex items-start justify-between p-7">
         <span className="text-[11px] tracking-[0.28em] uppercase text-background/70">
           0{index + 1} / 04
         </span>
         <span
-          className="text-[13px] font-medium tracking-tight transition-opacity duration-500 group-hover:opacity-100"
+          className="text-[13px] font-medium tracking-tight"
           style={{ color: sale.logoTone, opacity: 0.9 }}
         >
           {sale.store}
         </span>
       </div>
 
-      {/* Active ring badge */}
       {active && (
         <span className="absolute z-10 top-24 right-7 flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase text-background/85 before:content-[''] before:h-1.5 before:w-1.5 before:rounded-full before:bg-accent before:animate-pulse">
           Next up
         </span>
       )}
 
-      {/* Bottom content */}
-      <div className="absolute inset-x-0 bottom-0 z-10 p-7">
+      <div className="absolute inset-x-0 bottom-0 z-10 p-7" style={{ transform: "translateZ(24px)" }}>
         <div className="text-[12px] text-background/70">{sale.when}</div>
         <h3 className="display mt-2 text-4xl md:text-[44px] text-background leading-[0.98] text-balance">
           {sale.name}
@@ -2217,9 +2261,7 @@ function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: 
           <div
             className={
               "relative rounded-2xl px-4 py-2 " +
-              (active
-                ? "ring-1 ring-accent/50 bg-background/5 backdrop-blur-sm"
-                : "")
+              (active ? "ring-1 ring-accent/50 bg-background/5 backdrop-blur-sm" : "")
             }
           >
             {active && (
