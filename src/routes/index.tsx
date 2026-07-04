@@ -97,22 +97,23 @@ function Nav() {
           <button className="grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2 transition-colors">
             <Search size={17} strokeWidth={1.6} />
           </button>
-          <button className="grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2 transition-colors">
+          <Link to="/wishlist" className="grid h-9 w-9 place-items-center rounded-full text-ink-soft hover:bg-surface-2 transition-colors">
             <Heart size={17} strokeWidth={1.6} />
-          </button>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="/ai-assistant"
             className="hidden md:inline-flex items-center px-3 h-9 text-[13px] font-medium text-ink-soft hover:text-ink transition-colors"
           >
-            Sign In
-          </a>
-          <button className="inline-flex items-center gap-1.5 h-9 pl-3 pr-2 rounded-full bg-ink text-background text-[13px] font-medium magnetic hover:bg-ink/90">
+            Ask AI
+          </Link>
+          <Link to="/profile" className="inline-flex items-center gap-1.5 h-9 pl-3 pr-2 rounded-full bg-ink text-background text-[13px] font-medium magnetic hover:bg-ink/90">
             Profile
             <span className="grid h-6 w-6 place-items-center rounded-full bg-background/15">
               <User size={13} strokeWidth={1.8} />
             </span>
-          </button>
+          </Link>
         </div>
+
       </div>
     </header>
   );
