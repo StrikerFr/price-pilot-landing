@@ -214,10 +214,14 @@
 @utility slant-l {
   margin-top: -1px;
   clip-path: polygon(0 0, 100% 56px, 100% 100%, 0 100%);
+  filter: drop-shadow(0 -10px 24px oklch(0.15 0.02 60 / 0.14))
+          drop-shadow(0 -1px 0 oklch(0.15 0.02 60 / 0.05));
 }
 @utility slant-r {
   margin-top: -1px;
   clip-path: polygon(0 56px, 100% 0, 100% 100%, 0 100%);
+  filter: drop-shadow(0 -10px 24px oklch(0.15 0.02 60 / 0.14))
+          drop-shadow(0 -1px 0 oklch(0.15 0.02 60 / 0.05));
 }
 @media (min-width: 768px) {
   .slant-l { clip-path: polygon(0 0, 100% 110px, 100% 100%, 0 100%); }
