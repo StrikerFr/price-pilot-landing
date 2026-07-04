@@ -280,15 +280,15 @@ function Hero() {
                   className="peer absolute inset-0 h-full w-full bg-transparent outline-none text-[18px] text-ink placeholder:text-transparent"
                 />
                 {query.length === 0 && (
-                  <>
+                  <div className="pointer-events-none flex items-center peer-focus:hidden">
                     <span
                       key={idx}
-                      className="pointer-events-none text-[18px] text-ink-soft/80 anim-reveal"
+                      className="text-[18px] text-ink-soft/80 anim-reveal"
                     >
                       {placeholders[idx]}
                     </span>
                     <span className="ml-1 inline-block h-[22px] w-[1.5px] bg-ink-soft/70 anim-caret" />
-                  </>
+                  </div>
                 )}
               </div>
               <button
