@@ -2142,9 +2142,9 @@ function UpcomingSales() {
             ))}
             <div className="shrink-0 w-4" />
           </div>
-          {/* Edge fades */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-surface to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-surface to-transparent" />
+          {/* Edge fades — match section background */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 md:w-32 bg-gradient-to-r from-[oklch(0.97_0.008_75)] via-[oklch(0.97_0.008_75)]/70 to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 md:w-32 bg-gradient-to-l from-[oklch(0.97_0.008_75)] via-[oklch(0.97_0.008_75)]/70 to-transparent z-10" />
         </div>
 
         {/* Bottom ticker */}
