@@ -964,31 +964,38 @@ function FeatureStrip() {
             <div
               className="absolute inset-0 rounded-[28px] overflow-hidden bg-background border border-line/60 shadow-[0_60px_160px_-40px_oklch(0.15_0.02_60_/_0.55),0_0_0_1px_oklch(1_0_0_/_0.04)_inset] will-change-transform"
               style={{
-                transform: `rotateX(${mouse.y * -6}deg) rotateY(${mouse.x * 8}deg)`,
-                transition: "transform 500ms cubic-bezier(0.2,0.8,0.2,1)",
+                transform: `perspective(1600px) rotateX(${mouse.y * -7}deg) rotateY(${mouse.x * 10}deg)`,
+                transition: "transform 600ms cubic-bezier(0.2,0.8,0.2,1)",
                 transformStyle: "preserve-3d",
               }}
             >
-              {/* image stack with parallax + ken burns */}
+              {/* image stack — clean 3D crossfade, no ghost blur */}
               {journey.map((s, i) => {
                 const dist = i - active - local;
-                const inFrame = Math.abs(dist) < 1.4;
-                const opacity = Math.max(0, 1 - Math.abs(dist) * 1.05);
-                const scale = 1.12 + (i === active ? local * 0.06 : 0) - Math.min(0.08, Math.abs(dist) * 0.06);
-                const tx = dist * 80 + mouse.x * 22;
-                const ty = -dist * 50 + mouse.y * 16;
-                const blur = Math.min(10, Math.abs(dist) * 8);
+                // Only render the immediate neighbours so we never see blurred ghosts
+                if (Math.abs(dist) > 1.001) return null;
+                const isActive = i === active;
+                // Ken-burns on the active image, gentle depth shift on neighbours
+                const scale = isActive ? 1.06 + local * 0.05 : 1.02;
+                const tx = dist * 12 + mouse.x * 18;
+                const ty = mouse.y * 12;
+                const tz = isActive ? 0 : -120;
+                const rotY = dist * 6;
+                const opacity =
+                  dist <= 0
+                    ? Math.max(0, 1 + dist) // outgoing fades out
+                    : Math.max(0, 1 - dist * 1.15); // incoming fades in
                 return (
                   <div
                     key={s.image}
-                    aria-hidden={i !== active}
+                    aria-hidden={!isActive}
                     className="absolute inset-0 will-change-transform"
                     style={{
-                      opacity: inFrame ? opacity : 0,
-                      transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`,
-                      filter: `blur(${blur}px)`,
+                      opacity,
+                      transform: `translate3d(${tx}px, ${ty}px, ${tz}px) rotateY(${rotY}deg) scale(${scale})`,
+                      transformStyle: "preserve-3d",
                       transition:
-                        "opacity 700ms cubic-bezier(0.2,0.8,0.2,1), transform 900ms cubic-bezier(0.2,0.8,0.2,1), filter 600ms ease",
+                        "opacity 900ms cubic-bezier(0.2,0.8,0.2,1), transform 1100ms cubic-bezier(0.2,0.8,0.2,1)",
                     }}
                   >
                     <img
@@ -996,43 +1003,43 @@ function FeatureStrip() {
                       alt={s.title}
                       className="absolute inset-0 h-full w-full object-cover"
                       loading="lazy"
+                      draggable={false}
                     />
+                    {/* cinematic vignette */}
                     <div
                       className="absolute inset-0"
                       style={{
                         background:
-                          "linear-gradient(180deg, transparent 35%, oklch(0.15 0.02 60 / 0.5) 100%)",
+                          "radial-gradient(ellipse at 50% 40%, transparent 45%, oklch(0.15 0.02 60 / 0.35) 100%), linear-gradient(180deg, transparent 40%, oklch(0.15 0.02 60 / 0.55) 100%)",
                       }}
                     />
                   </div>
                 );
               })}
 
-              {/* scan line sweep on step change */}
+              {/* soft light sweep on step change — subtle, no more glitch flash */}
               <div
                 aria-hidden
-                key={`scan-${active}`}
+                key={`sweep-${active}`}
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
-                    "linear-gradient(180deg, transparent 0%, oklch(1 0 0 / 0.55) 48%, oklch(0.68 0.17 45 / 0.4) 50%, oklch(1 0 0 / 0.55) 52%, transparent 100%)",
-                  animation: "scan-sweep 1200ms cubic-bezier(0.2,0.8,0.2,1) both",
-                  mixBlendMode: "overlay",
+                    "linear-gradient(115deg, transparent 35%, oklch(1 0 0 / 0.22) 50%, transparent 65%)",
+                  animation: "sheen-sweep 1400ms cubic-bezier(0.2,0.8,0.2,1) both",
+                  mixBlendMode: "screen",
                 }}
               />
 
-              {/* crosshair grid overlay */}
+              {/* inner rim highlight for depth */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-20"
+                className="pointer-events-none absolute inset-0 rounded-[28px]"
                 style={{
-                  backgroundImage:
-                    "linear-gradient(to right, oklch(1 0 0 / 0.35) 1px, transparent 1px), linear-gradient(to bottom, oklch(1 0 0 / 0.35) 1px, transparent 1px)",
-                  backgroundSize: "64px 64px",
-                  maskImage:
-                    "radial-gradient(ellipse at center, black 20%, transparent 75%)",
+                  boxShadow:
+                    "inset 0 1px 0 oklch(1 0 0 / 0.25), inset 0 -60px 120px -60px oklch(0.15 0.02 60 / 0.55)",
                 }}
               />
+
 
               {/* corner brackets */}
               <div className="pointer-events-none absolute inset-4">
