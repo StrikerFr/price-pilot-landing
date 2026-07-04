@@ -191,6 +191,7 @@
 @keyframes sale-progress {
   from { width: 0%; }
   to   { width: 100%; }
+}
 @keyframes reveal-up {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
