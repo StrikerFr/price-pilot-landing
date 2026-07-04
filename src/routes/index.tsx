@@ -131,118 +131,239 @@ const placeholders = [
   "Wireless headphones",
 ];
 
+const chips = [
+  "Gaming Laptop",
+  "iPhone",
+  "Headphones",
+  "Monitors",
+  "Mechanical Keyboard",
+];
+
 function Hero() {
   const [idx, setIdx] = useState(0);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
+
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % placeholders.length), 2600);
+    const t = setInterval(() => setIdx((i) => (i + 1) % placeholders.length), 2800);
     return () => clearInterval(t);
   }, []);
 
-  return (
-    <section className="relative overflow-hidden pt-32 md:pt-40 pb-24 md:pb-32">
-      {/* Ambient shapes */}
-      <div className="pointer-events-none absolute -right-32 top-24 h-[560px] w-[560px] rounded-full bg-[oklch(0.94_0.03_60)] blur-3xl opacity-70" />
-      <div className="pointer-events-none absolute -left-40 bottom-0 h-[420px] w-[420px] rounded-full bg-[oklch(0.95_0.02_75)] blur-3xl opacity-80" />
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - (r.left + r.width / 2)) / r.width;
+      const y = (e.clientY - (r.top + r.height / 2)) / r.height;
+      setParallax({ x, y });
+    };
+    const onLeave = () => setParallax({ x: 0, y: 0 });
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
 
-      <div className="relative mx-auto grid max-w-[1400px] grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 px-6 md:px-10">
-        <div className="lg:col-span-6 lg:pt-6 anim-reveal">
-          <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 backdrop-blur px-3 py-1.5 text-[12px] text-ink-soft">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            AI shopping copilot · Live in India
+  const px = (depth: number) => ({
+    transform: `translate3d(${parallax.x * depth}px, ${parallax.y * depth}px, 0)`,
+    transition: "transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
+  });
+
+  return (
+    <section className="relative overflow-hidden min-h-[92vh] flex items-center pt-28 md:pt-32 pb-16">
+      {/* Warm radial light — no gradients, just soft glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute left-[65%] top-[45%] -translate-x-1/2 -translate-y-1/2 h-[900px] w-[900px] rounded-full opacity-70"
+          style={{
+            background:
+              "radial-gradient(closest-side, oklch(0.96 0.03 70 / 0.9), transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute left-[10%] top-[80%] h-[500px] w-[500px] rounded-full opacity-40"
+          style={{
+            background:
+              "radial-gradient(closest-side, oklch(0.95 0.02 80 / 0.8), transparent 70%)",
+          }}
+        />
+      </div>
+
+      <div className="relative w-full mx-auto grid max-w-[1440px] grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-10 px-6 md:px-12">
+        {/* LEFT */}
+        <div className="lg:col-span-6 lg:pr-6 flex flex-col justify-center">
+          <div
+            className="eyebrow anim-reveal"
+            style={{ animationDelay: "0ms" }}
+          >
+            <span className="inline-flex items-center gap-2">
+              <span className="h-1 w-6 bg-ink" />
+              AI Shopping Copilot
+            </span>
           </div>
 
-          <h1 className="display mt-8 text-[52px] sm:text-[68px] lg:text-[86px] leading-[0.92] text-balance">
+          <h1
+            className="display mt-10 text-[56px] sm:text-[76px] lg:text-[96px] xl:text-[104px] leading-[0.9] tracking-[-0.045em] text-ink anim-reveal"
+            style={{ animationDelay: "80ms" }}
+          >
             Stop opening
             <br />
-            20 shopping tabs.
-            <br />
-            <span className="italic font-normal text-ink-soft" style={{ fontFamily: "'Inter Tight', sans-serif" }}>
-              Shop smarter with{" "}
-              <span className="not-italic text-accent">AI</span>.
+            20 shopping{" "}
+            <span className="relative inline-block">
+              tabs
+              <span className="absolute -bottom-2 left-0 right-0 h-[6px] bg-accent/90 rounded-full" />
             </span>
+            .
+            <br />
+            <span className="text-ink">Shop smarter.</span>
           </h1>
 
-          <p className="mt-8 max-w-xl text-[17px] leading-relaxed text-ink-soft">
-            Find the best products, compare prices across every store,
-            understand reviews instantly, and know exactly when to buy.
+          <p
+            className="mt-10 max-w-lg text-[17px] leading-relaxed text-ink-soft anim-reveal"
+            style={{ animationDelay: "180ms" }}
+          >
+            Find the best products, compare every store, understand reviews
+            instantly and know exactly when to buy.
           </p>
 
-          {/* AI search */}
-          <div className="mt-10 group relative flex items-center gap-2 rounded-2xl border border-line bg-surface soft-shadow p-2 pl-5">
-            <Sparkles size={18} className="text-accent shrink-0" strokeWidth={1.8} />
-            <div className="relative flex-1 h-11 flex items-center overflow-hidden">
-              <span className="pointer-events-none text-[15px] text-ink-muted">
-                {placeholders[idx]}
-              </span>
-              <span className="ml-0.5 inline-block h-[18px] w-[2px] bg-ink-soft anim-caret" />
-            </div>
-            <button className="inline-flex items-center gap-1.5 h-11 px-5 rounded-xl bg-ink text-background text-sm font-medium hover:bg-ink/90 transition-colors">
-              Ask AI
-              <ArrowRight size={15} strokeWidth={2} />
-            </button>
-          </div>
+          {/* AI search — the centerpiece */}
+          <div
+            className="mt-12 group relative anim-reveal"
+            style={{ animationDelay: "260ms" }}
+          >
+            {/* soft glow */}
+            <div className="pointer-events-none absolute -inset-2 rounded-[28px] bg-[oklch(0.95_0.02_75)] opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-80 group-focus-within:opacity-100" />
 
-          <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 text-[13px]">
-            <span className="text-ink-muted mr-1">Popular</span>
-            {["iPhone 16 Pro", "Sony WH-1000XM6", "RTX 5070 laptop", "LG C4 OLED"].map(
-              (t) => (
-                <button
-                  key={t}
-                  className="rounded-full border border-line px-3 py-1.5 text-ink-soft hover:border-ink hover:text-ink transition-colors"
+            <div className="relative flex items-center gap-3 h-[68px] rounded-[22px] border border-line bg-surface pl-6 pr-2 soft-shadow transition-all duration-500 group-hover:border-ink/40">
+              <Sparkles size={20} className="text-accent shrink-0" strokeWidth={1.8} />
+              <div className="relative flex-1 h-full flex items-center overflow-hidden">
+                <span
+                  key={idx}
+                  className="pointer-events-none text-[17px] text-ink-muted anim-reveal"
                 >
-                  {t}
+                  {placeholders[idx]}
+                </span>
+                <span className="ml-1 inline-block h-[20px] w-[2px] bg-ink-soft anim-caret" />
+              </div>
+              <button className="inline-flex items-center gap-1.5 h-[52px] px-6 rounded-[16px] bg-ink text-background text-[14px] font-medium hover:bg-ink/90 transition-colors">
+                Ask AI
+                <ArrowRight size={15} strokeWidth={2} />
+              </button>
+            </div>
+
+            {/* Chips */}
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-[13px]">
+              {chips.map((c, i) => (
+                <button
+                  key={c}
+                  className="rounded-full border border-line bg-surface/60 px-3.5 py-1.5 text-ink-soft hover:border-ink hover:text-ink hover:bg-surface transition-all duration-300 anim-reveal"
+                  style={{ animationDelay: `${340 + i * 60}ms` }}
+                >
+                  {c}
                 </button>
-              ),
-            )}
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Right composition */}
-        <div className="lg:col-span-6 relative min-h-[520px] lg:min-h-[640px]">
-          {/* Abstract shape */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[420px] w-[420px] rounded-full border border-line anim-spin-slow" />
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[280px] w-[280px] rounded-full bg-surface soft-shadow" />
+        {/* RIGHT — display stage */}
+        <div
+          ref={stageRef}
+          className="lg:col-span-6 relative min-h-[560px] lg:min-h-[720px]"
+        >
+          {/* Subtle orbital ring */}
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[520px] w-[520px] rounded-full border border-line/70 anim-spin-slow"
+            style={px(-6)}
+          />
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[360px] w-[360px] rounded-full border border-line/50"
+            style={px(-4)}
+          />
+
+          {/* Ground shadow disk */}
+          <div
+            className="absolute left-1/2 bottom-[18%] -translate-x-1/2 h-[40px] w-[420px] rounded-[50%] opacity-30 blur-2xl"
+            style={{ background: "oklch(0.2 0.02 60 / 0.5)" }}
+          />
 
           {/* Laptop */}
           <img
             src={heroLaptop}
-            alt=""
+            alt="Laptop"
             width={1024}
             height={768}
-            className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[560px] anim-float drop-shadow-[0_40px_50px_rgba(60,40,20,0.15)]"
+            className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-[600px] anim-float will-change-transform"
+            style={{
+              ...px(14),
+              filter: "drop-shadow(0 50px 45px rgba(60,40,20,0.18))",
+            }}
           />
 
           {/* Phone */}
           <img
             src={heroPhone}
-            alt=""
+            alt="Phone"
             width={640}
             height={896}
             loading="lazy"
-            className="absolute right-4 top-8 w-[130px] md:w-[170px] anim-float-slow drop-shadow-[0_30px_40px_rgba(60,40,20,0.18)]"
+            className="absolute right-[6%] top-[6%] w-[130px] md:w-[180px] anim-float-slow will-change-transform"
+            style={{
+              ...px(26),
+              filter: "drop-shadow(0 35px 40px rgba(60,40,20,0.2))",
+            }}
           />
 
           {/* Headphones */}
           <img
             src={heroHeadphones}
-            alt=""
+            alt="Headphones"
             width={768}
             height={768}
             loading="lazy"
-            className="absolute left-2 bottom-4 w-[180px] md:w-[230px] anim-float drop-shadow-[0_30px_40px_rgba(60,40,20,0.15)]"
+            className="absolute left-[2%] bottom-[8%] w-[190px] md:w-[240px] anim-float will-change-transform"
+            style={{
+              ...px(22),
+              filter: "drop-shadow(0 35px 40px rgba(60,40,20,0.18))",
+            }}
           />
 
-          {/* Floating price tag */}
-          <div className="absolute right-6 bottom-24 rounded-xl border border-line bg-surface/90 backdrop-blur px-3 py-2 text-[12px] soft-shadow anim-float-slow">
-            <div className="text-ink-muted">Best price now</div>
-            <div className="display text-lg text-ink">₹1,24,900</div>
-            <div className="text-accent text-[11px] font-medium">↓ 12% today</div>
+          {/* One elegant floating price card */}
+          <div
+            className="absolute right-[4%] bottom-[22%] w-[220px] rounded-2xl border border-line bg-surface/95 backdrop-blur-xl p-4 anim-float-slow"
+            style={{
+              ...px(34),
+              boxShadow: "0 20px 40px -20px oklch(0.2 0.02 60 / 0.18)",
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <span className="eyebrow text-[10px]">Best price today</span>
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            </div>
+            <div className="display text-[28px] mt-2 text-ink tracking-tight">
+              ₹72,999
+            </div>
+            <div className="mt-2 flex items-center justify-between text-[11px]">
+              <span className="text-ink-muted">Available on Flipkart</span>
+              <span className="text-accent font-medium">↓ ₹6,000</span>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Scroll cue */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-ink-muted">
+        <span>Scroll</span>
+        <span className="h-8 w-px bg-ink-muted/40" />
       </div>
     </section>
   );
 }
+
+
 
 /* ---------- Trust marquee ---------- */
 
@@ -261,10 +382,12 @@ function TrustBar() {
   const row = [...stores, ...stores];
   return (
     <section className="border-y border-line bg-surface-2/60 py-6">
-      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
+      <div className="mx-auto max-w-[1440px] px-6 md:px-12">
         <div className="flex items-center gap-8">
-          <span className="eyebrow shrink-0 hidden md:inline">Trusted stores</span>
-          <div className="hairline hidden md:block max-w-[80px]" />
+          <span className="eyebrow shrink-0 hidden md:inline max-w-[180px] leading-relaxed">
+            Trusted by thousands of smart shoppers
+          </span>
+          <div className="hairline hidden md:block max-w-[60px]" />
           <div className="relative flex-1 overflow-hidden mask-fade">
             <div className="flex w-max anim-marquee gap-16">
               {row.map((s, i) => (
