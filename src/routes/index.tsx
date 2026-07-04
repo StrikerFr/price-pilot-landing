@@ -398,19 +398,23 @@ function Hero() {
             style={{ background: "oklch(0.2 0.02 60 / 0.18)" }}
           />
 
-          {/* Headphones — foreground anchor, bottom-left */}
+          {/* ===== Product composition — diagonal editorial layout =====
+              Flow: Phone (top-right) → Laptop (center) → Headphones (bottom-left)
+              Annotations align to the outer margins so the eye reads a clean Z. */}
+
+          {/* Phone — top right, tucked against laptop */}
           <img
-            src={heroHeadphones}
-            alt="Headphones"
-            width={768}
-            height={768}
+            src={heroPhone}
+            alt="Phone"
+            width={640}
+            height={896}
             loading="lazy"
-            className="absolute left-[2%] bottom-[8%] w-[240px] md:w-[300px] anim-float will-change-transform z-20"
+            className="absolute right-[14%] top-[10%] w-[150px] md:w-[190px] anim-float-slow will-change-transform z-20"
             style={{
-              ...px(26),
-              transform: `translate3d(${parallax.x * 26}px, ${parallax.y * 26}px, 0) rotate(-8deg)`,
+              ...px(22),
+              transform: `translate3d(${parallax.x * 22}px, ${parallax.y * 22}px, 0) rotate(6deg)`,
               filter:
-                "drop-shadow(0 50px 40px rgba(60,40,20,0.22)) drop-shadow(0 18px 18px rgba(60,40,20,0.10))",
+                "drop-shadow(0 40px 40px rgba(60,40,20,0.20)) drop-shadow(0 14px 14px rgba(60,40,20,0.10))",
             }}
           />
 
@@ -420,33 +424,33 @@ function Hero() {
             alt="Laptop"
             width={1024}
             height={768}
-            className="absolute left-1/2 top-[50%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[600px] anim-float will-change-transform z-10"
+            className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[560px] anim-float will-change-transform z-10"
             style={{
               ...px(12),
               filter:
-                "drop-shadow(0 70px 55px rgba(60,40,20,0.18)) drop-shadow(0 22px 22px rgba(60,40,20,0.08))",
+                "drop-shadow(0 70px 55px rgba(60,40,20,0.20)) drop-shadow(0 22px 22px rgba(60,40,20,0.08))",
             }}
           />
 
-          {/* Phone — upper right, overlapping laptop for depth */}
+          {/* Headphones — bottom left, foreground anchor */}
           <img
-            src={heroPhone}
-            alt="Phone"
-            width={640}
-            height={896}
+            src={heroHeadphones}
+            alt="Headphones"
+            width={768}
+            height={768}
             loading="lazy"
-            className="absolute right-[8%] top-[6%] w-[170px] md:w-[210px] anim-float-slow will-change-transform z-20"
+            className="absolute left-[6%] bottom-[10%] w-[210px] md:w-[270px] anim-float will-change-transform z-20"
             style={{
-              ...px(22),
-              transform: `translate3d(${parallax.x * 22}px, ${parallax.y * 22}px, 0) rotate(9deg)`,
+              ...px(26),
+              transform: `translate3d(${parallax.x * 26}px, ${parallax.y * 26}px, 0) rotate(-6deg)`,
               filter:
-                "drop-shadow(0 50px 45px rgba(60,40,20,0.22)) drop-shadow(0 18px 18px rgba(60,40,20,0.10))",
+                "drop-shadow(0 50px 40px rgba(60,40,20,0.22)) drop-shadow(0 18px 18px rgba(60,40,20,0.10))",
             }}
           />
 
-          {/* Floating price tag — top left */}
+          {/* Floating price tag — top left, annotates the phone */}
           <div
-            className="absolute left-[4%] top-[14%] z-30 anim-float-slow will-change-transform"
+            className="absolute left-[3%] top-[8%] z-30 anim-float-slow will-change-transform"
             style={{
               ...px(30),
               transform: `translate3d(${parallax.x * 30}px, ${parallax.y * 30}px, 0)`,
@@ -471,9 +475,27 @@ function Hero() {
             </div>
           </div>
 
-          {/* AI verdict chip — bottom right */}
+          {/* Score badge — mid right, aligned with laptop */}
           <div
-            className="absolute right-[4%] bottom-[18%] z-30 anim-float will-change-transform"
+            className="absolute right-[3%] top-[44%] z-30 anim-float-slow will-change-transform hidden md:block"
+            style={{
+              ...px(14),
+              transform: `translate3d(${parallax.x * 14}px, ${parallax.y * 14}px, 0)`,
+            }}
+          >
+            <div className="rounded-xl bg-surface/95 backdrop-blur-md border border-ink/8 px-3.5 py-2.5 shadow-[0_10px_30px_-12px_rgba(60,40,20,0.2)]">
+              <div className="text-[9px] tracking-[0.3em] uppercase text-ink-muted/70">
+                Score
+              </div>
+              <div className="text-[20px] font-semibold text-ink tabular-nums leading-none mt-1">
+                9.4<span className="text-ink-muted/50 text-[12px]">/10</span>
+              </div>
+            </div>
+          </div>
+
+          {/* AI verdict chip — bottom right, closes the Z */}
+          <div
+            className="absolute right-[6%] bottom-[12%] z-30 anim-float will-change-transform"
             style={{
               ...px(18),
               transform: `translate3d(${parallax.x * 18}px, ${parallax.y * 18}px, 0)`,
@@ -489,40 +511,8 @@ function Hero() {
               </span>
             </div>
           </div>
-
-          {/* Metric badge — mid right */}
-          <div
-            className="absolute right-[2%] top-[46%] z-30 anim-float-slow will-change-transform hidden md:block"
-            style={{
-              ...px(14),
-              transform: `translate3d(${parallax.x * 14}px, ${parallax.y * 14}px, 0)`,
-            }}
-          >
-            <div className="rounded-xl bg-surface/90 backdrop-blur-md border border-ink/8 px-3 py-2 shadow-[0_10px_30px_-12px_rgba(60,40,20,0.2)]">
-              <div className="text-[9px] tracking-[0.3em] uppercase text-ink-muted/70">
-                Score
-              </div>
-              <div className="text-[18px] font-semibold text-ink tabular-nums leading-none mt-1">
-                9.4<span className="text-ink-muted/50 text-[12px]">/10</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Hairline connectors — editorial detail */}
-          <svg
-            className="pointer-events-none absolute inset-0 h-full w-full z-0"
-            aria-hidden
-          >
-            <line
-              x1="16%" y1="22%" x2="34%" y2="40%"
-              stroke="oklch(0.2 0.02 60 / 0.12)" strokeWidth="1" strokeDasharray="2 4"
-            />
-            <line
-              x1="88%" y1="18%" x2="70%" y2="34%"
-              stroke="oklch(0.2 0.02 60 / 0.12)" strokeWidth="1" strokeDasharray="2 4"
-            />
-          </svg>
         </div>
+
       </div>
 
       {/* Elegant scroll indicator */}
