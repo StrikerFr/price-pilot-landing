@@ -396,7 +396,7 @@ function Hero() {
           </div>
 
           <h1
-            className="display mt-8 sm:mt-12 lg:mt-14 text-[46px] xs:text-[56px] sm:text-[76px] md:text-[92px] lg:text-[108px] xl:text-[120px] leading-[0.9] tracking-[-0.05em] text-ink text-balance"
+            className="display mt-8 sm:mt-12 lg:mt-14 text-[44px] xs:text-[54px] sm:text-[64px] md:text-[76px] lg:text-[84px] xl:text-[96px] leading-[0.92] tracking-[-0.045em] text-ink text-balance"
             style={{ fontWeight: 700 }}
           >
             <span className="block overflow-hidden"><span className="block anim-rise" style={{ animationDelay: "80ms" }}>An index</span></span>
@@ -407,6 +407,7 @@ function Hero() {
               </span>
             </span>
           </h1>
+
 
           <p className="mt-8 sm:mt-12 lg:mt-14 max-w-md text-[15px] sm:text-[17px] leading-[1.55] text-ink-soft anim-reveal" style={{ animationDelay: "700ms" }}>
             Every product, price and review — continuously reorganized by an AI that only tells you what to buy.
