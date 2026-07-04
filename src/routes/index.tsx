@@ -705,7 +705,7 @@ function FeatureStrip() {
       : 1 - Math.pow(-2 * rawLocal + 2, 2) / 2;
 
   const current = journey[active];
-  const next = journey[Math.min(steps - 1, active + 1)];
+  void journey[Math.min(steps - 1, active + 1)];
 
   const onMove = (e: React.MouseEvent) => {
     const b = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
