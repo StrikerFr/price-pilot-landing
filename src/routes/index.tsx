@@ -141,41 +141,101 @@ type Scene = {
   match: string;
   score: string;
   price: string;
-  // per-product emphasis 0..1
-  laptop: number;
-  phone: number;
-  headphones: number;
+  shape: keyof typeof SHAPES;
 };
 
 const scenes: Scene[] = [
-  { query: "Gaming laptop under ₹90k",       match: "ASUS TUF A15 Ryzen 7",  score: "9.2", price: "₹86,499", laptop: 1.0, phone: 0.55, headphones: 0.65 },
-  { query: "Mechanical keyboard for coding", match: "Keychron K2 Pro",       score: "9.1", price: "₹12,499", laptop: 0.6, phone: 0.5,  headphones: 0.6  },
-  { query: "Best phone camera",              match: "iPhone 15 Pro",         score: "9.5", price: "₹1,19,900", laptop: 0.55, phone: 1.0, headphones: 0.55 },
-  { query: "OLED monitor",                   match: "LG 27\" UltraGear OLED", score: "9.3", price: "₹79,999", laptop: 0.85, phone: 0.5, headphones: 0.6 },
-  { query: "Wireless headphones",            match: "Sony WH-1000XM5",       score: "9.6", price: "₹24,990", laptop: 0.55, phone: 0.55, headphones: 1.0 },
+  { query: "Gaming laptop under ₹90k",       match: "ASUS TUF A15 Ryzen 7",   score: "9.2", price: "₹86,499",   shape: "laptop" },
+  { query: "Mechanical keyboard for coding", match: "Keychron K2 Pro",        score: "9.1", price: "₹12,499",   shape: "keyboard" },
+  { query: "Best phone camera",              match: "iPhone 15 Pro",          score: "9.5", price: "₹1,19,900", shape: "phone" },
+  { query: "OLED monitor",                   match: "LG 27\" UltraGear OLED", score: "9.3", price: "₹79,999",   shape: "monitor" },
+  { query: "Wireless headphones",            match: "Sony WH-1000XM5",        score: "9.6", price: "₹24,990",   shape: "headphones" },
 ];
 
 const thinkingSteps = [
-  "Searching",
-  "Checking prices",
-  "Reading reviews",
-  "Comparing stores",
-  "Finding best option",
+  "Searching the index",
+  "Reading 12,481 reviews",
+  "Comparing 41 retailers",
+  "Weighing tradeoffs",
+  "Assembling recommendation",
 ];
 
-// Deterministic particle positions (avoid SSR mismatch)
-const dust = Array.from({ length: 28 }, (_, i) => {
-  const rand = (seed: number) => {
-    const x = Math.sin(seed * 9973.13) * 43758.5453;
-    return x - Math.floor(x);
+/* ---------- Shape point clouds (normalized to a 100x100 stage) ---------- */
+
+type Pt = { x: number; y: number };
+
+const gridPts = (cols: number, rows: number, cx: number, cy: number, w: number, h: number): Pt[] => {
+  const pts: Pt[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = cx + (cols === 1 ? 0 : (c / (cols - 1) - 0.5) * w);
+      const y = cy + (rows === 1 ? 0 : (r / (rows - 1) - 0.5) * h);
+      pts.push({ x, y });
+    }
+  }
+  return pts;
+};
+
+const SHAPES = {
+  // idle — panels drift on a wide, gently curved shelf (no product)
+  idle: (() => {
+    const pts: Pt[] = [];
+    for (let i = 0; i < 90; i++) {
+      // pseudo-random but deterministic
+      const s = Math.sin(i * 13.37) * 43758.5453;
+      const rx = s - Math.floor(s);
+      const s2 = Math.sin(i * 91.71) * 12345.678;
+      const ry = s2 - Math.floor(s2);
+      pts.push({ x: 8 + rx * 84, y: 12 + ry * 76 });
+    }
+    return pts;
+  })(),
+  laptop: [
+    ...gridPts(11, 5, 50, 40, 46, 22), // screen
+    ...gridPts(13, 1, 50, 55, 54, 0),  // hinge
+    ...gridPts(12, 2, 50, 60, 50, 4),  // base (compressed keys)
+  ],
+  phone: gridPts(4, 10, 50, 50, 16, 52),
+  headphones: (() => {
+    const pts: Pt[] = [];
+    // arc
+    for (let i = 0; i < 15; i++) {
+      const t = i / 14;
+      pts.push({ x: 26 + t * 48, y: 32 - Math.sin(t * Math.PI) * 14 });
+    }
+    // left cup
+    pts.push(...gridPts(3, 5, 26, 58, 10, 22));
+    // right cup
+    pts.push(...gridPts(3, 5, 74, 58, 10, 22));
+    return pts;
+  })(),
+  monitor: [
+    ...gridPts(11, 6, 50, 42, 52, 30), // panel
+    ...gridPts(2, 2, 50, 64, 6, 4),    // neck
+    ...gridPts(9, 1, 50, 70, 26, 0),   // stand base
+  ],
+  keyboard: gridPts(14, 4, 50, 50, 60, 20),
+} as const;
+
+const TOTAL_PANELS = 90;
+
+// Base dispersed positions when idle — deterministic pseudo-random 3D placement
+const basePanels = Array.from({ length: TOTAL_PANELS }, (_, i) => {
+  const r = (n: number) => {
+    const s = Math.sin((i + 1) * n) * 43758.5453;
+    return s - Math.floor(s);
   };
   return {
-    left: rand(i + 1) * 100,
-    top: rand(i + 7) * 100,
-    delay: rand(i + 13) * 12,
-    duration: 14 + rand(i + 19) * 14,
-    size: 1 + Math.floor(rand(i + 23) * 2),
-    opacity: 0.1 + rand(i + 29) * 0.2,
+    x: r(12.9898) * 100,
+    y: r(78.233) * 100,
+    z: (r(37.719) - 0.5) * 220,           // -110 .. 110
+    rx: (r(19.19) - 0.5) * 24,            // panel tilt
+    ry: (r(23.71) - 0.5) * 40,
+    rz: (r(41.11) - 0.5) * 10,
+    size: 0.55 + r(9.13) * 0.9,           // 0.55 .. 1.45 relative
+    ratio: 0.55 + r(5.77) * 0.9,          // panel aspect
+    delay: r(3.14) * 8,
+    driftDur: 9 + r(2.71) * 10,
   };
 });
 
@@ -197,10 +257,10 @@ function useTypewriter(text: string, onComplete: () => void) {
       if (display.length < text.length) {
         t = setTimeout(() => setDisplay(text.slice(0, display.length + 1)), 55 + Math.random() * 40);
       } else {
-        t = setTimeout(() => setPhase("holding"), 1600);
+        t = setTimeout(() => setPhase("holding"), 2400);
       }
     } else if (phase === "holding") {
-      t = setTimeout(() => setPhase("deleting"), 1400);
+      t = setTimeout(() => setPhase("deleting"), 1800);
     } else {
       if (display.length > 0) {
         t = setTimeout(() => setDisplay(text.slice(0, display.length - 1)), 22);
@@ -215,16 +275,34 @@ function useTypewriter(text: string, onComplete: () => void) {
   return { display, phase };
 }
 
+// Deterministic dust particles
+const dust = Array.from({ length: 22 }, (_, i) => {
+  const r = (n: number) => {
+    const s = Math.sin((i + 1) * n) * 43758.5453;
+    return s - Math.floor(s);
+  };
+  return {
+    left: r(9973.13) * 100,
+    top: r(1237.7) * 100,
+    delay: r(577.7) * 12,
+    duration: 16 + r(311.1) * 14,
+    size: 1 + Math.floor(r(41.7) * 2),
+    opacity: 0.08 + r(83.1) * 0.16,
+  };
+});
+
 function Hero() {
   const [sceneIdx, setSceneIdx] = useState(0);
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [thinkIdx, setThinkIdx] = useState(0);
   const [showCard, setShowCard] = useState(false);
-  const stageRef = useRef<HTMLDivElement>(null);
+  const [showShape, setShowShape] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
-  const [light, setLight] = useState({ x: 50, y: 40 });
+  const [light, setLight] = useState({ x: 55, y: 40 });
+  const [cursorInStage, setCursorInStage] = useState<{ x: number; y: number } | null>(null);
   const navigate = useNavigate();
 
   const scene = scenes[sceneIdx];
@@ -233,22 +311,24 @@ function Hero() {
   const advanceScene = () => setSceneIdx((i) => (i + 1) % scenes.length);
   const { display: typed, phase } = useTypewriter(scene.query, advanceScene);
 
-  // AI thinking indicator cycles when a query has finished typing.
+  // AI thinking cadence per query
   useEffect(() => {
-    if (isTypingUser) return;
-    if (phase !== "holding") { setShowCard(false); return; }
+    if (isTypingUser) { setShowCard(false); setShowShape(false); return; }
+    if (phase !== "holding") { setShowCard(false); setShowShape(false); return; }
     setThinkIdx(0);
     setShowCard(false);
+    setShowShape(false);
     let i = 0;
     const t = setInterval(() => {
       i += 1;
       if (i >= thinkingSteps.length) {
         clearInterval(t);
-        setShowCard(true);
+        setShowShape(true);
+        setTimeout(() => setShowCard(true), 500);
       } else {
         setThinkIdx(i);
       }
-    }, 260);
+    }, 340);
     return () => clearInterval(t);
   }, [phase, sceneIdx, isTypingUser]);
 
@@ -258,7 +338,7 @@ function Hero() {
     navigate({ to: "/ai-assistant", search: { q: trimmed } });
   };
 
-  // Pointer tracking (parallax + light direction)
+  // Pointer tracking on the whole hero (light + parallax)
   useEffect(() => {
     const el = heroRef.current;
     if (!el) return;
@@ -273,51 +353,63 @@ function Hero() {
         setLight({ x: nx * 100, y: ny * 100 });
       });
     };
-    const onLeave = () => { setParallax({ x: 0, y: 0 }); setLight({ x: 50, y: 40 }); };
+    const onLeave = () => { setParallax({ x: 0, y: 0 }); setLight({ x: 55, y: 40 }); };
     el.addEventListener("mousemove", onMove);
     el.addEventListener("mouseleave", onLeave);
-    return () => {
-      cancelAnimationFrame(raf);
-      el.removeEventListener("mousemove", onMove);
-      el.removeEventListener("mouseleave", onLeave);
-    };
+    return () => { cancelAnimationFrame(raf); el.removeEventListener("mousemove", onMove); el.removeEventListener("mouseleave", onLeave); };
   }, []);
 
-  const px = (depth: number) => ({
-    transform: `translate3d(${parallax.x * depth}px, ${parallax.y * depth}px, 0)`,
-    transition: "transform 1200ms cubic-bezier(0.2,0.8,0.2,1)",
-  });
+  // Cursor position within the stage (for panel repulsion)
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onMove = (e: MouseEvent) => {
+      const r = el.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setCursorInStage({ x, y }));
+    };
+    const onLeave = () => setCursorInStage(null);
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => { cancelAnimationFrame(raf); el.removeEventListener("mousemove", onMove); el.removeEventListener("mouseleave", onLeave); };
+  }, []);
 
-  // Directional drop-shadow driven by cursor light position
-  const shadow = (strength = 1) => {
-    const sx = (light.x - 50) * -0.35 * strength;
-    const sy = (light.y - 40) * -0.4  * strength;
-    return `drop-shadow(${sx}px ${28 + sy}px ${34 * strength}px rgba(60,40,20,0.22)) drop-shadow(${sx * 0.4}px ${10 + sy * 0.4}px ${12 * strength}px rgba(60,40,20,0.10))`;
-  };
-
-  const headlineWords = ["Every", "Product.", "One", "Decision."];
+  const activeShape: Pt[] = (isTypingUser || !showShape) ? SHAPES.idle : (SHAPES[scene.shape] as unknown as Pt[]);
 
   return (
     <section
       ref={heroRef}
       className="relative overflow-hidden min-h-screen flex items-center pt-32 md:pt-36 pb-24"
+      style={{ background: "oklch(0.985 0.005 85)" }}
     >
-      {/* Dynamic ambient light — follows cursor, very subtle */}
+      {/* Gallery lighting — architectural, warm, very soft */}
       <div
-        className="pointer-events-none absolute inset-0 transition-[background] duration-[1200ms] ease-out"
+        className="pointer-events-none absolute inset-0 transition-[background] duration-[1600ms] ease-out"
         style={{
-          background: `radial-gradient(700px circle at ${light.x}% ${light.y}%, oklch(0.985 0.03 70 / 0.9), transparent 60%)`,
+          background: `radial-gradient(1100px 780px at ${light.x}% ${light.y}%, oklch(1 0.01 80 / 0.95), transparent 65%)`,
         }}
       />
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(1200px circle at 70% 45%, oklch(0.965 0.025 65 / 0.55), transparent 65%)",
+            "radial-gradient(1400px 900px at 80% 20%, oklch(0.98 0.025 70 / 0.55), transparent 60%), radial-gradient(900px 700px at 10% 90%, oklch(0.965 0.02 60 / 0.4), transparent 65%)",
+        }}
+      />
+      {/* Subtle noise texture */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.035] mix-blend-multiply"
+        style={{
+          backgroundImage:
+            "radial-gradient(oklch(0.15 0.02 60) 1px, transparent 1px)",
+          backgroundSize: "3px 3px",
         }}
       />
 
-      {/* Particles */}
+      {/* Floating dust */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {dust.map((d, i) => (
           <span
@@ -329,66 +421,62 @@ function Hero() {
               width: `${d.size}px`,
               height: `${d.size}px`,
               opacity: d.opacity,
-              animation: `dust-drift ${d.duration}s ease-in-out ${d.delay}s infinite`,
+              animation: `hero-dust ${d.duration}s ease-in-out ${d.delay}s infinite`,
             }}
           />
         ))}
       </div>
 
       <div className="relative w-full mx-auto grid max-w-[1520px] grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 lg:gap-20 px-5 sm:px-8 md:px-16">
-        {/* LEFT — Editorial column */}
-        <div className="lg:col-span-6 flex flex-col justify-center">
+        {/* LEFT — editorial + search */}
+        <div className="lg:col-span-5 flex flex-col justify-center relative z-10">
           <div
             className="flex items-center gap-3 text-[11px] tracking-[0.24em] uppercase text-ink-muted anim-reveal"
             style={{ animationDelay: "0ms" }}
           >
             <span className="text-ink-soft/60 font-medium">N° 001</span>
             <span className="h-px w-8 bg-ink-muted/40" />
-            <span>The AI Shopping Copilot</span>
+            <span>An AI, thinking out loud</span>
           </div>
 
-          {/* Word-by-word staggered headline */}
-          <h1 className="display mt-8 sm:mt-12 lg:mt-14 text-[42px] xs:text-[52px] sm:text-[72px] md:text-[88px] lg:text-[104px] xl:text-[112px] leading-[0.9] tracking-[-0.05em] text-ink text-balance" style={{ fontWeight: 700 }}>
+          <h1
+            className="display mt-8 sm:mt-12 lg:mt-14 text-[46px] xs:text-[56px] sm:text-[76px] md:text-[92px] lg:text-[108px] xl:text-[120px] leading-[0.9] tracking-[-0.05em] text-ink text-balance"
+            style={{ fontWeight: 700 }}
+          >
             <span className="block overflow-hidden">
-              <span className="block anim-rise" style={{ animationDelay: "80ms" }}>Every</span>
+              <span className="block anim-rise" style={{ animationDelay: "80ms" }}>An index</span>
             </span>
             <span className="block overflow-hidden">
-              <span className="block anim-rise" style={{ animationDelay: "220ms" }}>Product.</span>
+              <span className="block anim-rise" style={{ animationDelay: "220ms" }}>of everything</span>
             </span>
             <span className="block overflow-hidden mt-1">
-              <span className="block anim-rise" style={{ animationDelay: "380ms" }}>One</span>
+              <span className="block anim-rise italic font-light" style={{ animationDelay: "380ms", fontFamily: "var(--font-display)" }}>
+                worth buying.
+              </span>
             </span>
-            <span className="block overflow-hidden">
-              <span className="block anim-rise" style={{ animationDelay: "520ms" }}>Decision.</span>
-            </span>
-            {/* SR-only for a11y */}
-            <span className="sr-only">{headlineWords.join(" ")}</span>
           </h1>
 
           <p
             className="mt-8 sm:mt-12 lg:mt-14 max-w-md text-[15px] sm:text-[17px] leading-[1.55] text-ink-soft anim-reveal"
             style={{ animationDelay: "700ms" }}
           >
-            Compare products, prices and reviews across every major store
-            before you buy.
+            Every product, price and review — continuously reorganized by an AI
+            that only tells you what to buy.
           </p>
 
-          {/* Central AI search — the heart of the hero */}
+          {/* AI search — the heart of the experience */}
           <form
             onSubmit={(e) => { e.preventDefault(); submit(query || scene.query); }}
             className="mt-10 sm:mt-14 lg:mt-16 group relative anim-reveal"
             style={{ animationDelay: "820ms" }}
           >
-            {/* Breathing focus halo */}
             <div
               className="pointer-events-none absolute -inset-6 rounded-[36px] opacity-60 blur-3xl transition-opacity duration-700"
               style={{
-                background:
-                  "radial-gradient(closest-side, oklch(0.94 0.05 65 / 0.9), transparent 70%)",
+                background: "radial-gradient(closest-side, oklch(0.94 0.05 65 / 0.9), transparent 70%)",
                 animation: "halo-breathe 5.5s ease-in-out infinite",
               }}
             />
-
             <div
               className="relative flex items-center gap-2 sm:gap-4 h-[64px] sm:h-[76px] rounded-[22px] sm:rounded-[26px] border border-line/80 bg-surface/95 backdrop-blur-sm pl-4 sm:pl-7 pr-2 sm:pr-2.5 transition-all duration-500 group-hover:border-ink/30 group-focus-within:border-ink/40"
               style={{ boxShadow: "0 1px 0 oklch(1 0 0), 0 30px 60px -40px oklch(0.2 0.02 60 / 0.22)" }}
@@ -426,7 +514,7 @@ function Hero() {
               </button>
             </div>
 
-            {/* AI thinking line — appears after each auto-query lands */}
+            {/* AI thinking — subtle */}
             <div className="mt-5 h-5 flex items-center gap-2 text-[12px] tracking-[0.02em] text-ink-muted">
               {!isTypingUser && phase === "holding" && !showCard && (
                 <span key={thinkIdx} className="flex items-center gap-2 anim-fade-slide">
@@ -441,128 +529,136 @@ function Hero() {
           </form>
         </div>
 
-        {/* RIGHT — Orbiting product stage */}
+        {/* RIGHT — Panel universe */}
         <div
           ref={stageRef}
-          className="lg:col-span-6 relative min-h-[440px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[780px]"
+          className="lg:col-span-7 relative min-h-[520px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[820px]"
+          style={{ perspective: "1600px", perspectiveOrigin: "55% 45%" }}
         >
           <div className="pointer-events-none absolute right-2 top-4 z-30 flex items-center gap-3 text-[10px] tracking-[0.35em] uppercase text-ink-muted/60">
             <span className="hairline w-10" />
-            <span>Composition / 01</span>
+            <span>Corpus / {String(sceneIdx + 1).padStart(2, "0")}</span>
           </div>
 
-          {/* Backdrop disc */}
+          {/* Deep vignette to give the panels a room */}
           <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[620px] w-[620px] rounded-full"
+            className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(closest-side, oklch(0.985 0.012 70 / 1), oklch(0.965 0.02 65 / 0.55) 55%, transparent 78%)",
-            }}
-          />
-          {/* Editorial rings — slow rotate to feel alive */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[560px] w-[560px] rounded-full border anim-spin-slower"
-            style={{ borderColor: "oklch(0.2 0.02 60 / 0.07)" }}
-          />
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[720px] w-[720px] rounded-full border"
-            style={{ borderColor: "oklch(0.2 0.02 60 / 0.035)" }}
-          />
-
-          {/* Dynamic ground shadow — shifts with cursor light */}
-          <div
-            className="absolute left-1/2 bottom-[14%] -translate-x-1/2 h-[46px] w-[540px] rounded-[50%] blur-3xl transition-all duration-[1200ms] ease-out"
-            style={{
-              background: "oklch(0.2 0.02 60 / 0.22)",
-              transform: `translate(calc(-50% + ${(light.x - 50) * -0.6}px), 0) scaleX(${1 + Math.abs(light.x - 50) * 0.002})`,
+                "radial-gradient(closest-side, transparent 45%, oklch(0.94 0.012 70 / 0.5) 90%)",
             }}
           />
 
-          {/* ===== Orbiting products ===== */}
-
-          {/* Phone — top right, slow orbit + gentle rotate */}
+          {/* The 3D room */}
           <div
-            className="absolute right-[12%] top-[8%] w-[150px] md:w-[190px] z-20 will-change-transform"
+            className="absolute inset-0 will-change-transform"
             style={{
-              ...px(24),
-              animation: "orbit-a 22s ease-in-out infinite",
+              transformStyle: "preserve-3d",
+              transform: `rotateX(${parallax.y * -4}deg) rotateY(${parallax.x * 6}deg)`,
+              transition: "transform 1200ms cubic-bezier(0.2,0.8,0.2,1)",
             }}
           >
-            <img
-              src={heroPhone}
-              alt="Phone"
-              width={640}
-              height={896}
-              loading="lazy"
-              className="w-full will-change-transform transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
-              style={{
-                transform: `rotate(6deg) scale(${0.85 + scene.phone * 0.3})`,
-                filter: shadow(0.9),
-                animation: "spin-drift 34s ease-in-out infinite",
-              }}
-            />
+            {basePanels.map((p, i) => {
+              const target = activeShape[i % activeShape.length];
+              const inShape = i < activeShape.length && showShape && !isTypingUser;
+              // Base position (idle drift) vs shape position
+              const tx = inShape ? target.x : p.x;
+              const ty = inShape ? target.y : p.y;
+              const tz = inShape ? -20 + ((i % 7) - 3) * 6 : p.z;
+
+              // Cursor repulsion (subtle)
+              let dx = 0, dy = 0;
+              if (cursorInStage) {
+                const ddx = tx - cursorInStage.x;
+                const ddy = ty - cursorInStage.y;
+                const dist = Math.hypot(ddx, ddy);
+                if (dist < 18) {
+                  const f = (18 - dist) / 18;
+                  dx = (ddx / (dist || 1)) * f * 3;
+                  dy = (ddy / (dist || 1)) * f * 3;
+                }
+              }
+
+              // Panel dimensions (small, varied)
+              const w = inShape ? 34 : 30 + p.size * 22;
+              const h = w * (inShape ? 0.72 : p.ratio);
+
+              // Rotation — settle flat when in shape, wander when idle
+              const rx = inShape ? 0 : p.rx;
+              const ry = inShape ? 0 : p.ry;
+              const rz = inShape ? 0 : p.rz;
+
+              // Directional light per panel (based on cursor light)
+              const nx = (tx - light.x) / 100;
+              const ny = (ty - light.y) / 100;
+              const shade = Math.max(0, Math.min(1, 0.55 - nx * 0.25 - ny * 0.15));
+
+              return (
+                <div
+                  key={i}
+                  className="absolute"
+                  style={{
+                    left: `${tx + dx}%`,
+                    top: `${ty + dy}%`,
+                    width: `${w}px`,
+                    height: `${h}px`,
+                    marginLeft: `${-w / 2}px`,
+                    marginTop: `${-h / 2}px`,
+                    transform: `translateZ(${tz}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`,
+                    transformStyle: "preserve-3d",
+                    transition:
+                      "left 1800ms cubic-bezier(0.22,1,0.36,1), top 1800ms cubic-bezier(0.22,1,0.36,1), width 1200ms cubic-bezier(0.22,1,0.36,1), height 1200ms cubic-bezier(0.22,1,0.36,1), transform 1600ms cubic-bezier(0.22,1,0.36,1)",
+                    animation: `panel-breathe ${p.driftDur}s ease-in-out ${p.delay}s infinite`,
+                    willChange: "transform, left, top",
+                  }}
+                >
+                  <div
+                    className="w-full h-full rounded-[6px] border"
+                    style={{
+                      background: `linear-gradient(135deg, oklch(1 0.005 80 / ${0.94 + shade * 0.06}), oklch(0.965 0.012 70 / ${0.9 + shade * 0.08}))`,
+                      borderColor: "oklch(0.2 0.02 60 / 0.08)",
+                      boxShadow: `0 ${8 + shade * 6}px ${18 + shade * 14}px -10px oklch(0.2 0.02 60 / ${0.18 + shade * 0.12}), inset 0 1px 0 oklch(1 0 0 / 0.9)`,
+                    }}
+                  >
+                    {/* Occasional micro content on ~1 in 6 panels */}
+                    {i % 7 === 0 && (
+                      <div className="p-1.5 flex flex-col gap-1">
+                        <span className="block h-1 w-4 rounded-full bg-ink/15" />
+                        <span className="block h-1 w-6 rounded-full bg-ink/10" />
+                        <span className="block h-1 w-3 rounded-full bg-accent/40" />
+                      </div>
+                    )}
+                    {i % 11 === 0 && (
+                      <div className="absolute inset-1.5 rounded-[3px] bg-ink/[0.04] border border-ink/5" />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Laptop — centerpiece, floats, scales with scene */}
+          {/* Soft ground shadow */}
           <div
-            className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[560px] z-10 will-change-transform"
+            className="pointer-events-none absolute left-1/2 bottom-[10%] -translate-x-1/2 h-[36px] w-[70%] rounded-[50%] blur-3xl transition-all duration-[1200ms]"
             style={{
-              ...px(14),
-              animation: "orbit-b 26s ease-in-out infinite",
+              background: "oklch(0.2 0.02 60 / 0.18)",
+              transform: `translate(calc(-50% + ${(light.x - 50) * -0.5}px), 0) scaleX(${1 + Math.abs(light.x - 50) * 0.002})`,
             }}
-          >
-            <img
-              src={heroLaptop}
-              alt="Laptop"
-              width={1024}
-              height={768}
-              className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
-              style={{
-                transform: `scale(${0.9 + scene.laptop * 0.16})`,
-                filter: shadow(1.2),
-              }}
-            />
-          </div>
+          />
 
-          {/* Headphones — bottom left, slow swing */}
+          {/* Best-match card — appears once geometry has assembled */}
           <div
-            className="absolute left-[4%] bottom-[8%] w-[210px] md:w-[270px] z-20 will-change-transform"
-            style={{
-              ...px(28),
-              animation: "orbit-c 24s ease-in-out infinite",
-              transformOrigin: "top center",
-            }}
-          >
-            <img
-              src={heroHeadphones}
-              alt="Headphones"
-              width={768}
-              height={768}
-              loading="lazy"
-              className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
-              style={{
-                transform: `rotate(-6deg) scale(${0.85 + scene.headphones * 0.3})`,
-                filter: shadow(1),
-                animation: "swing 8s ease-in-out infinite",
-                transformOrigin: "top center",
-              }}
-            />
-          </div>
-
-          {/* Floating Best Match card — appears after AI "finds" the option */}
-          <div
-            className={`absolute right-[4%] top-[38%] z-30 will-change-transform transition-all duration-700 ${
+            className={`absolute right-[4%] bottom-[10%] z-30 will-change-transform transition-all duration-700 ${
               showCard && !isTypingUser ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"
             }`}
-            style={px(16)}
           >
             <div
-              className="rounded-2xl bg-surface/95 backdrop-blur-md border border-ink/8 px-4 py-3.5 min-w-[220px]"
+              className="rounded-2xl bg-surface/95 backdrop-blur-md border border-ink/8 px-4 py-3.5 min-w-[240px]"
               style={{ boxShadow: "0 24px 60px -24px rgba(60,40,20,0.28)" }}
             >
               <div className="flex items-center gap-2 text-[10px] tracking-[0.28em] uppercase text-ink-muted/80">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                Best match
+                Recommendation
               </div>
               <div key={scene.match} className="mt-1.5 text-[15px] font-medium text-ink anim-fade-slide leading-tight">
                 {scene.match}
@@ -576,7 +672,7 @@ function Hero() {
         </div>
       </div>
 
-      {/* Elegant scroll indicator */}
+      {/* Scroll indicator */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
         <span className="text-[10px] tracking-[0.3em] uppercase text-ink-muted/70">Scroll</span>
         <span className="relative block h-14 w-px bg-ink-muted/20 overflow-hidden">
@@ -588,9 +684,9 @@ function Hero() {
       </div>
 
       <style>{`
-        @keyframes dust-drift {
+        @keyframes hero-dust {
           0%, 100% { transform: translate(0, 0); }
-          50%      { transform: translate(6px, -18px); }
+          50%      { transform: translate(8px, -22px); }
         }
         @keyframes scroll-line {
           0%   { transform: translate(-50%, -100%); }
@@ -601,25 +697,9 @@ function Hero() {
           0%, 100% { opacity: 0.35; transform: scale(1); }
           50%      { opacity: 0.75; transform: scale(1.05); }
         }
-        @keyframes orbit-a {
-          0%, 100% { transform: translate3d(0, 0, 0); }
-          50%      { transform: translate3d(-14px, 18px, 0); }
-        }
-        @keyframes orbit-b {
-          0%, 100% { transform: translate(-50%, -50%); }
-          50%      { transform: translate(calc(-50% + 10px), calc(-50% - 12px)); }
-        }
-        @keyframes orbit-c {
-          0%, 100% { transform: translate3d(0, 0, 0); }
-          50%      { transform: translate3d(16px, -14px, 0); }
-        }
-        @keyframes spin-drift {
-          0%, 100% { rotate: 0deg; }
-          50%      { rotate: 3deg; }
-        }
-        @keyframes swing {
-          0%, 100% { transform: rotate(-6deg); }
-          50%      { transform: rotate(-2deg); }
+        @keyframes panel-breathe {
+          0%, 100% { translate: 0 0; }
+          50%      { translate: 4px -6px; }
         }
         @keyframes rise {
           from { opacity: 0; transform: translateY(105%); }
