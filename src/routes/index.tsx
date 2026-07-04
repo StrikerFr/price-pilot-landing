@@ -2664,7 +2664,8 @@ function Footer() {
                 "radial-gradient(closest-side, oklch(1 0.03 75 / 0.9), transparent 70%)",
             }}
           />
-          <label
+          <form
+            onSubmit={(e) => { e.preventDefault(); footerSubmit(fQuery || FOOTER_PLACEHOLDERS[phIdx]); }}
             className="relative flex items-center gap-4 rounded-full bg-surface/95 backdrop-blur-md border transition-all duration-500"
             style={{
               height: 76,
@@ -2682,21 +2683,29 @@ function Footer() {
             <div className="relative flex-1 h-full">
               <input
                 type="text"
+                value={fQuery}
+                onChange={(e) => setFQuery(e.target.value)}
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
+                aria-label="Ask PricePilot AI"
                 placeholder=""
                 className="peer absolute inset-0 w-full h-full bg-transparent outline-none text-[17px] text-ink placeholder:text-transparent"
               />
-              <span
-                key={phIdx}
-                className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-[17px] text-ink-muted peer-focus:opacity-0 transition-opacity duration-300"
-                style={{ animation: "footer-fade 0.6s ease-out" }}
-              >
-                {FOOTER_PLACEHOLDERS[phIdx]}
-              </span>
+              {fQuery.length === 0 && (
+                <button
+                  type="button"
+                  onClick={() => setFQuery(FOOTER_PLACEHOLDERS[phIdx])}
+                  key={phIdx}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 text-[17px] text-ink-muted peer-focus:opacity-0 transition-opacity duration-300 cursor-text"
+                  style={{ animation: "footer-fade 0.6s ease-out" }}
+                  tabIndex={-1}
+                >
+                  {FOOTER_PLACEHOLDERS[phIdx]}
+                </button>
+              )}
             </div>
             <button
-              type="button"
+              type="submit"
               className="group h-[60px] px-6 rounded-full bg-ink text-surface flex items-center gap-2.5 text-[14px] font-medium tracking-tight transition-transform duration-300 hover:scale-[1.02]"
             >
               Ask AI
@@ -2705,7 +2714,7 @@ function Footer() {
                 className="transition-transform duration-300 group-hover:translate-x-0.5"
               />
             </button>
-          </label>
+          </form>
         </div>
       </div>
 
@@ -2725,12 +2734,14 @@ function Footer() {
             <span className="opacity-70">© 2026</span>
           </div>
           <nav className="flex items-center gap-6">
-            <a href="#" className="hover:text-ink transition-colors">Privacy</a>
-            <a href="#" className="hover:text-ink transition-colors">Terms</a>
-            <a href="#" className="hover:text-ink transition-colors">Contact</a>
+            <Link to="/deals" className="hover:text-ink transition-colors">Deals</Link>
+            <Link to="/price-drops" className="hover:text-ink transition-colors">Price drops</Link>
+            <Link to="/news" className="hover:text-ink transition-colors">News</Link>
+            <Link to="/profile" className="hover:text-ink transition-colors">Account</Link>
           </nav>
         </div>
       </div>
+
 
       <style>{`
         @keyframes footer-drift {
