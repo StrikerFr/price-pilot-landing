@@ -238,7 +238,7 @@ function Hero() {
         ))}
       </div>
 
-      <div className="relative w-full mx-auto grid max-w-[1520px] grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-16 px-8 md:px-16">
+      <div className="relative w-full mx-auto grid max-w-[1520px] grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 lg:gap-16 px-5 sm:px-8 md:px-16">
         {/* LEFT — Editorial column */}
         <div className="lg:col-span-6 flex flex-col justify-center">
           {/* Tiny editorial marker */}
@@ -252,7 +252,7 @@ function Hero() {
           </div>
 
           <h1
-            className="display mt-14 text-[64px] sm:text-[88px] lg:text-[104px] xl:text-[112px] leading-[0.88] tracking-[-0.05em] text-ink anim-reveal"
+            className="display mt-8 sm:mt-12 lg:mt-14 text-[42px] xs:text-[52px] sm:text-[72px] md:text-[88px] lg:text-[104px] xl:text-[112px] leading-[0.9] tracking-[-0.05em] text-ink anim-reveal text-balance"
             style={{ animationDelay: "120ms", fontWeight: 700 }}
           >
             Every Product.
