@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Search,
   ArrowUpRight,
-  ArrowRight,
   ArrowLeft,
   Sparkles,
   TrendingDown,
@@ -11,7 +10,6 @@ import {
   Flame,
   Clock,
   Check,
-  Minus,
   Store,
   Truck,
   BadgePercent,
