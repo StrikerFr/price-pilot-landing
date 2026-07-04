@@ -949,8 +949,20 @@ function FeatureStrip() {
             className="md:col-span-7 relative h-[52vh] md:h-[74vh]"
             style={{ perspective: "1600px" }}
           >
+            {/* halo glow behind the stage */}
             <div
-              className="absolute inset-0 rounded-[28px] overflow-hidden bg-background border border-line/60 shadow-[0_50px_140px_-40px_oklch(0.15_0.02_60_/_0.45)] will-change-transform"
+              aria-hidden
+              className="pointer-events-none absolute -inset-10 rounded-[40px] opacity-80 anim-float-slow"
+              style={{
+                background:
+                  "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.28), transparent 70%)",
+                filter: "blur(40px)",
+                transform: `translate(${mouse.x * 20}px, ${mouse.y * 14}px)`,
+                transition: "transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
+              }}
+            />
+            <div
+              className="absolute inset-0 rounded-[28px] overflow-hidden bg-background border border-line/60 shadow-[0_60px_160px_-40px_oklch(0.15_0.02_60_/_0.55),0_0_0_1px_oklch(1_0_0_/_0.04)_inset] will-change-transform"
               style={{
                 transform: `rotateX(${mouse.y * -6}deg) rotateY(${mouse.x * 8}deg)`,
                 transition: "transform 500ms cubic-bezier(0.2,0.8,0.2,1)",
