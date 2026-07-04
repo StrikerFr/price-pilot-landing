@@ -418,23 +418,30 @@ function DealsNav() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1">
-          {["Deals", "Categories", "Compare", "Price Drops", "Sales Calendar", "News", "AI Assistant"].map(
-            (item) => {
-              const active = item === "Deals";
-              return (
-                <Link
-                  key={item}
-                  to={item === "Deals" ? "/deals" : "/"}
-                  className={`px-3 py-2 text-[13px] font-medium transition-colors link-underline ${
-                    active ? "text-ink" : "text-ink-soft hover:text-ink"
-                  }`}
-                >
-                  {item}
-                </Link>
-              );
-            },
-          )}
+          {[
+            { label: "Deals", to: "/deals" as const },
+            { label: "Categories", to: "/categories" as const },
+            { label: "Compare", to: "/compare" as const },
+            { label: "Price Drops", to: "/price-drops" as const },
+            { label: "Sales Calendar", to: "/sales-calendar" as const },
+            { label: "News", to: "/news" as const },
+            { label: "AI Assistant", to: "/ai-assistant" as const },
+          ].map((item) => {
+            const active = item.label === "Deals";
+            return (
+              <Link
+                key={item.label}
+                to={item.to}
+                className={`px-3 py-2 text-[13px] font-medium transition-colors link-underline ${
+                  active ? "text-ink" : "text-ink-soft hover:text-ink"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
+
 
         <div className="flex items-center gap-2">
           <Link

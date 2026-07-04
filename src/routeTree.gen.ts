@@ -9,12 +9,61 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as SalesCalendarRouteImport } from './routes/sales-calendar'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PriceDropsRouteImport } from './routes/price-drops'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as DealsRouteImport } from './routes/deals'
+import { Route as CompareRouteImport } from './routes/compare'
+import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
 
+const WishlistRoute = WishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SalesCalendarRoute = SalesCalendarRouteImport.update({
+  id: '/sales-calendar',
+  path: '/sales-calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PriceDropsRoute = PriceDropsRouteImport.update({
+  id: '/price-drops',
+  path: '/price-drops',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DealsRoute = DealsRouteImport.update({
   id: '/deals',
   path: '/deals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiAssistantRoute = AiAssistantRouteImport.update({
+  id: '/ai-assistant',
+  path: '/ai-assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,40 +71,171 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-assistant': typeof AiAssistantRoute
+  '/categories': typeof CategoriesRoute
+  '/compare': typeof CompareRoute
   '/deals': typeof DealsRoute
+  '/news': typeof NewsRoute
+  '/price-drops': typeof PriceDropsRoute
+  '/profile': typeof ProfileRoute
+  '/sales-calendar': typeof SalesCalendarRoute
+  '/wishlist': typeof WishlistRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-assistant': typeof AiAssistantRoute
+  '/categories': typeof CategoriesRoute
+  '/compare': typeof CompareRoute
   '/deals': typeof DealsRoute
+  '/news': typeof NewsRoute
+  '/price-drops': typeof PriceDropsRoute
+  '/profile': typeof ProfileRoute
+  '/sales-calendar': typeof SalesCalendarRoute
+  '/wishlist': typeof WishlistRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-assistant': typeof AiAssistantRoute
+  '/categories': typeof CategoriesRoute
+  '/compare': typeof CompareRoute
   '/deals': typeof DealsRoute
+  '/news': typeof NewsRoute
+  '/price-drops': typeof PriceDropsRoute
+  '/profile': typeof ProfileRoute
+  '/sales-calendar': typeof SalesCalendarRoute
+  '/wishlist': typeof WishlistRoute
+  '/product/$id': typeof ProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/deals'
+  fullPaths:
+    | '/'
+    | '/ai-assistant'
+    | '/categories'
+    | '/compare'
+    | '/deals'
+    | '/news'
+    | '/price-drops'
+    | '/profile'
+    | '/sales-calendar'
+    | '/wishlist'
+    | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/deals'
-  id: '__root__' | '/' | '/deals'
+  to:
+    | '/'
+    | '/ai-assistant'
+    | '/categories'
+    | '/compare'
+    | '/deals'
+    | '/news'
+    | '/price-drops'
+    | '/profile'
+    | '/sales-calendar'
+    | '/wishlist'
+    | '/product/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-assistant'
+    | '/categories'
+    | '/compare'
+    | '/deals'
+    | '/news'
+    | '/price-drops'
+    | '/profile'
+    | '/sales-calendar'
+    | '/wishlist'
+    | '/product/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiAssistantRoute: typeof AiAssistantRoute
+  CategoriesRoute: typeof CategoriesRoute
+  CompareRoute: typeof CompareRoute
   DealsRoute: typeof DealsRoute
+  NewsRoute: typeof NewsRoute
+  PriceDropsRoute: typeof PriceDropsRoute
+  ProfileRoute: typeof ProfileRoute
+  SalesCalendarRoute: typeof SalesCalendarRoute
+  WishlistRoute: typeof WishlistRoute
+  ProductIdRoute: typeof ProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wishlist': {
+      id: '/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sales-calendar': {
+      id: '/sales-calendar'
+      path: '/sales-calendar'
+      fullPath: '/sales-calendar'
+      preLoaderRoute: typeof SalesCalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/price-drops': {
+      id: '/price-drops'
+      path: '/price-drops'
+      fullPath: '/price-drops'
+      preLoaderRoute: typeof PriceDropsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/deals': {
       id: '/deals'
       path: '/deals'
       fullPath: '/deals'
       preLoaderRoute: typeof DealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-assistant': {
+      id: '/ai-assistant'
+      path: '/ai-assistant'
+      fullPath: '/ai-assistant'
+      preLoaderRoute: typeof AiAssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,13 +245,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiAssistantRoute: AiAssistantRoute,
+  CategoriesRoute: CategoriesRoute,
+  CompareRoute: CompareRoute,
   DealsRoute: DealsRoute,
+  NewsRoute: NewsRoute,
+  PriceDropsRoute: PriceDropsRoute,
+  ProfileRoute: ProfileRoute,
+  SalesCalendarRoute: SalesCalendarRoute,
+  WishlistRoute: WishlistRoute,
+  ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
