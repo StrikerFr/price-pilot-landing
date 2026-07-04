@@ -42,6 +42,8 @@ const STAGES = [
 type Msg = { role: "user" | "assistant"; text: string };
 
 function AIAssistantPage() {
+  const { q } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -49,10 +51,12 @@ function AIAssistantPage() {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const kickedRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, thinking]);
+
 
   useEffect(() => {
     if (!thinking) return;
