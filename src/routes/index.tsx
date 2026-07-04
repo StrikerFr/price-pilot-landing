@@ -2543,10 +2543,10 @@ function UpcomingSales() {
                 data-sale-card
                 onClick={() => setActiveIndex(i)}
                 className={
-                  "snap-center text-left transition-[opacity,filter,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] " +
+                  "snap-center text-left transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] " +
                   (i === activeIndex
                     ? "opacity-100"
-                    : "opacity-60 hover:opacity-90 blur-[0.5px] hover:blur-0 scale-[0.96]")
+                    : "opacity-70 hover:opacity-100 scale-[0.97]")
                 }
               >
                 <SaleCard sale={s} index={i} active={i === activeIndex} />
@@ -2554,9 +2554,9 @@ function UpcomingSales() {
             ))}
             <div className="shrink-0 w-4" />
           </div>
-          {/* Edge fades — subtle, tuned to section bg, no hard white */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 md:w-40 z-10" style={{ background: "linear-gradient(to right, oklch(0.97 0.008 75) 0%, oklch(0.97 0.008 75 / 0.6) 40%, transparent 100%)" }} />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 md:w-40 z-10" style={{ background: "linear-gradient(to left, oklch(0.97 0.008 75) 0%, oklch(0.97 0.008 75 / 0.6) 40%, transparent 100%)" }} />
+          {/* Edge fades — exact match to section bg, no white bleed */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 md:w-32 z-10" style={{ background: "linear-gradient(to right, oklch(0.965 0.006 80) 0%, oklch(0.965 0.006 80 / 0) 100%)" }} />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 md:w-32 z-10" style={{ background: "linear-gradient(to left, oklch(0.965 0.006 80) 0%, oklch(0.965 0.006 80 / 0) 100%)" }} />
         </div>
 
         {/* Progress bar for auto-cycle */}
