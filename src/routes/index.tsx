@@ -738,13 +738,24 @@ function FeatureStrip() {
             maskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
           }}
         />
+        {/* conic aurora — slowly rotating chromatic wash */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.35] anim-spin-slower"
+          style={{
+            background:
+              "conic-gradient(from 0deg at 50% 50%, oklch(0.68 0.17 45 / 0.22), oklch(0.72 0.12 60 / 0.10), oklch(0.78 0.14 90 / 0.18), oklch(0.68 0.17 45 / 0.22))",
+            maskImage: "radial-gradient(ellipse at center, black 20%, transparent 75%)",
+            filter: "blur(40px)",
+          }}
+        />
         {/* aurora blobs */}
         <div
           aria-hidden
           className="pointer-events-none absolute -top-56 -left-40 h-[720px] w-[820px] rounded-full opacity-70 anim-float-slow"
           style={{
             background:
-              "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.18), transparent 70%)",
+              "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.22), transparent 70%)",
             transform: `translate(${mouse.x * -40}px, ${mouse.y * -30}px)`,
             transition: "transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
           }}
@@ -754,7 +765,7 @@ function FeatureStrip() {
           className="pointer-events-none absolute -bottom-56 right-[-10%] h-[720px] w-[820px] rounded-full opacity-60 anim-float"
           style={{
             background:
-              "radial-gradient(closest-side, oklch(0.72 0.12 60 / 0.18), transparent 70%)",
+              "radial-gradient(closest-side, oklch(0.72 0.12 60 / 0.22), transparent 70%)",
             transform: `translate(${mouse.x * 40}px, ${mouse.y * 30}px)`,
             transition: "transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
           }}
@@ -764,7 +775,7 @@ function FeatureStrip() {
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-90 mix-blend-overlay"
           style={{
-            background: `radial-gradient(600px circle at ${(mouse.x + 0.5) * 100}% ${(mouse.y + 0.5) * 100}%, oklch(0.99 0.02 70 / 0.35), transparent 60%)`,
+            background: `radial-gradient(600px circle at ${(mouse.x + 0.5) * 100}% ${(mouse.y + 0.5) * 100}%, oklch(0.99 0.02 70 / 0.45), transparent 60%)`,
           }}
         />
         {/* diagonal light sweep tied to step progress */}
@@ -773,16 +784,35 @@ function FeatureStrip() {
           className="pointer-events-none absolute inset-0 overflow-hidden"
         >
           <div
-            className="absolute -inset-y-20 w-[40vw] blur-2xl opacity-40"
+            className="absolute -inset-y-20 w-[46vw] blur-3xl opacity-60"
             style={{
               left: `${-30 + (active + local) * 22}%`,
               background:
-                "linear-gradient(100deg, transparent 20%, oklch(0.68 0.17 45 / 0.35) 50%, transparent 80%)",
+                "linear-gradient(100deg, transparent 20%, oklch(0.68 0.17 45 / 0.55) 50%, transparent 80%)",
               transition: "left 900ms cubic-bezier(0.2,0.8,0.2,1)",
               transform: "rotate(8deg)",
             }}
           />
         </div>
+        {/* film grain / noise overlay */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+            backgroundSize: "260px 260px",
+          }}
+        />
+        {/* soft vignette */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, transparent 55%, oklch(0.15 0.02 60 / 0.18) 100%)",
+          }}
+        />
 
         {/* giant background numeral */}
         <div
