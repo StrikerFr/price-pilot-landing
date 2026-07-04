@@ -2283,14 +2283,31 @@ function SaleCard({ sale, index, active }: { sale: Sale; index: number; active: 
 }
 
 function UpcomingSales() {
-  const activeIndex = sales.reduce(
+  const soonestIndex = sales.reduce(
     (best, s, i) => (s.days < sales[best].days ? i : best),
     0,
   );
+  const [activeIndex, setActiveIndex] = useState(soonestIndex);
+  const scrollerRef = useRef<HTMLDivElement>(null);
 
-  return (
-    <section className="slant-r relative z-10 relative overflow-hidden py-28 md:py-36 bg-surface-2/60">
-      {/* Ambient background */}
+  // Auto-cycle the highlighted card every few seconds
+  useEffect(() => {
+    const t = setInterval(() => {
+      setActiveIndex((i) => (i + 1) % sales.length);
+    }, 3800);
+    return () => clearInterval(t);
+  }, []);
+
+  // Scroll the horizontal deck to keep the active card in view
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const card = scroller.querySelectorAll<HTMLElement>("[data-sale-card]")[activeIndex];
+    if (!card) return;
+    const target = card.offsetLeft - (scroller.clientWidth - card.clientWidth) / 2;
+    scroller.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+  }, [activeIndex]);
+
       <div
         className="pointer-events-none absolute inset-0 opacity-70"
         style={{
