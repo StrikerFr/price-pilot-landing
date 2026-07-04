@@ -2431,10 +2431,19 @@ const FOOTER_STATUS = [
 
 function Footer() {
   const ref = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
   const [spot, setSpot] = useState({ x: 50, y: 50, active: false });
   const [phIdx, setPhIdx] = useState(0);
   const [statusIdx, setStatusIdx] = useState(0);
   const [focused, setFocused] = useState(false);
+  const [fQuery, setFQuery] = useState("");
+
+  const footerSubmit = (q: string) => {
+    const t = q.trim();
+    if (!t) return;
+    navigate({ to: "/ai-assistant", search: { q: t } });
+  };
+
 
   useEffect(() => {
     const el = ref.current;
