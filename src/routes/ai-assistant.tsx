@@ -4,7 +4,12 @@ import { PageShell, Reveal } from "@/components/site/PageShell";
 import { PRODUCTS, inr } from "@/lib/mock";
 import { ArrowUp, Sparkles } from "lucide-react";
 
+type ChatSearch = { q?: string };
+
 export const Route = createFileRoute("/ai-assistant")({
+  validateSearch: (search: Record<string, unknown>): ChatSearch => ({
+    q: typeof search.q === "string" ? search.q : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "AI Assistant — PricePilot" },
@@ -15,6 +20,7 @@ export const Route = createFileRoute("/ai-assistant")({
   }),
   component: AIAssistantPage,
 });
+
 
 const SUGGESTED = [
   "Best 14-inch laptop under ₹100,000 for programming",
@@ -36,6 +42,8 @@ const STAGES = [
 type Msg = { role: "user" | "assistant"; text: string };
 
 function AIAssistantPage() {
+  const { q } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
@@ -43,10 +51,12 @@ function AIAssistantPage() {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const kickedRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, thinking]);
+
 
   useEffect(() => {
     if (!thinking) return;
@@ -113,6 +123,19 @@ function AIAssistantPage() {
       abortRef.current = null;
     }
   };
+
+  // Auto-send when arriving with a ?q=... search param (from homepage hero/footer)
+  useEffect(() => {
+    if (kickedRef.current) return;
+    const seed = (q ?? "").trim();
+    if (!seed) return;
+    kickedRef.current = true;
+    void send(seed);
+    // Clear the query from the URL so a refresh doesn't re-fire it.
+    navigate({ search: {}, replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
+
 
   return (
     <PageShell>
