@@ -444,136 +444,252 @@ function Hero() {
           </form>
         </div>
 
-        {/* RIGHT — Orbiting product stage */}
+        {/* RIGHT — Immersive orbital stage */}
         <div
           ref={stageRef}
-          className="lg:col-span-6 relative min-h-[440px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[780px]"
+          className="lg:col-span-6 relative min-h-[520px] sm:min-h-[620px] md:min-h-[720px] lg:min-h-[820px] [perspective:1600px]"
         >
           <div className="pointer-events-none absolute right-2 top-4 z-30 flex items-center gap-3 text-[10px] tracking-[0.35em] uppercase text-ink-muted/60">
             <span className="hairline w-10" />
             <span>Composition / 01</span>
           </div>
 
-          {/* Backdrop disc */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[620px] w-[620px] rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, oklch(0.985 0.012 70 / 1), oklch(0.965 0.02 65 / 0.55) 55%, transparent 78%)",
-            }}
-          />
-          {/* Editorial rings — slow rotate to feel alive */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[560px] w-[560px] rounded-full border anim-spin-slower"
-            style={{ borderColor: "oklch(0.2 0.02 60 / 0.07)" }}
-          />
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[720px] w-[720px] rounded-full border"
-            style={{ borderColor: "oklch(0.2 0.02 60 / 0.035)" }}
-          />
-
-          {/* Dynamic ground shadow — shifts with cursor light */}
-          <div
-            className="absolute left-1/2 bottom-[14%] -translate-x-1/2 h-[46px] w-[540px] rounded-[50%] blur-3xl transition-all duration-[1200ms] ease-out"
-            style={{
-              background: "oklch(0.2 0.02 60 / 0.22)",
-              transform: `translate(calc(-50% + ${(light.x - 50) * -0.6}px), 0) scaleX(${1 + Math.abs(light.x - 50) * 0.002})`,
-            }}
-          />
-
-          {/* ===== Orbiting products ===== */}
-
-          {/* Phone — top right, slow orbit + gentle rotate */}
-          <div
-            className="absolute right-[12%] top-[8%] w-[150px] md:w-[190px] z-20 will-change-transform"
-            style={{
-              ...px(24),
-              animation: "orbit-a 22s ease-in-out infinite",
-            }}
-          >
-            <img
-              src={heroPhone}
-              alt="Phone"
-              width={640}
-              height={896}
-              loading="lazy"
-              className="w-full will-change-transform transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
-              style={{
-                transform: `rotate(6deg) scale(${0.85 + scene.phone * 0.3})`,
-                filter: shadow(0.9),
-                animation: "spin-drift 34s ease-in-out infinite",
-              }}
-            />
+          {/* Live scanning counter — top left of stage */}
+          <div className="pointer-events-none absolute left-2 top-4 z-30 flex items-center gap-2 text-[10px] tracking-[0.32em] uppercase text-ink-muted/70">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inset-0 rounded-full bg-accent animate-ping opacity-70" />
+              <span className="relative h-1.5 w-1.5 rounded-full bg-accent" />
+            </span>
+            <span>Scanning · 8,412 stores</span>
           </div>
 
-          {/* Laptop — centerpiece, floats, scales with scene */}
+          {/* Deep 3D stage — everything below tilts subtly */}
           <div
-            className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[560px] z-10 will-change-transform"
+            className="absolute inset-0 [transform-style:preserve-3d]"
             style={{
-              ...px(14),
-              animation: "orbit-b 26s ease-in-out infinite",
+              transform: `rotateX(${parallax.y * -6}deg) rotateY(${parallax.x * 8}deg)`,
+              transition: "transform 1400ms cubic-bezier(0.2,0.8,0.2,1)",
             }}
           >
-            <img
-              src={heroLaptop}
-              alt="Laptop"
-              width={1024}
-              height={768}
-              className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+            {/* Backdrop disc */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[640px] w-[640px] rounded-full"
               style={{
-                transform: `scale(${0.9 + scene.laptop * 0.16})`,
-                filter: shadow(1.2),
+                background:
+                  "radial-gradient(closest-side, oklch(0.985 0.012 70 / 1), oklch(0.965 0.022 65 / 0.6) 55%, transparent 78%)",
+                transform: "translate(-50%, -50%) translateZ(-80px)",
               }}
             />
-          </div>
 
-          {/* Headphones — bottom left, slow swing */}
-          <div
-            className="absolute left-[4%] bottom-[8%] w-[210px] md:w-[270px] z-20 will-change-transform"
-            style={{
-              ...px(28),
-              animation: "orbit-c 24s ease-in-out infinite",
-              transformOrigin: "top center",
-            }}
-          >
-            <img
-              src={heroHeadphones}
-              alt="Headphones"
-              width={768}
-              height={768}
-              loading="lazy"
-              className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+            {/* Orbital rings — rotate at different speeds */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full border"
               style={{
-                transform: `rotate(-6deg) scale(${0.85 + scene.headphones * 0.3})`,
-                filter: shadow(1),
-                animation: "swing 8s ease-in-out infinite",
+                borderColor: "oklch(0.2 0.02 60 / 0.09)",
+                borderStyle: "dashed",
+                animation: "orbit-ring 60s linear infinite",
+              }}
+            />
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full border"
+              style={{
+                borderColor: "oklch(0.2 0.02 60 / 0.07)",
+                animation: "orbit-ring 90s linear infinite reverse",
+              }}
+            />
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[740px] w-[740px] -translate-x-1/2 -translate-y-1/2 rounded-full border"
+              style={{ borderColor: "oklch(0.2 0.02 60 / 0.04)" }}
+            />
+
+            {/* Sweeping conic light */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[720px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40 mix-blend-multiply"
+              style={{
+                background:
+                  "conic-gradient(from 0deg, transparent 0deg, oklch(0.9 0.09 55 / 0.35) 40deg, transparent 90deg, transparent 360deg)",
+                animation: "orbit-ring 24s linear infinite",
+                WebkitMaskImage: "radial-gradient(closest-side, black 55%, transparent 78%)",
+                maskImage: "radial-gradient(closest-side, black 55%, transparent 78%)",
+              }}
+            />
+
+            {/* Dynamic ground shadow */}
+            <div
+              className="absolute left-1/2 bottom-[12%] -translate-x-1/2 h-[50px] w-[560px] rounded-[50%] blur-3xl transition-all duration-[1200ms] ease-out"
+              style={{
+                background: "oklch(0.2 0.02 60 / 0.24)",
+                transform: `translate(calc(-50% + ${(light.x - 50) * -0.6}px), 0) scaleX(${1 + Math.abs(light.x - 50) * 0.002})`,
+              }}
+            />
+
+            {/* ===== ORBITAL PRODUCTS =====
+                Each orbit wrapper rotates around the center; an inner wrapper counter-rotates
+                so the product stays upright while circling. */}
+
+            {/* Inner ring (r=190) — Phone */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2"
+              style={{ animation: "orbit-ring 44s linear infinite" }}
+            >
+              <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 will-change-transform" style={{ animation: "orbit-ring 44s linear infinite reverse" }}>
+                <div style={{ animation: "float-y-slow 7s ease-in-out infinite", ...px(24) }}>
+                  <img
+                    src={heroPhone}
+                    alt="Phone"
+                    width={640}
+                    height={896}
+                    loading="lazy"
+                    className="w-[140px] md:w-[170px] transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+                    style={{
+                      transform: `rotate(-8deg) scale(${0.9 + scene.phone * 0.32})`,
+                      filter: shadow(1),
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Mid ring (r=280) — Earbud */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2"
+              style={{ animation: "orbit-ring 70s linear infinite", animationDelay: "-15s" }}
+            >
+              <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 will-change-transform" style={{ animation: "orbit-ring 70s linear infinite reverse", animationDelay: "-15s" }}>
+                <div style={{ animation: "float-y 6s ease-in-out infinite", ...px(20) }}>
+                  <img
+                    src={heroEarbud}
+                    alt="Earbud"
+                    width={640}
+                    height={640}
+                    loading="lazy"
+                    className="w-[92px] md:w-[112px]"
+                    style={{ transform: "rotate(-15deg)", filter: shadow(0.7) }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Mid ring — Watch (opposite side) */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2"
+              style={{ animation: "orbit-ring 70s linear infinite", animationDelay: "-45s" }}
+            >
+              <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 will-change-transform" style={{ animation: "orbit-ring 70s linear infinite reverse", animationDelay: "-45s" }}>
+                <div style={{ animation: "float-y-slow 8s ease-in-out infinite", ...px(22) }}>
+                  <img
+                    src={heroWatch}
+                    alt="Smartwatch"
+                    width={768}
+                    height={768}
+                    loading="lazy"
+                    className="w-[130px] md:w-[160px]"
+                    style={{ transform: "rotate(8deg)", filter: shadow(0.85) }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Outer ring (r=370) — Camera */}
+            <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[740px] w-[740px] -translate-x-1/2 -translate-y-1/2"
+              style={{ animation: "orbit-ring 110s linear infinite reverse", animationDelay: "-25s" }}
+            >
+              <div className="absolute left-[14%] bottom-[10%] will-change-transform" style={{ animation: "orbit-ring 110s linear infinite", animationDelay: "-25s" }}>
+                <div style={{ animation: "float-y 9s ease-in-out infinite", ...px(30) }}>
+                  <img
+                    src={heroCamera}
+                    alt="Camera"
+                    width={768}
+                    height={640}
+                    loading="lazy"
+                    className="w-[150px] md:w-[190px]"
+                    style={{ transform: "rotate(-10deg)", filter: shadow(1.1) }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Headphones — bottom left, gentle swing */}
+            <div
+              className="absolute left-[2%] bottom-[6%] w-[200px] md:w-[260px] z-20 will-change-transform"
+              style={{
+                ...px(28),
+                animation: "orbit-c 24s ease-in-out infinite",
                 transformOrigin: "top center",
               }}
-            />
-          </div>
-
-          {/* Floating Best Match card — appears after AI "finds" the option */}
-          <div
-            className={`absolute right-[4%] top-[38%] z-30 will-change-transform transition-all duration-700 ${
-              showCard && !isTypingUser ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"
-            }`}
-            style={px(16)}
-          >
-            <div
-              className="rounded-2xl bg-surface/95 backdrop-blur-md border border-ink/8 px-4 py-3.5 min-w-[220px]"
-              style={{ boxShadow: "0 24px 60px -24px rgba(60,40,20,0.28)" }}
             >
-              <div className="flex items-center gap-2 text-[10px] tracking-[0.28em] uppercase text-ink-muted/80">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                Best match
+              <img
+                src={heroHeadphones}
+                alt="Headphones"
+                width={768}
+                height={768}
+                loading="lazy"
+                className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+                style={{
+                  transform: `rotate(-6deg) scale(${0.85 + scene.headphones * 0.3})`,
+                  filter: shadow(1),
+                  animation: "swing 8s ease-in-out infinite",
+                  transformOrigin: "top center",
+                }}
+              />
+            </div>
+
+            {/* Laptop — centerpiece */}
+            <div
+              className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-[540px] z-10 will-change-transform"
+              style={{
+                ...px(14),
+                animation: "orbit-b 26s ease-in-out infinite",
+                transformStyle: "preserve-3d",
+              }}
+            >
+              <img
+                src={heroLaptop}
+                alt="Laptop"
+                width={1024}
+                height={768}
+                className="w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]"
+                style={{
+                  transform: `translateZ(40px) scale(${0.9 + scene.laptop * 0.16})`,
+                  filter: shadow(1.3),
+                }}
+              />
+            </div>
+
+            {/* Floating Best Match card */}
+            <div
+              className={`absolute right-[4%] top-[38%] z-30 will-change-transform transition-all duration-700 ${
+                showCard && !isTypingUser ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3 pointer-events-none"
+              }`}
+              style={{ ...px(16), transform: `${px(16).transform} translateZ(80px)` }}
+            >
+              <div
+                className="rounded-2xl bg-surface/95 backdrop-blur-md border border-ink/8 px-4 py-3.5 min-w-[220px]"
+                style={{ boxShadow: "0 24px 60px -24px rgba(60,40,20,0.28)" }}
+              >
+                <div className="flex items-center gap-2 text-[10px] tracking-[0.28em] uppercase text-ink-muted/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                  Best match
+                </div>
+                <div key={scene.match} className="mt-1.5 text-[15px] font-medium text-ink anim-fade-slide leading-tight">
+                  {scene.match}
+                </div>
+                <div className="mt-2 flex items-center justify-between text-[11.5px] text-ink-muted tabular-nums">
+                  <span className="text-ink-soft"><span className="text-ink font-semibold">{scene.score}</span> AI Score</span>
+                  <span className="text-ink font-semibold">{scene.price}</span>
+                </div>
               </div>
-              <div key={scene.match} className="mt-1.5 text-[15px] font-medium text-ink anim-fade-slide leading-tight">
-                {scene.match}
-              </div>
-              <div className="mt-2 flex items-center justify-between text-[11.5px] text-ink-muted tabular-nums">
-                <span className="text-ink-soft"><span className="text-ink font-semibold">{scene.score}</span> AI Score</span>
-                <span className="text-ink font-semibold">{scene.price}</span>
-              </div>
+            </div>
+
+            {/* Ambient orbit tags */}
+            <div className="pointer-events-none absolute left-[6%] top-[14%] z-20 flex items-center gap-2 text-[10px] tracking-[0.28em] uppercase text-ink-muted/70 anim-fade-slide" style={{ animationDelay: "900ms" }}>
+              <span className="h-px w-6 bg-ink-muted/40" />
+              <span>Live prices</span>
+            </div>
+            <div className="pointer-events-none absolute right-[8%] bottom-[18%] z-20 flex items-center gap-2 text-[10px] tracking-[0.28em] uppercase text-ink-muted/70 anim-fade-slide" style={{ animationDelay: "1100ms" }}>
+              <span>Reviews analyzed</span>
+              <span className="h-px w-6 bg-ink-muted/40" />
             </div>
           </div>
         </div>
