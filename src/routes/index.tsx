@@ -563,58 +563,237 @@ function TrustBar() {
   );
 }
 
-/* ---------- Feature strip ---------- */
+/* ---------- The Journey (What it does) ---------- */
 
-const features = [
-  { icon: Search, label: "AI Product Search" },
-  { icon: Scale, label: "Price Comparison" },
-  { icon: Bot, label: "AI Review Summary" },
-  { icon: TrendingDown, label: "Buy Now or Wait" },
-  { icon: Tag, label: "Latest Deals" },
-  { icon: CalendarDays, label: "Upcoming Sales" },
-  { icon: Bell, label: "Wishlist Alerts" },
+const journey = [
+  { icon: Search, title: "AI Search", copy: "Describe what you need, naturally." },
+  { icon: Scale, title: "Compare", copy: "Every option, side-by-side." },
+  { icon: Bot, title: "Review Intelligence", copy: "Thousands of reviews, one verdict." },
+  { icon: TrendingDown, title: "Buy or Wait", copy: "Know the perfect moment to click buy." },
+  { icon: Tag, title: "Best Price", copy: "Every major store, one glance." },
+  { icon: CalendarDays, title: "Upcoming Sales", copy: "Never miss another big drop." },
 ];
 
-function FeatureStrip() {
+function JourneyPreview({ kind, active }: { kind: number; active: boolean }) {
+  // Tiny in-node previews that fade in on hover
+  const base =
+    "pointer-events-none absolute inset-x-4 top-full mt-4 rounded-2xl border border-line bg-background/95 backdrop-blur-sm p-4 shadow-[0_20px_60px_-30px_oklch(0.15_0.02_60_/_0.35)] transition-all duration-500";
+  const state = active
+    ? "opacity-100 translate-y-0"
+    : "opacity-0 -translate-y-1 pointer-events-none";
   return (
-    <section className="slant-r relative z-10 py-24 md:py-32 bg-surface-2/60">
-      <div className="mx-auto max-w-[1400px] px-6 md:px-10">
-        <div className="flex items-end justify-between mb-14">
+    <div className={`${base} ${state}`} aria-hidden={!active}>
+      {kind === 0 && (
+        <div className="flex items-center gap-2 text-[12px] text-ink-soft">
+          <Search size={12} />
+          <span className="text-ink">"quiet mechanical keyboard under ₹20k"</span>
+          <span className="ml-auto h-3 w-[1px] bg-ink animate-pulse" />
+        </div>
+      )}
+      {kind === 1 && (
+        <div className="grid grid-cols-2 gap-2 text-[11px]">
+          <div className="rounded-lg bg-surface-2 px-2 py-1.5"><div className="text-ink-muted">Keychron Q1</div><div className="text-ink font-semibold">₹18,999</div></div>
+          <div className="rounded-lg bg-ink text-background px-2 py-1.5"><div className="opacity-60">Nuphy Air75</div><div className="font-semibold">₹15,499</div></div>
+        </div>
+      )}
+      {kind === 2 && (
+        <div className="space-y-1.5">
+          <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden"><div className="h-full w-[92%] bg-ink" /></div>
+          <div className="flex justify-between text-[10px] text-ink-muted"><span>9.4 / 10</span><span>18,432 reviews</span></div>
+        </div>
+      )}
+      {kind === 3 && (
+        <svg viewBox="0 0 120 32" className="w-full h-8">
+          <polyline points="0,20 20,18 40,22 60,14 80,16 100,8 120,4" fill="none" stroke="oklch(0.68 0.17 45)" strokeWidth="1.5" />
+          <circle cx="120" cy="4" r="2" fill="oklch(0.68 0.17 45)" />
+        </svg>
+      )}
+      {kind === 4 && (
+        <div className="space-y-1 text-[11px]">
+          {["Amazon ₹18,999","Flipkart ₹19,499","Reliance ₹20,100"].map((s,i)=>(
+            <div key={s} className="flex justify-between"><span className="text-ink-muted">{s.split(" ")[0]}</span><span className={i===0?"text-ink font-semibold":"text-ink-soft"}>{s.split(" ")[1]}</span></div>
+          ))}
+        </div>
+      )}
+      {kind === 5 && (
+        <div className="flex items-center gap-2 text-[11px] text-ink-soft">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+          <span>Prime Day in <span className="text-ink font-semibold tabular-nums">04d 12h 38m</span></span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FeatureStrip() {
+  const { ref, inView } = useInView<HTMLDivElement>(0.15);
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  return (
+    <section className="slant-r relative z-10 py-28 md:py-40 bg-surface-2/60 overflow-hidden">
+      {/* subtle grid backdrop */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, oklch(0.55 0.008 70 / 0.06) 1px, transparent 1px), linear-gradient(to bottom, oklch(0.55 0.008 70 / 0.06) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+          maskImage:
+            "radial-gradient(ellipse at center, black 40%, transparent 78%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-[520px] w-[900px] rounded-full opacity-60"
+        style={{ background: "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.10), transparent 70%)" }}
+      />
+
+      <div ref={ref} className="relative mx-auto max-w-[1400px] px-6 md:px-10">
+        {/* headline */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-24 md:mb-32">
           <div>
-            <div className="eyebrow">What it does</div>
-            <h2 className="display mt-4 text-4xl md:text-6xl max-w-xl text-balance">
-              Every step of buying, quietly automated.
+            <div className={`eyebrow transition-all duration-700 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
+              The journey
+            </div>
+            <h2
+              className={`display mt-5 text-5xl md:text-[88px] leading-[0.95] tracking-tight text-balance transition-all duration-1000 ${
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+            >
+              Find. <span className="text-ink-muted">Compare.</span> <span className="text-ink">Decide.</span>
             </h2>
+            <p
+              className={`mt-6 max-w-md text-ink-soft text-base md:text-lg transition-all duration-1000 delay-150 ${
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
+            >
+              Six quiet steps between wanting something and owning it well.
+            </p>
           </div>
-          <a href="#" className="hidden md:inline-flex items-center gap-1.5 link-underline text-sm text-ink-soft">
+          <a
+            href="#"
+            className="hidden md:inline-flex items-center gap-1.5 link-underline text-sm text-ink-soft self-end"
+          >
             See how it works <ArrowUpRight size={14} />
           </a>
         </div>
 
+        {/* the path */}
         <div className="relative">
-          <div className="hairline absolute top-8 left-0 right-0" />
-          <div className="relative grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
-            {features.map((f, i) => (
-              <div
-                key={f.label}
-                className={`group flex flex-col items-center text-center px-3 pt-1 pb-4 ${
-                  i !== features.length - 1 ? "sm:border-r border-line" : ""
-                }`}
-              >
-                <span className="relative -mt-3 grid h-14 w-14 place-items-center rounded-full bg-background border border-line group-hover:border-ink transition-colors">
-                  <f.icon size={20} strokeWidth={1.5} className="text-ink" />
-                </span>
-                <span className="mt-5 text-[13px] font-medium text-ink">
-                  {f.label}
-                </span>
-              </div>
-            ))}
-          </div>
+          {/* animated SVG connector - desktop */}
+          <svg
+            aria-hidden
+            viewBox="0 0 1200 140"
+            preserveAspectRatio="none"
+            className="hidden md:block absolute left-0 right-0 top-[46px] w-full h-[140px] pointer-events-none"
+          >
+            <defs>
+              <linearGradient id="journeyStroke" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%" stopColor="oklch(0.16 0.01 70)" stopOpacity="0.15" />
+                <stop offset="50%" stopColor="oklch(0.68 0.17 45)" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="oklch(0.16 0.01 70)" stopOpacity="0.15" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M 0 60 C 150 20, 250 100, 400 60 S 650 20, 800 60 S 1050 100, 1200 60"
+              fill="none"
+              stroke="url(#journeyStroke)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              style={{
+                strokeDasharray: 2400,
+                strokeDashoffset: inView ? 0 : 2400,
+                transition: "stroke-dashoffset 2200ms cubic-bezier(0.2,0.8,0.2,1)",
+              }}
+            />
+            {/* pulsing dot travelling the path */}
+            <circle r="3" fill="oklch(0.68 0.17 45)">
+              <animateMotion
+                dur="6s"
+                repeatCount="indefinite"
+                path="M 0 60 C 150 20, 250 100, 400 60 S 650 20, 800 60 S 1050 100, 1200 60"
+              />
+            </circle>
+          </svg>
+
+          {/* mobile vertical rail */}
+          <div
+            aria-hidden
+            className="md:hidden absolute left-[27px] top-6 bottom-6 w-[1.5px]"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent, oklch(0.16 0.01 70 / 0.2) 15%, oklch(0.68 0.17 45 / 0.6) 50%, oklch(0.16 0.01 70 / 0.2) 85%, transparent)",
+            }}
+          />
+
+          <ol className="relative grid grid-cols-1 md:grid-cols-6 gap-y-14 md:gap-x-4">
+            {journey.map((n, i) => {
+              const active = hovered === i;
+              return (
+                <li
+                  key={n.title}
+                  onMouseEnter={() => setHovered(i)}
+                  onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
+                  className={`group relative flex md:flex-col items-start md:items-center gap-5 md:gap-0 pl-0 md:pl-0 transition-all duration-700 ${
+                    inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                  }`}
+                  style={{ transitionDelay: `${400 + i * 120}ms` }}
+                >
+                  {/* node */}
+                  <div className="relative shrink-0">
+                    <span
+                      aria-hidden
+                      className={`absolute inset-0 -m-2 rounded-full transition-all duration-500 ${
+                        active ? "bg-accent/15 scale-110" : "bg-transparent scale-90"
+                      }`}
+                    />
+                    <span
+                      className={`relative grid h-14 w-14 place-items-center rounded-full bg-background border transition-all duration-500 ${
+                        active
+                          ? "border-ink shadow-[0_10px_30px_-10px_oklch(0.68_0.17_45_/_0.5)] scale-110"
+                          : "border-line group-hover:border-ink/60"
+                      }`}
+                    >
+                      <n.icon
+                        size={20}
+                        strokeWidth={1.5}
+                        className={`text-ink transition-transform duration-500 ${active ? "rotate-[8deg]" : ""}`}
+                      />
+                    </span>
+                    <span className="absolute -top-2 -right-2 text-[10px] font-medium text-ink-muted tabular-nums">
+                      0{i + 1}
+                    </span>
+                  </div>
+
+                  {/* label */}
+                  <div className="md:mt-8 md:text-center md:px-2 max-w-[220px]">
+                    <div className="text-[15px] font-semibold text-ink tracking-tight">
+                      {n.title}
+                    </div>
+                    <div
+                      className={`mt-1.5 text-[13px] leading-snug text-ink-muted transition-all duration-500 ${
+                        active ? "text-ink-soft" : ""
+                      }`}
+                    >
+                      {n.copy}
+                    </div>
+                  </div>
+
+                  {/* hover preview (desktop only, below the node) */}
+                  <div className="hidden md:block">
+                    <JourneyPreview kind={i} active={active} />
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </div>
     </section>
   );
 }
+
 
 /* ---------- Today's Deals ---------- */
 
