@@ -131,13 +131,27 @@ const placeholders = [
   "Wireless headphones",
 ];
 
-const chips = [
-  "Gaming Laptop",
-  "iPhone",
-  "Headphones",
-  "Monitors",
-  "Mechanical Keyboard",
+const suggestions = [
+  { label: "Gaming Laptop", meta: "₹90k" },
+  { label: "Mirrorless Camera", meta: "Beginner" },
+  { label: "Mechanical Keyboard", meta: "Coding" },
 ];
+
+// Deterministic dust particle positions (avoid SSR mismatch)
+const dust = Array.from({ length: 22 }, (_, i) => {
+  const rand = (seed: number) => {
+    const x = Math.sin(seed * 9973.13) * 43758.5453;
+    return x - Math.floor(x);
+  };
+  return {
+    left: rand(i + 1) * 100,
+    top: rand(i + 7) * 100,
+    delay: rand(i + 13) * 8,
+    duration: 10 + rand(i + 19) * 10,
+    size: 1 + Math.floor(rand(i + 23) * 2),
+    opacity: 0.15 + rand(i + 29) * 0.25,
+  };
+});
 
 function Hero() {
   const [idx, setIdx] = useState(0);
@@ -152,16 +166,19 @@ function Hero() {
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
+    let raf = 0;
     const onMove = (e: MouseEvent) => {
       const r = el.getBoundingClientRect();
       const x = (e.clientX - (r.left + r.width / 2)) / r.width;
       const y = (e.clientY - (r.top + r.height / 2)) / r.height;
-      setParallax({ x, y });
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setParallax({ x, y }));
     };
     const onLeave = () => setParallax({ x: 0, y: 0 });
     el.addEventListener("mousemove", onMove);
     el.addEventListener("mouseleave", onLeave);
     return () => {
+      cancelAnimationFrame(raf);
       el.removeEventListener("mousemove", onMove);
       el.removeEventListener("mouseleave", onLeave);
     };
@@ -169,199 +186,234 @@ function Hero() {
 
   const px = (depth: number) => ({
     transform: `translate3d(${parallax.x * depth}px, ${parallax.y * depth}px, 0)`,
-    transition: "transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
+    transition: "transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
   });
 
   return (
-    <section className="relative overflow-hidden min-h-[92vh] flex items-center pt-28 md:pt-32 pb-16">
-      {/* Warm radial light — no gradients, just soft glow */}
+    <section className="relative overflow-hidden min-h-screen flex items-center pt-32 md:pt-36 pb-24">
+      {/* Ambient warm light — barely there */}
       <div className="pointer-events-none absolute inset-0">
         <div
-          className="absolute left-[65%] top-[45%] -translate-x-1/2 -translate-y-1/2 h-[900px] w-[900px] rounded-full opacity-70"
+          className="absolute left-[68%] top-[42%] -translate-x-1/2 -translate-y-1/2 h-[1100px] w-[1100px] rounded-full opacity-60"
           style={{
             background:
-              "radial-gradient(closest-side, oklch(0.96 0.03 70 / 0.9), transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute left-[10%] top-[80%] h-[500px] w-[500px] rounded-full opacity-40"
-          style={{
-            background:
-              "radial-gradient(closest-side, oklch(0.95 0.02 80 / 0.8), transparent 70%)",
+              "radial-gradient(closest-side, oklch(0.965 0.025 65 / 0.85), transparent 72%)",
           }}
         />
       </div>
 
-      <div className="relative w-full mx-auto grid max-w-[1440px] grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-10 px-6 md:px-12">
-        {/* LEFT */}
-        <div className="lg:col-span-6 lg:pr-6 flex flex-col justify-center">
+      {/* Dust particles */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {dust.map((d, i) => (
+          <span
+            key={i}
+            className="absolute rounded-full bg-ink"
+            style={{
+              left: `${d.left}%`,
+              top: `${d.top}%`,
+              width: `${d.size}px`,
+              height: `${d.size}px`,
+              opacity: d.opacity,
+              animation: `dust-drift ${d.duration}s ease-in-out ${d.delay}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative w-full mx-auto grid max-w-[1520px] grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-16 px-8 md:px-16">
+        {/* LEFT — Editorial column */}
+        <div className="lg:col-span-6 flex flex-col justify-center">
+          {/* Tiny editorial marker */}
           <div
-            className="eyebrow anim-reveal"
+            className="flex items-center gap-3 text-[11px] tracking-[0.24em] uppercase text-ink-muted anim-reveal"
             style={{ animationDelay: "0ms" }}
           >
-            <span className="inline-flex items-center gap-2">
-              <span className="h-1 w-6 bg-ink" />
-              AI Shopping Copilot
-            </span>
+            <span className="text-ink-soft/60 font-medium">N° 001</span>
+            <span className="h-px w-8 bg-ink-muted/40" />
+            <span>The AI Shopping Copilot</span>
           </div>
 
           <h1
-            className="display mt-10 text-[56px] sm:text-[76px] lg:text-[96px] xl:text-[104px] leading-[0.9] tracking-[-0.045em] text-ink anim-reveal"
-            style={{ animationDelay: "80ms" }}
+            className="display mt-14 text-[64px] sm:text-[88px] lg:text-[104px] xl:text-[112px] leading-[0.88] tracking-[-0.05em] text-ink anim-reveal"
+            style={{ animationDelay: "120ms", fontWeight: 700 }}
           >
-            Stop opening
+            Every Product.
             <br />
-            20 shopping{" "}
-            <span className="relative inline-block">
-              tabs
-              <span className="absolute -bottom-2 left-0 right-0 h-[6px] bg-accent/90 rounded-full" />
-            </span>
-            .
-            <br />
-            <span className="text-ink">Shop smarter.</span>
+            One Decision.
           </h1>
 
           <p
-            className="mt-10 max-w-lg text-[17px] leading-relaxed text-ink-soft anim-reveal"
-            style={{ animationDelay: "180ms" }}
-          >
-            Find the best products, compare every store, understand reviews
-            instantly and know exactly when to buy.
-          </p>
-
-          {/* AI search — the centerpiece */}
-          <div
-            className="mt-12 group relative anim-reveal"
+            className="mt-14 max-w-md text-[17px] leading-[1.55] text-ink-soft anim-reveal"
             style={{ animationDelay: "260ms" }}
           >
-            {/* soft glow */}
-            <div className="pointer-events-none absolute -inset-2 rounded-[28px] bg-[oklch(0.95_0.02_75)] opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-80 group-focus-within:opacity-100" />
+            Compare products, prices and reviews across every major store
+            before you buy.
+          </p>
 
-            <div className="relative flex items-center gap-3 h-[68px] rounded-[22px] border border-line bg-surface pl-6 pr-2 soft-shadow transition-all duration-500 group-hover:border-ink/40">
-              <Sparkles size={20} className="text-accent shrink-0" strokeWidth={1.8} />
+          {/* Premium AI search */}
+          <div
+            className="mt-16 group relative anim-reveal"
+            style={{ animationDelay: "360ms" }}
+          >
+            {/* focus glow */}
+            <div className="pointer-events-none absolute -inset-3 rounded-[32px] bg-[oklch(0.94_0.03_65)] opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-70 group-focus-within:opacity-100" />
+
+            <div className="relative flex items-center gap-4 h-[76px] rounded-[26px] border border-line/80 bg-surface/95 backdrop-blur-sm pl-7 pr-2.5 transition-all duration-500 group-hover:border-ink/30"
+              style={{ boxShadow: "0 1px 0 oklch(1 0 0), 0 30px 60px -40px oklch(0.2 0.02 60 / 0.2)" }}
+            >
+              <Search size={22} className="text-ink-muted shrink-0 transition-colors duration-500 group-focus-within:text-ink" strokeWidth={1.5} />
               <div className="relative flex-1 h-full flex items-center overflow-hidden">
                 <span
                   key={idx}
-                  className="pointer-events-none text-[17px] text-ink-muted anim-reveal"
+                  className="pointer-events-none text-[18px] text-ink-soft/80 anim-reveal"
                 >
                   {placeholders[idx]}
                 </span>
-                <span className="ml-1 inline-block h-[20px] w-[2px] bg-ink-soft anim-caret" />
+                <span className="ml-1 inline-block h-[22px] w-[1.5px] bg-ink-soft/70 anim-caret" />
               </div>
-              <button className="inline-flex items-center gap-1.5 h-[52px] px-6 rounded-[16px] bg-ink text-background text-[14px] font-medium hover:bg-ink/90 transition-colors">
+              <button className="group/btn inline-flex items-center gap-2 h-[60px] pl-6 pr-5 rounded-[20px] bg-ink text-background text-[14px] font-medium hover:bg-ink/90 transition-all duration-300">
                 Ask AI
-                <ArrowRight size={15} strokeWidth={2} />
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-background/10 transition-transform duration-500 group-hover/btn:translate-x-0.5">
+                  <ArrowRight size={13} strokeWidth={2} />
+                </span>
               </button>
             </div>
 
-            {/* Chips */}
-            <div className="mt-6 flex flex-wrap items-center gap-2 text-[13px]">
-              {chips.map((c, i) => (
+            {/* Premium example suggestions */}
+            <div className="mt-10 space-y-1">
+              {suggestions.map((s, i) => (
                 <button
-                  key={c}
-                  className="rounded-full border border-line bg-surface/60 px-3.5 py-1.5 text-ink-soft hover:border-ink hover:text-ink hover:bg-surface transition-all duration-300 anim-reveal"
-                  style={{ animationDelay: `${340 + i * 60}ms` }}
+                  key={s.label}
+                  className="group/row w-full flex items-center gap-4 py-2.5 text-left anim-reveal"
+                  style={{ animationDelay: `${520 + i * 120}ms` }}
                 >
-                  {c}
+                  <span className="text-[11px] tracking-widest text-ink-muted/70 w-8">
+                    0{i + 1}
+                  </span>
+                  <span className="text-[15px] text-ink-soft group-hover/row:text-ink transition-colors">
+                    {s.label}
+                  </span>
+                  <span className="flex-1 relative h-px bg-ink-muted/15 overflow-hidden">
+                    <span className="absolute inset-y-0 left-0 w-0 bg-ink group-hover/row:w-full transition-all duration-700" />
+                  </span>
+                  <span className="text-[13px] text-ink-muted group-hover/row:text-ink-soft transition-colors">
+                    {s.meta}
+                  </span>
+                  <ArrowUpRight
+                    size={14}
+                    className="text-ink-muted opacity-0 -translate-x-1 group-hover/row:opacity-100 group-hover/row:translate-x-0 transition-all duration-500"
+                  />
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* RIGHT — display stage */}
+        {/* RIGHT — Product installation */}
         <div
           ref={stageRef}
-          className="lg:col-span-6 relative min-h-[560px] lg:min-h-[720px]"
+          className="lg:col-span-6 relative min-h-[600px] lg:min-h-[780px]"
         >
-          {/* Subtle orbital ring */}
+          {/* Soft ambient key light — subtle radial only */}
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[520px] w-[520px] rounded-full border border-line/70 anim-spin-slow"
-            style={px(-6)}
-          />
-          <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[360px] w-[360px] rounded-full border border-line/50"
-            style={px(-4)}
-          />
-
-          {/* Ground shadow disk */}
-          <div
-            className="absolute left-1/2 bottom-[18%] -translate-x-1/2 h-[40px] w-[420px] rounded-[50%] opacity-30 blur-2xl"
-            style={{ background: "oklch(0.2 0.02 60 / 0.5)" }}
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[720px] w-[720px] rounded-full opacity-90"
+            style={{
+              background:
+                "radial-gradient(closest-side, oklch(0.99 0.006 80 / 0.9), transparent 70%)",
+            }}
           />
 
-          {/* Laptop */}
+          {/* Ground shadow — soft natural */}
+          <div
+            className="absolute left-1/2 bottom-[16%] -translate-x-1/2 h-[36px] w-[500px] rounded-[50%] blur-2xl"
+            style={{ background: "oklch(0.2 0.02 60 / 0.22)" }}
+          />
+          <div
+            className="absolute left-[18%] bottom-[14%] h-[18px] w-[230px] rounded-[50%] blur-xl"
+            style={{ background: "oklch(0.2 0.02 60 / 0.18)" }}
+          />
+          <div
+            className="absolute right-[10%] top-[16%] h-[14px] w-[140px] rounded-[50%] blur-xl"
+            style={{ background: "oklch(0.2 0.02 60 / 0.14)" }}
+          />
+
+          {/* Laptop — hero object, centered slightly lower */}
           <img
             src={heroLaptop}
             alt="Laptop"
             width={1024}
             height={768}
-            className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-[600px] anim-float will-change-transform"
+            className="absolute left-1/2 top-[54%] -translate-x-1/2 -translate-y-1/2 w-[100%] max-w-[640px] anim-float will-change-transform"
             style={{
-              ...px(14),
-              filter: "drop-shadow(0 50px 45px rgba(60,40,20,0.18))",
+              ...px(10),
+              filter:
+                "drop-shadow(0 60px 55px rgba(60,40,20,0.14)) drop-shadow(0 20px 20px rgba(60,40,20,0.06))",
             }}
           />
 
-          {/* Phone */}
+          {/* Phone — upper right, elegant angle */}
           <img
             src={heroPhone}
             alt="Phone"
             width={640}
             height={896}
             loading="lazy"
-            className="absolute right-[6%] top-[6%] w-[130px] md:w-[180px] anim-float-slow will-change-transform"
+            className="absolute right-[4%] top-[3%] w-[150px] md:w-[200px] anim-float-slow will-change-transform"
             style={{
-              ...px(26),
-              filter: "drop-shadow(0 35px 40px rgba(60,40,20,0.2))",
+              ...px(22),
+              transform: `translate3d(${parallax.x * 22}px, ${parallax.y * 22}px, 0) rotate(6deg)`,
+              filter:
+                "drop-shadow(0 40px 45px rgba(60,40,20,0.18)) drop-shadow(0 15px 15px rgba(60,40,20,0.08))",
             }}
           />
 
-          {/* Headphones */}
+          {/* Headphones — lower left */}
           <img
             src={heroHeadphones}
             alt="Headphones"
             width={768}
             height={768}
             loading="lazy"
-            className="absolute left-[2%] bottom-[8%] w-[190px] md:w-[240px] anim-float will-change-transform"
+            className="absolute left-[0%] bottom-[6%] w-[210px] md:w-[270px] anim-float will-change-transform"
             style={{
-              ...px(22),
-              filter: "drop-shadow(0 35px 40px rgba(60,40,20,0.18))",
+              ...px(18),
+              transform: `translate3d(${parallax.x * 18}px, ${parallax.y * 18}px, 0) rotate(-4deg)`,
+              filter:
+                "drop-shadow(0 40px 45px rgba(60,40,20,0.16)) drop-shadow(0 15px 15px rgba(60,40,20,0.08))",
             }}
           />
-
-          {/* One elegant floating price card */}
-          <div
-            className="absolute right-[4%] bottom-[22%] w-[220px] rounded-2xl border border-line bg-surface/95 backdrop-blur-xl p-4 anim-float-slow"
-            style={{
-              ...px(34),
-              boxShadow: "0 20px 40px -20px oklch(0.2 0.02 60 / 0.18)",
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="eyebrow text-[10px]">Best price today</span>
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            </div>
-            <div className="display text-[28px] mt-2 text-ink tracking-tight">
-              ₹72,999
-            </div>
-            <div className="mt-2 flex items-center justify-between text-[11px]">
-              <span className="text-ink-muted">Available on Flipkart</span>
-              <span className="text-accent font-medium">↓ ₹6,000</span>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Scroll cue */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-ink-muted">
-        <span>Scroll</span>
-        <span className="h-8 w-px bg-ink-muted/40" />
+      {/* Elegant scroll indicator */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
+        <span className="text-[10px] tracking-[0.3em] uppercase text-ink-muted/70">
+          Scroll
+        </span>
+        <span className="relative block h-14 w-px bg-ink-muted/20 overflow-hidden">
+          <span
+            className="absolute left-1/2 -translate-x-1/2 top-0 h-3 w-px bg-ink"
+            style={{ animation: "scroll-line 2.4s cubic-bezier(0.7,0,0.3,1) infinite" }}
+          />
+        </span>
       </div>
+
+      <style>{`
+        @keyframes dust-drift {
+          0%, 100% { transform: translate(0, 0); opacity: var(--tw-opacity, 0.2); }
+          50%      { transform: translate(6px, -14px); }
+        }
+        @keyframes scroll-line {
+          0%   { transform: translate(-50%, -100%); }
+          60%  { transform: translate(-50%, 400%); }
+          100% { transform: translate(-50%, 400%); opacity: 0; }
+        }
+      `}</style>
     </section>
   );
 }
+
+
 
 
 
