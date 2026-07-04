@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { SiteNav, CommandPalette } from "@/components/site/SiteNav";
+
 
 import {
   Search,
