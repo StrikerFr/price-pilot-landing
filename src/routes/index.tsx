@@ -697,7 +697,12 @@ function FeatureStrip() {
   const steps = journey.length;
   const raw = p * steps;
   const active = Math.min(steps - 1, Math.max(0, Math.floor(raw)));
-  const local = Math.min(1, Math.max(0, raw - active));
+  const rawLocal = Math.min(1, Math.max(0, raw - active));
+  // eased local progress for smoother, more cinematic transitions
+  const local =
+    rawLocal < 0.5
+      ? 2 * rawLocal * rawLocal
+      : 1 - Math.pow(-2 * rawLocal + 2, 2) / 2;
 
   const current = journey[active];
   const next = journey[Math.min(steps - 1, active + 1)];
@@ -733,13 +738,24 @@ function FeatureStrip() {
             maskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)",
           }}
         />
+        {/* conic aurora — slowly rotating chromatic wash */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.35] anim-spin-slower"
+          style={{
+            background:
+              "conic-gradient(from 0deg at 50% 50%, oklch(0.68 0.17 45 / 0.22), oklch(0.72 0.12 60 / 0.10), oklch(0.78 0.14 90 / 0.18), oklch(0.68 0.17 45 / 0.22))",
+            maskImage: "radial-gradient(ellipse at center, black 20%, transparent 75%)",
+            filter: "blur(40px)",
+          }}
+        />
         {/* aurora blobs */}
         <div
           aria-hidden
           className="pointer-events-none absolute -top-56 -left-40 h-[720px] w-[820px] rounded-full opacity-70 anim-float-slow"
           style={{
             background:
-              "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.18), transparent 70%)",
+              "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.22), transparent 70%)",
             transform: `translate(${mouse.x * -40}px, ${mouse.y * -30}px)`,
             transition: "transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
           }}
@@ -749,7 +765,7 @@ function FeatureStrip() {
           className="pointer-events-none absolute -bottom-56 right-[-10%] h-[720px] w-[820px] rounded-full opacity-60 anim-float"
           style={{
             background:
-              "radial-gradient(closest-side, oklch(0.72 0.12 60 / 0.18), transparent 70%)",
+              "radial-gradient(closest-side, oklch(0.72 0.12 60 / 0.22), transparent 70%)",
             transform: `translate(${mouse.x * 40}px, ${mouse.y * 30}px)`,
             transition: "transform 900ms cubic-bezier(0.2,0.8,0.2,1)",
           }}
@@ -759,7 +775,7 @@ function FeatureStrip() {
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-90 mix-blend-overlay"
           style={{
-            background: `radial-gradient(600px circle at ${(mouse.x + 0.5) * 100}% ${(mouse.y + 0.5) * 100}%, oklch(0.99 0.02 70 / 0.35), transparent 60%)`,
+            background: `radial-gradient(600px circle at ${(mouse.x + 0.5) * 100}% ${(mouse.y + 0.5) * 100}%, oklch(0.99 0.02 70 / 0.45), transparent 60%)`,
           }}
         />
         {/* diagonal light sweep tied to step progress */}
@@ -768,16 +784,35 @@ function FeatureStrip() {
           className="pointer-events-none absolute inset-0 overflow-hidden"
         >
           <div
-            className="absolute -inset-y-20 w-[40vw] blur-2xl opacity-40"
+            className="absolute -inset-y-20 w-[46vw] blur-3xl opacity-60"
             style={{
               left: `${-30 + (active + local) * 22}%`,
               background:
-                "linear-gradient(100deg, transparent 20%, oklch(0.68 0.17 45 / 0.35) 50%, transparent 80%)",
+                "linear-gradient(100deg, transparent 20%, oklch(0.68 0.17 45 / 0.55) 50%, transparent 80%)",
               transition: "left 900ms cubic-bezier(0.2,0.8,0.2,1)",
               transform: "rotate(8deg)",
             }}
           />
         </div>
+        {/* film grain / noise overlay */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.08  0 0 0 0 0.06  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+            backgroundSize: "260px 260px",
+          }}
+        />
+        {/* soft vignette */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, transparent 55%, oklch(0.15 0.02 60 / 0.18) 100%)",
+          }}
+        />
 
         {/* giant background numeral */}
         <div
@@ -787,11 +822,18 @@ function FeatureStrip() {
           <div className="relative w-full max-w-[1400px] mx-auto px-6 md:px-10">
             <div
               key={active}
-              className="absolute right-[42%] top-1/2 -translate-y-1/2 text-[38vw] md:text-[26vw] leading-none font-semibold text-ink/[0.045] tabular-nums anim-reveal"
+              className="absolute right-[42%] top-1/2 -translate-y-1/2 text-[38vw] md:text-[26vw] leading-none font-semibold tabular-nums anim-reveal"
               style={{
                 letterSpacing: "-0.06em",
                 transform: `translate(-50%, calc(-50% + ${mouse.y * 20}px)) translateX(${mouse.x * 30}px)`,
                 transition: "transform 800ms cubic-bezier(0.2,0.8,0.2,1)",
+                backgroundImage:
+                  "linear-gradient(180deg, oklch(0.35 0.02 60 / 0.09), oklch(0.35 0.02 60 / 0.02))",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                WebkitTextStroke: "1px oklch(0.55 0.008 70 / 0.08)",
+                filter: "drop-shadow(0 20px 40px oklch(0.68 0.17 45 / 0.08))",
               }}
             >
               0{active + 1}
@@ -907,8 +949,20 @@ function FeatureStrip() {
             className="md:col-span-7 relative h-[52vh] md:h-[74vh]"
             style={{ perspective: "1600px" }}
           >
+            {/* halo glow behind the stage */}
             <div
-              className="absolute inset-0 rounded-[28px] overflow-hidden bg-background border border-line/60 shadow-[0_50px_140px_-40px_oklch(0.15_0.02_60_/_0.45)] will-change-transform"
+              aria-hidden
+              className="pointer-events-none absolute -inset-10 rounded-[40px] opacity-80 anim-float-slow"
+              style={{
+                background:
+                  "radial-gradient(closest-side, oklch(0.68 0.17 45 / 0.28), transparent 70%)",
+                filter: "blur(40px)",
+                transform: `translate(${mouse.x * 20}px, ${mouse.y * 14}px)`,
+                transition: "transform 700ms cubic-bezier(0.2,0.8,0.2,1)",
+              }}
+            />
+            <div
+              className="absolute inset-0 rounded-[28px] overflow-hidden bg-background border border-line/60 shadow-[0_60px_160px_-40px_oklch(0.15_0.02_60_/_0.55),0_0_0_1px_oklch(1_0_0_/_0.04)_inset] will-change-transform"
               style={{
                 transform: `rotateX(${mouse.y * -6}deg) rotateY(${mouse.x * 8}deg)`,
                 transition: "transform 500ms cubic-bezier(0.2,0.8,0.2,1)",
