@@ -261,7 +261,7 @@ function Hero() {
           </h1>
 
           <p
-            className="mt-14 max-w-md text-[17px] leading-[1.55] text-ink-soft anim-reveal"
+            className="mt-8 sm:mt-12 lg:mt-14 max-w-md text-[15px] sm:text-[17px] leading-[1.55] text-ink-soft anim-reveal"
             style={{ animationDelay: "260ms" }}
           >
             Compare products, prices and reviews across every major store
@@ -271,41 +271,43 @@ function Hero() {
           {/* Premium AI search */}
           <form
             onSubmit={(e) => { e.preventDefault(); submit(query || placeholders[idx]); }}
-            className="mt-16 group relative anim-reveal"
+            className="mt-10 sm:mt-14 lg:mt-16 group relative anim-reveal"
             style={{ animationDelay: "360ms" }}
           >
             {/* focus glow */}
             <div className="pointer-events-none absolute -inset-3 rounded-[32px] bg-[oklch(0.94_0.03_65)] opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-70 group-focus-within:opacity-100" />
 
-            <div className="relative flex items-center gap-4 h-[76px] rounded-[26px] border border-line/80 bg-surface/95 backdrop-blur-sm pl-7 pr-2.5 transition-all duration-500 group-hover:border-ink/30 group-focus-within:border-ink/40"
+            <div className="relative flex items-center gap-2 sm:gap-4 h-[64px] sm:h-[76px] rounded-[22px] sm:rounded-[26px] border border-line/80 bg-surface/95 backdrop-blur-sm pl-4 sm:pl-7 pr-2 sm:pr-2.5 transition-all duration-500 group-hover:border-ink/30 group-focus-within:border-ink/40"
               style={{ boxShadow: "0 1px 0 oklch(1 0 0), 0 30px 60px -40px oklch(0.2 0.02 60 / 0.2)" }}
             >
-              <Search size={22} className="text-ink-muted shrink-0 transition-colors duration-500 group-focus-within:text-ink" strokeWidth={1.5} />
-              <div className="relative flex-1 h-full flex items-center overflow-hidden">
+              <Search size={20} className="text-ink-muted shrink-0 transition-colors duration-500 group-focus-within:text-ink" strokeWidth={1.5} />
+              <div className="relative flex-1 min-w-0 h-full flex items-center overflow-hidden">
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   aria-label="Ask PricePilot AI"
-                  className="peer absolute inset-0 h-full w-full bg-transparent outline-none text-[18px] text-ink placeholder:text-transparent"
+                  className="peer absolute inset-0 h-full w-full bg-transparent outline-none text-[15px] sm:text-[18px] text-ink placeholder:text-transparent"
                 />
                 {query.length === 0 && (
-                  <div className="pointer-events-none flex items-center peer-focus:hidden">
+                  <div className="pointer-events-none flex items-center peer-focus:hidden max-w-full overflow-hidden">
                     <span
                       key={idx}
-                      className="text-[18px] text-ink-soft/80 anim-reveal"
+                      className="text-[15px] sm:text-[18px] text-ink-soft/80 anim-reveal truncate"
                     >
                       {placeholders[idx]}
                     </span>
-                    <span className="ml-1 inline-block h-[22px] w-[1.5px] bg-ink-soft/70 anim-caret" />
+                    <span className="ml-1 inline-block h-[18px] sm:h-[22px] w-[1.5px] bg-ink-soft/70 anim-caret shrink-0" />
                   </div>
                 )}
               </div>
               <button
                 type="submit"
-                className="group/btn inline-flex items-center gap-2 h-[60px] pl-6 pr-5 rounded-[20px] bg-ink text-background text-[14px] font-medium hover:bg-ink/90 transition-all duration-300"
+                aria-label="Ask AI"
+                className="group/btn shrink-0 inline-flex items-center gap-2 h-[48px] sm:h-[60px] px-4 sm:pl-6 sm:pr-5 rounded-[16px] sm:rounded-[20px] bg-ink text-background text-[13px] sm:text-[14px] font-medium hover:bg-ink/90 transition-all duration-300"
               >
-                Ask AI
+                <span className="hidden sm:inline">Ask AI</span>
+                <span className="sm:hidden">Ask</span>
                 <span className="grid h-6 w-6 place-items-center rounded-full bg-background/10 transition-transform duration-500 group-hover/btn:translate-x-0.5">
                   <ArrowRight size={13} strokeWidth={2} />
                 </span>
