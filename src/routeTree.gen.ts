@@ -20,6 +20,7 @@ import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
@@ -76,6 +77,11 @@ const ProductIdRoute = ProductIdRouteImport.update({
   path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/sales-calendar': typeof SalesCalendarRoute
   '/wishlist': typeof WishlistRoute
+  '/api/chat': typeof ApiChatRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesByTo {
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/sales-calendar': typeof SalesCalendarRoute
   '/wishlist': typeof WishlistRoute
+  '/api/chat': typeof ApiChatRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesById {
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/sales-calendar': typeof SalesCalendarRoute
   '/wishlist': typeof WishlistRoute
+  '/api/chat': typeof ApiChatRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sales-calendar'
     | '/wishlist'
+    | '/api/chat'
     | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sales-calendar'
     | '/wishlist'
+    | '/api/chat'
     | '/product/$id'
   id:
     | '__root__'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/sales-calendar'
     | '/wishlist'
+    | '/api/chat'
     | '/product/$id'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   SalesCalendarRoute: typeof SalesCalendarRoute
   WishlistRoute: typeof WishlistRoute
+  ApiChatRoute: typeof ApiChatRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -266,18 +286,9 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   SalesCalendarRoute: SalesCalendarRoute,
   WishlistRoute: WishlistRoute,
+  ApiChatRoute: ApiChatRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
