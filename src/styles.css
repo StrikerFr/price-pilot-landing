@@ -82,7 +82,8 @@
 
 @layer base {
   * { border-color: var(--color-line); }
-  html { scroll-behavior: smooth; }
+  html, body { overflow-x: hidden; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -91,7 +92,13 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+  img, video, svg { max-width: 100%; height: auto; }
   h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.035em;
+    font-weight: 600;
+  }
+}
     font-family: var(--font-display);
     letter-spacing: -0.035em;
     font-weight: 600;
